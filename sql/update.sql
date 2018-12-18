@@ -91,3 +91,7 @@ CREATE TABLE `u_user` (
 PRIMARY KEY (`id`),
 UNIQUE INDEX `username_index` (`username`) USING BTREE
 );
+
+ALTER TABLE `u_user`
+ADD COLUMN `login_fail_num`  int(11) NULL AFTER `regist_ip`,
+ADD COLUMN `login_lock_time`  datetime NULL AFTER `login_fail_num`;

@@ -1,6 +1,6 @@
 package com.lei2j.douyu.es.search;
 
-import com.lei2j.douyu.core.constant.Constants;
+import com.lei2j.douyu.core.constant.DateFormatConstants;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentBuilder;
@@ -75,7 +75,7 @@ public class GiftIndex extends AbstractIndex {
                 .startObject("level").field("type","integer").field("index",true).field("store",true).endObject()
                 .startObject("bg").field("type","integer").field("index",true).field("store",true).endObject()
                 .startObject("hits").field("type","integer").field("index",true).field("store",true).endObject()
-                .startObject("createAt").field("type","date").field("format",Constants.DATETIME_FORMAT).field("index",true).field("store",true).endObject()
+                .startObject("createAt").field("type","date").field("format", DateFormatConstants.DATETIME_FORMAT).field("index",true).field("store",true).endObject()
                 .startObject("gfcnt").field("type","integer").field("index",true).field("store",true).endObject()
                 .startObject("pc").field("type","double").field("index",true).field("store",true).endObject()
                 .endObject()

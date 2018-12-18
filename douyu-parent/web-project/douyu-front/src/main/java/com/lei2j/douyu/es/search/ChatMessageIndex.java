@@ -1,10 +1,9 @@
 package com.lei2j.douyu.es.search;
 
 
-import com.lei2j.douyu.core.constant.Constants;
+import com.lei2j.douyu.core.constant.DateFormatConstants;
 import com.lei2j.douyu.util.DateUtil;
 import com.lei2j.douyu.vo.ChatMessageVo;
-
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
@@ -173,7 +172,7 @@ public class ChatMessageIndex extends AbstractIndex {
                 .startObject("bl").field("type","integer").field("index",true).field("store",true).endObject()
                 .startObject("brid").field("type","integer").field("index",true).field("store",true).endObject()
                 .startObject("ifs").field("type","integer").field("index",true).field("store",true).endObject()
-                .startObject("createAt").field("format",Constants.DATETIME_FORMAT).field("type","date").field("index",true).field("store",true).endObject()
+                .startObject("createAt").field("format", DateFormatConstants.DATETIME_FORMAT).field("type","date").field("index",true).field("store",true).endObject()
                 .endObject()
             .endObject();
         return xContentBuilder;

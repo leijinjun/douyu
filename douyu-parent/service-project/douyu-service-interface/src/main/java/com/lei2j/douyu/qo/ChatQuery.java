@@ -1,16 +1,15 @@
 package com.lei2j.douyu.qo;
 
-import com.lei2j.douyu.core.constant.Constants;
+import com.lei2j.douyu.core.constant.DateFormatConstants;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotNull;
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
  * @author lei2j
  */
-public class ChatQuery implements Serializable {
+public class ChatQuery {
 
     private String nn;
     
@@ -18,10 +17,10 @@ public class ChatQuery implements Serializable {
 
     private Integer rid;
 
-    @DateTimeFormat(pattern = Constants.DATETIME_FORMAT)
+    @DateTimeFormat(pattern = DateFormatConstants.DATETIME_FORMAT)
 	@NotNull
     private LocalDateTime start;
-	@DateTimeFormat(pattern = Constants.DATETIME_FORMAT)
+	@DateTimeFormat(pattern = DateFormatConstants.DATETIME_FORMAT)
 	@NotNull
     private LocalDateTime end;
     

@@ -39,11 +39,15 @@ public class UserEntity extends UpdateEntity {
 
     private Integer registIp;
 
+    private Integer loginFailNum;
+
+    private Timestamp loginLockTime;
+
     public UserEntity() {
     }
 
-    public UserEntity(Integer id, String username, String phone, String email, String icon, String password, String passSalt, Integer lastLoginIp,
-                      Timestamp lastLoginTime, Integer curLoginIp, Timestamp curLoginTime, String status, Integer registIp) {
+    public UserEntity(Integer id, String username, String phone, String email, String icon, String password, String passSalt, Integer lastLoginIp, Timestamp lastLoginTime, Integer curLoginIp,
+                      Timestamp curLoginTime, String status, Integer registIp, Integer loginFailNum, Timestamp loginLockTime) {
         this.id = id;
         this.username = username;
         this.phone = phone;
@@ -57,6 +61,8 @@ public class UserEntity extends UpdateEntity {
         this.curLoginTime = curLoginTime;
         this.status = status;
         this.registIp = registIp;
+        this.loginFailNum = loginFailNum;
+        this.loginLockTime = loginLockTime;
     }
 
     public Integer getId() {
@@ -163,6 +169,22 @@ public class UserEntity extends UpdateEntity {
         this.registIp = registIp;
     }
 
+    public Integer getLoginFailNum() {
+        return loginFailNum;
+    }
+
+    public void setLoginFailNum(Integer loginFailNum) {
+        this.loginFailNum = loginFailNum;
+    }
+
+    public Timestamp getLoginLockTime() {
+        return loginLockTime;
+    }
+
+    public void setLoginLockTime(Timestamp loginLockTime) {
+        this.loginLockTime = loginLockTime;
+    }
+
     @Override
     public String toString() {
         final StringBuffer sb = new StringBuffer("UserEntity{");
@@ -179,6 +201,8 @@ public class UserEntity extends UpdateEntity {
         sb.append(", curLoginTime=").append(curLoginTime);
         sb.append(", status='").append(status).append('\'');
         sb.append(", registIp=").append(registIp);
+        sb.append(", loginFailNum=").append(loginFailNum);
+        sb.append(", loginLockTime=").append(loginLockTime);
         sb.append('}');
         return sb.toString();
     }

@@ -3,7 +3,7 @@ package com.lei2j.douyu.web.controller;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.lei2j.douyu.cache.CacheRoomService;
-import com.lei2j.douyu.core.constant.Constants;
+import com.lei2j.douyu.core.constant.DateFormatConstants;
 import com.lei2j.douyu.core.constant.DouyuApi;
 import com.lei2j.douyu.core.controller.BaseController;
 import com.lei2j.douyu.es.search.ChatSearchService;
@@ -23,7 +23,6 @@ import com.lei2j.douyu.util.HttpUtil;
 import com.lei2j.douyu.vo.*;
 import com.lei2j.douyu.web.response.Pagination;
 import com.lei2j.douyu.web.response.Response;
-
 import com.lei2j.douyu.web.util.DouyuUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -31,11 +30,7 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.io.IOException;
@@ -51,7 +46,7 @@ import java.util.*;
  */
 @RestController
 @RequestMapping("/room")
-public class RoomController extends BaseController{
+public class RoomController extends BaseController {
 
     @Resource
     private CacheRoomService cacheRoomService;
@@ -332,7 +327,7 @@ public class RoomController extends BaseController{
      */
     @GetMapping("/viewNoble/{room}")
     public Response viewNobleData(@PathVariable("room") Integer room,
-    		@RequestParam("start") LocalDateTime start,@RequestParam("end") LocalDateTime end){
+                                  @RequestParam("start") LocalDateTime start, @RequestParam("end") LocalDateTime end){
         NobleQuery nobleQO = new NobleQuery();
         nobleQO.setRid(room);
         LocalDateTime localDateTime = LocalDateTime.now();
@@ -359,7 +354,7 @@ public class RoomController extends BaseController{
      * @return
      */
     @RequestMapping("/view/fansPersonNum/{room}")
-    public Response viewFansPersonNumData(@PathVariable("room")Integer rid,FrankQuery frankQO){
+    public Response viewFansPersonNumData(@PathVariable("room")Integer rid, FrankQuery frankQO){
         frankQO.setRid(rid);
         LocalDateTime start = frankQO.getStart();
         LocalDateTime end = frankQO.getEnd();
@@ -367,7 +362,7 @@ public class RoomController extends BaseController{
         Set<String> set = new HashSet<>(30);
         mapList.forEach((obj)->set.add((String)obj[0]));
         for (LocalDateTime i=start;i.isBefore(end);){
-            String format = DateUtil.localDateTimeFormat(i, Constants.DATE_FORMAT);
+            String format = DateUtil.localDateTimeFormat(i, DateFormatConstants.DATE_FORMAT);
             if(!set.contains(format)){
                 Object[] obj = new Object[2];
                 obj[0] = format;
@@ -392,7 +387,7 @@ public class RoomController extends BaseController{
      * @return
      */
     @RequestMapping("/view/giftMoney/{room}")
-    public Response viewGiftMoneyData(@PathVariable("room")Integer rid,GiftQuery giftQO){
+    public Response viewGiftMoneyData(@PathVariable("room")Integer rid, GiftQuery giftQO){
         giftQO.setRid(rid);
         Map<String,Object> giftDataMap = giftSearchService.getGiftSumIntervalDayByRoom(giftQO);
         return Response.ok().entity(giftDataMap);
@@ -404,7 +399,7 @@ public class RoomController extends BaseController{
      * @return
      */
     @RequestMapping("/view/giftPersonNum/{room}")
-    public Response viewGiftPersonNum(@PathVariable("room")Integer rid,GiftQuery giftQO){
+    public Response viewGiftPersonNum(@PathVariable("room")Integer rid, GiftQuery giftQO){
         giftQO.setRid(rid);
         Map<String,Integer> giftCountsMap = giftSearchService.getIntervalDayPersonCountsByRoom(giftQO);
         return Response.ok().entity(giftCountsMap);
@@ -416,7 +411,7 @@ public class RoomController extends BaseController{
      * @return
      */
     @RequestMapping("/view/chatSum/{room}")
-    public Response viewChatSumData(@PathVariable("room")Integer rid,ChatQuery chatQO){
+    public Response viewChatSumData(@PathVariable("room")Integer rid, ChatQuery chatQO){
         chatQO.setRid(rid);
         Map<String,Integer> dataMap = chatSearchService.getIntervalDayChatSumByRoom(chatQO);
         return Response.ok().entity(dataMap);
@@ -439,7 +434,7 @@ public class RoomController extends BaseController{
      * @return
      */
     @GetMapping("/view/giftTopSum/{room}")
-    public Response viewGiftTopSumData(@PathVariable("room") Integer room,GiftQuery giftQO) {
+    public Response viewGiftTopSumData(@PathVariable("room") Integer room, GiftQuery giftQO) {
     	giftQO.setRid(room);
     	giftQO.setStart(getStartToDay());
     	giftQO.setEnd(getEndToDay());

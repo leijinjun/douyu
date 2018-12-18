@@ -1,11 +1,10 @@
 package com.lei2j.douyu.es.search;
 
-import com.lei2j.douyu.core.constant.Constants;
+import com.lei2j.douyu.core.constant.DateFormatConstants;
 import com.lei2j.douyu.qo.GiftQuery;
 import com.lei2j.douyu.util.DateUtil;
 import com.lei2j.douyu.vo.GiftVo;
 import com.lei2j.douyu.web.response.Pagination;
-
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -13,7 +12,10 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.script.Script;
 import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.aggregations.*;
+import org.elasticsearch.search.aggregations.AggregationBuilder;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.BucketOrder;
+import org.elasticsearch.search.aggregations.InternalAggregations;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
 import org.elasticsearch.search.aggregations.bucket.histogram.ExtendedBounds;
 import org.elasticsearch.search.aggregations.bucket.histogram.InternalDateHistogram;
@@ -39,11 +41,11 @@ import java.util.Map;
  * Created by lei2j on 2018/8/20.
  */
 @Service
-public class GiftSearchServiceImpl extends CommonSearchService implements GiftSearchService{
+public class GiftSearchServiceImpl extends CommonSearchService implements GiftSearchService {
 
     @Override
     public Pagination<GiftVo,SearchPage> query(Pagination<GiftVo,SearchPage> pagination) {
-        pagination = super.search(pagination,GiftVo.class,GiftIndex.INDEX_NAME, GiftIndex.TYPE_NAME);
+        pagination = super.search(pagination,GiftVo.class, GiftIndex.INDEX_NAME, GiftIndex.TYPE_NAME);
         return pagination;
     }
 
@@ -117,9 +119,9 @@ public class GiftSearchServiceImpl extends CommonSearchService implements GiftSe
         AggregationBuilder aggregationBuilder = AggregationBuilders.dateHistogram(key).field("createAt")
                 .dateHistogramInterval(DateHistogramInterval.DAY)
                 .minDocCount(0L)
-                .format(Constants.DATE_FORMAT)
+                .format(DateFormatConstants.DATE_FORMAT)
                 .order(BucketOrder.key(true))
-                .extendedBounds(new ExtendedBounds(DateUtil.localDateTimeFormat(start,Constants.DATE_FORMAT),DateUtil.localDateTimeFormat(end,Constants.DATE_FORMAT)))
+                .extendedBounds(new ExtendedBounds(DateUtil.localDateTimeFormat(start, DateFormatConstants.DATE_FORMAT), DateUtil.localDateTimeFormat(end, DateFormatConstants.DATE_FORMAT)))
                 .subAggregation(AggregationBuilders.sum("SUB_INTERVAL_DAY_GIFT_SUM").script(new Script("doc['pc'].value*doc['gfcnt'].value")));
         SearchRequestBuilder searchRequestBuilder = searchClient.client().prepareSearch(GiftIndex.INDEX_NAME).setTypes(GiftIndex.TYPE_NAME)
                 .setSize(0)
@@ -135,7 +137,7 @@ public class GiftSearchServiceImpl extends CommonSearchService implements GiftSe
                 InternalAggregations internalAggregations = (InternalAggregations)var.getAggregations();
                 InternalSum aggregation = (InternalSum)internalAggregations.asList().get(0);
                 DateTime dateTime = (DateTime)var.getKey();
-                map.put(dateTime.toLocalDate().toString(Constants.DATE_FORMAT),aggregation.getValue());
+                map.put(dateTime.toLocalDate().toString(DateFormatConstants.DATE_FORMAT),aggregation.getValue());
             });
         }
         return map;
@@ -156,9 +158,9 @@ public class GiftSearchServiceImpl extends CommonSearchService implements GiftSe
         AggregationBuilder aggregationBuilder = AggregationBuilders.dateHistogram(key).field("createAt")
                 .dateHistogramInterval(DateHistogramInterval.DAY)
                 .minDocCount(0L)
-                .format(Constants.DATE_FORMAT)
+                .format(DateFormatConstants.DATE_FORMAT)
                 .order(BucketOrder.key(true))
-                .extendedBounds(new ExtendedBounds(DateUtil.localDateTimeFormat(start,Constants.DATE_FORMAT),DateUtil.localDateTimeFormat(end,Constants.DATE_FORMAT)))
+                .extendedBounds(new ExtendedBounds(DateUtil.localDateTimeFormat(start, DateFormatConstants.DATE_FORMAT), DateUtil.localDateTimeFormat(end, DateFormatConstants.DATE_FORMAT)))
                 .subAggregation(AggregationBuilders.cardinality(subKey).field("uid").precisionThreshold(100));
         SearchRequestBuilder searchRequestBuilder = searchClient.client().prepareSearch(GiftIndex.INDEX_NAME).setTypes(GiftIndex.TYPE_NAME)
                 .setSize(0)
@@ -174,7 +176,7 @@ public class GiftSearchServiceImpl extends CommonSearchService implements GiftSe
                 Cardinality cardinality = var.getAggregations().get(subKey);
                 Long value = cardinality.getValue();
                 DateTime dateTime = (DateTime)var.getKey();
-                dataMap.put(dateTime.toLocalDate().toString(Constants.DATE_FORMAT),value.intValue());
+                dataMap.put(dateTime.toLocalDate().toString(DateFormatConstants.DATE_FORMAT),value.intValue());
             });
         }
         return dataMap;

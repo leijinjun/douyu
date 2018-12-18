@@ -1,11 +1,10 @@
 package com.lei2j.douyu.es.search;
 
-import com.lei2j.douyu.core.constant.Constants;
+import com.lei2j.douyu.core.constant.DateFormatConstants;
 import com.lei2j.douyu.qo.ChatQuery;
 import com.lei2j.douyu.util.DateUtil;
 import com.lei2j.douyu.vo.ChatMessageVo;
 import com.lei2j.douyu.web.response.Pagination;
-
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -31,11 +30,11 @@ import java.util.Map;
  * Created by lei2j on 2018/6/23.
  */
 @Component
-public class ChatSearchServiceImpl extends CommonSearchService implements ChatSearchService{
+public class ChatSearchServiceImpl extends CommonSearchService implements ChatSearchService {
 
     @Override
     public Pagination<ChatMessageVo,SearchPage> query(Pagination<ChatMessageVo,SearchPage> pagination){
-        pagination = super.search(pagination,ChatMessageVo.class,ChatMessageIndex.INDEX_NAME, ChatMessageIndex.TYPE_NAME);
+        pagination = super.search(pagination,ChatMessageVo.class, ChatMessageIndex.INDEX_NAME, ChatMessageIndex.TYPE_NAME);
         return pagination;
     }
 
@@ -82,8 +81,8 @@ public class ChatSearchServiceImpl extends CommonSearchService implements ChatSe
         DateHistogramAggregationBuilder aggregationBuilder = AggregationBuilders.dateHistogram(key).field("createAt")
                 .dateHistogramInterval(DateHistogramInterval.DAY)
                 .minDocCount(0L)
-                .format(Constants.DATE_FORMAT)
-                .extendedBounds(new ExtendedBounds(DateUtil.localDateTimeFormat(startTime, Constants.DATE_FORMAT), DateUtil.localDateTimeFormat(endTime, Constants.DATE_FORMAT)));
+                .format(DateFormatConstants.DATE_FORMAT)
+                .extendedBounds(new ExtendedBounds(DateUtil.localDateTimeFormat(startTime, DateFormatConstants.DATE_FORMAT), DateUtil.localDateTimeFormat(endTime, DateFormatConstants.DATE_FORMAT)));
         SearchRequestBuilder searchRequestBuilder = searchClient.client().prepareSearch(ChatMessageIndex.INDEX_NAME).setTypes(ChatMessageIndex.TYPE_NAME)
                 .setSize(0)
                 .setQuery(queryBuilder)
@@ -97,7 +96,7 @@ public class ChatSearchServiceImpl extends CommonSearchService implements ChatSe
             buckets.forEach((var)->{
                 Long docCount = var.getDocCount();
                 DateTime dateTime = (DateTime)var.getKey();
-                map.put(dateTime.toLocalDate().toString(Constants.DATE_FORMAT),docCount.intValue());
+                map.put(dateTime.toLocalDate().toString(DateFormatConstants.DATE_FORMAT),docCount.intValue());
             });
         }
         return map;
@@ -118,8 +117,8 @@ public class ChatSearchServiceImpl extends CommonSearchService implements ChatSe
         DateHistogramAggregationBuilder aggregationBuilder = AggregationBuilders.dateHistogram(key).field("createAt")
                 .dateHistogramInterval(DateHistogramInterval.DAY)
                 .minDocCount(0L)
-                .format(Constants.DATE_FORMAT)
-                .extendedBounds(new ExtendedBounds(DateUtil.localDateTimeFormat(startTime, Constants.DATE_FORMAT), DateUtil.localDateTimeFormat(endTime, Constants.DATE_FORMAT)))
+                .format(DateFormatConstants.DATE_FORMAT)
+                .extendedBounds(new ExtendedBounds(DateUtil.localDateTimeFormat(startTime, DateFormatConstants.DATE_FORMAT), DateUtil.localDateTimeFormat(endTime, DateFormatConstants.DATE_FORMAT)))
                 .subAggregation(AggregationBuilders.cardinality(subKey).field("uid").precisionThreshold(100))
                 ;
         SearchRequestBuilder searchRequestBuilder = searchClient.client().prepareSearch(ChatMessageIndex.INDEX_NAME).setTypes(ChatMessageIndex.TYPE_NAME)
@@ -136,7 +135,7 @@ public class ChatSearchServiceImpl extends CommonSearchService implements ChatSe
                 Cardinality cardinality = var.getAggregations().get(subKey);
                 Long value = cardinality.getValue();
                 DateTime dateTime = (DateTime)var.getKey();
-                map.put(dateTime.toLocalDate().toString(Constants.DATE_FORMAT),value.intValue());
+                map.put(dateTime.toLocalDate().toString(DateFormatConstants.DATE_FORMAT),value.intValue());
             });
         }
         return map;

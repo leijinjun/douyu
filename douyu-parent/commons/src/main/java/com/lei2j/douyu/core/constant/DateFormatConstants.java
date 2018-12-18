@@ -3,7 +3,7 @@ package com.lei2j.douyu.core.constant;
 /**
  * @author lei2j
  */
-public interface Constants {
+public interface DateFormatConstants {
 
     String DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 

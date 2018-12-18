@@ -1,21 +1,20 @@
 package com.lei2j.douyu.qo;
 
-import com.lei2j.douyu.core.constant.Constants;
+import com.lei2j.douyu.core.constant.DateFormatConstants;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
  * @author lei2j
  */
-public class GiftQuery implements Serializable {
+public class GiftQuery {
 
     private Integer rid;
 
-    @DateTimeFormat(pattern = Constants.DATETIME_FORMAT)
+    @DateTimeFormat(pattern = DateFormatConstants.DATETIME_FORMAT)
     private LocalDateTime start;
-    @DateTimeFormat(pattern = Constants.DATETIME_FORMAT)
+    @DateTimeFormat(pattern = DateFormatConstants.DATETIME_FORMAT)
     private LocalDateTime end;
 
     public Integer getRid() {

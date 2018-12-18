@@ -1,7 +1,7 @@
 package com.lei2j.douyu.es.search;
 
 import com.alibaba.fastjson.JSONObject;
-import com.lei2j.douyu.core.constant.Constants;
+import com.lei2j.douyu.core.constant.DateFormatConstants;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentBuilder;
@@ -48,7 +48,7 @@ public abstract class AbstractIndex {
     }
 
     public void createDocument(String id,Serializable document){
-        String json = JSONObject.toJSONStringWithDateFormat(document,Constants.DATETIME_FORMAT);
+        String json = JSONObject.toJSONStringWithDateFormat(document, DateFormatConstants.DATETIME_FORMAT);
         this.createDocumentWithString(id,json);
     }
 
