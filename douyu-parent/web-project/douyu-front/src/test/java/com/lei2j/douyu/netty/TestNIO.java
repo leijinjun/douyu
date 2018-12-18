@@ -1,0 +1,143 @@
+package com.lei2j.douyu.netty;
+
+import com.lei2j.douyu.util.LHUtil;
+
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.concurrent.BasicThreadFactory;
+import org.junit.Test;
+
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.*;
+import java.util.*;
+import java.util.concurrent.*;
+
+/**
+ * Created by lei2j on 2018/8/5.
+ */
+public class TestNIO {
+
+    @Test
+    public void test4()throws Exception{
+        ServerSocketChannel channel = ServerSocketChannel.open();
+        channel = channel.bind(new InetSocketAddress(8888));
+        ByteBuffer dst = ByteBuffer.allocate(1024);
+        byte[] b = new byte[1024];
+        int len = 0;
+        while (true){
+            SocketChannel accept = channel.accept();
+            dst.clear();
+            len = accept.read(dst);
+            System.out.println("1:"+dst.toString());
+            dst.flip();
+            dst.get(b,0,len);
+            System.out.println(new String(b));
+            dst.clear();
+            dst.put("hello client".getBytes());
+            System.out.println("2:"+dst.toString());
+            dst.flip();
+            accept.write(dst);
+        }
+    }
+
+    @Test
+    public void test5()throws Exception{
+        int i=0;
+        while (i<999){
+            SocketChannel channel = SocketChannel.open(new InetSocketAddress("127.0.0.1", 8888));
+            ByteBuffer buf = ByteBuffer.allocate(1024);
+            buf.put((i+"hello server I'm client").getBytes());
+            buf.flip();
+            channel.write(buf);
+            buf.clear();
+            int len = channel.read(buf);
+            byte[] b = new byte[1024];
+            buf.flip();
+            buf.get(b,0,len);
+            System.out.println(new String(b));
+            channel.close();
+            i++;
+        }
+    }
+
+    @Test
+    public void test6()throws Exception{
+        ServerSocketChannel socketChannel = ServerSocketChannel.open();
+        socketChannel.configureBlocking(false);
+        socketChannel.bind(new InetSocketAddress(8888));
+        Selector selector = Selector.open();
+        ByteBuffer dst = ByteBuffer.allocate(1024);
+        socketChannel.register(selector, SelectionKey.OP_ACCEPT);
+        while (true){
+            selector.select();
+//            selector.select(1000);
+            Iterator<SelectionKey> iterator = selector.selectedKeys().iterator();
+            while (iterator.hasNext()){
+                SelectionKey selectionKey = iterator.next();
+                iterator.remove();
+                if(selectionKey.isAcceptable()){
+                    System.out.println("accept....");
+                    ServerSocketChannel serverSocketChannel = (ServerSocketChannel) selectionKey.channel();
+                    SocketChannel channel = serverSocketChannel.accept();
+                    channel.configureBlocking(false);
+                    channel.register(selector,SelectionKey.OP_READ|SelectionKey.OP_WRITE);
+
+                }else if(selectionKey.isReadable()){
+                    dst.clear();
+                    System.out.println("read...");
+                    SocketChannel channel = (SocketChannel) selectionKey.channel();
+                    System.out.println("connect:"+channel.isConnected());
+                    int read = channel.read(dst);
+                    if(read==-1){
+                        System.out.println("chanenl closed");
+                        selectionKey.channel();
+                        channel.close();
+                        continue;
+                    }
+                    dst.flip();
+                    byte[] b =new byte[1024];
+                    dst.get(b,0,read);
+                    System.out.println(new String(b,0,read));
+                    dst.clear();
+                    dst.put("hello client".getBytes());
+                    dst.flip();
+                    channel.write(dst);
+                }else if(selectionKey.isConnectable()){
+                    System.out.println("connected...");
+                }else if(selectionKey.isWritable()){
+                    SocketChannel channel = (SocketChannel)selectionKey.channel();
+                    ByteBuffer w = ByteBuffer.allocate(1024);
+                    String msg = "hello"+ RandomStringUtils.randomNumeric(12,20);
+                    byte[] bytes = msg.getBytes();
+                    int len = bytes.length+4;
+                    byte[] bs= LHUtil.toLowerInt(len);
+                    w.put(bs);
+                    w.put(bytes);
+                    w.flip();
+                    channel.write(w);
+                    System.out.println(msg);
+                }
+            }
+        }
+    }
+
+    @Test
+    public void test8() throws InterruptedException,ExecutionException {
+        ScheduledExecutorService executorService = new ScheduledThreadPoolExecutor(1,
+                new BasicThreadFactory.Builder().namingPattern("Thread-douyu-keeplive-%d").daemon(true).build());
+        ScheduledFuture<?> scheduledFuture = executorService.scheduleWithFixedDelay(() -> System.out.println("run>>>"), 100, 100, TimeUnit.MILLISECONDS);
+        while (true){
+            Thread.sleep(5000);
+              new Thread(){
+                  @Override
+                  public void run() {
+                      System.out.println("cancel");
+                      scheduledFuture.cancel(false);
+                      super.run();
+                  }
+              }.start();
+//            System.out.println(scheduledFuture.isCancelled());
+        }
+    }
+
+}
