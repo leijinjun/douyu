@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 
 /**
@@ -33,8 +33,8 @@ public class UserController extends BaseController {
     }
 
     @PostMapping("/login")
-    public Response login(@RequestParam("username")@NotNull String username,
-                          @RequestParam("password")@NotNull String password){
+    public Response login(@RequestParam("username")@NotBlank String username,
+                          @RequestParam("password")@NotBlank String password){
 
         return Response.ok();
     }

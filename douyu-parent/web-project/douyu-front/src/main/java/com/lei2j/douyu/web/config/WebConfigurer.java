@@ -1,4 +1,4 @@
-package com.lei2j.douyu.web.adapter;
+package com.lei2j.douyu.web.config;
 
 import com.lei2j.douyu.web.interceptor.AuthenticationInterceptor;
 import com.lei2j.douyu.web.interceptor.HttpRequestInterceptor;
@@ -10,7 +10,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @EnableWebMvc
-public class InterceptorAdapter implements WebMvcConfigurer {
+public class WebConfigurer implements WebMvcConfigurer {
 
     @Autowired
     private AuthenticationInterceptor authenticationInterceptor;
@@ -18,7 +18,7 @@ public class InterceptorAdapter implements WebMvcConfigurer {
     @Autowired
     private HttpRequestInterceptor httpRequestInterceptor;
 
-    public InterceptorAdapter() {
+    public WebConfigurer() {
         super();
     }
 
