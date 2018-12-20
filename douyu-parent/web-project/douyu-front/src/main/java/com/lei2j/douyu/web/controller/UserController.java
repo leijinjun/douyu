@@ -1,14 +1,14 @@
 package com.lei2j.douyu.web.controller;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import com.lei2j.douyu.core.constant.ValidatorConstants;
 import com.lei2j.douyu.core.controller.BaseController;
+import com.lei2j.douyu.pojo.UserEntity;
 import com.lei2j.douyu.service.UserService;
+import com.lei2j.douyu.vo.UserVo;
 import com.lei2j.douyu.web.response.Response;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.constraints.NotBlank;
@@ -33,8 +33,9 @@ public class UserController extends BaseController {
     }
 
     @PostMapping("/login")
-    public Response login(@RequestParam("username")@NotBlank String username,
-                          @RequestParam("password")@NotBlank String password){
+    public Response login(@RequestBody@RequestParam("username")@NotBlank String username,
+                          @RequestBody@RequestParam("password")@NotBlank String password){
         return Response.ok();
     }
+
 }

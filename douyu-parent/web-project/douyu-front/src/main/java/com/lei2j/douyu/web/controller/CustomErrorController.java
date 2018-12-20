@@ -1,10 +1,8 @@
 package com.lei2j.douyu.web.controller;
 
 import com.lei2j.douyu.web.response.Response;
-import com.lei2j.douyu.web.response.ResponseCode;
 import org.springframework.boot.autoconfigure.web.servlet.error.AbstractErrorController;
 import org.springframework.boot.web.servlet.error.ErrorAttributes;
-import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -40,9 +38,11 @@ public class CustomErrorController extends AbstractErrorController {
     @RequestMapping(produces = {MediaType.APPLICATION_JSON_UTF8_VALUE})
     public Response error(HttpServletRequest request){
         HttpStatus httpStatus = getStatus(request);
-        Response response = Response.newInstance(ResponseCode.codeOf(httpStatus.value()));
-        if (response == null) {
+        Response response ;
+        if (httpStatus == null) {
             response = Response.SERVER_INTERNAL_ERROR;
+        }else {
+            response = new Response(httpStatus.value(),httpStatus.name());
         }
         return response;
     }
