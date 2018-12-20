@@ -45,7 +45,7 @@ import java.util.*;
  * @author lei2j
  */
 @RestController
-@RequestMapping("/room")
+@RequestMapping("/room/info")
 public class RoomController extends BaseController {
 
     @Resource
@@ -113,7 +113,7 @@ public class RoomController extends BaseController {
      * @param roomId 房间Id
      * @return
      */
-    @GetMapping("/info/{roomId}")
+    @GetMapping("/{roomId:\\d+}")
     public Response roomInfo(@PathVariable("roomId")Integer roomId) {
         RoomDetailVo roomDetailVO = DouyuUtil.getRoomDetail(roomId);
         LocalDateTime startToDay = getStartToDay();
@@ -175,7 +175,7 @@ public class RoomController extends BaseController {
      * @param roomId
      * @return
      */
-    @GetMapping("/detail/{roomId}")
+    @GetMapping("/detail/{roomId:\\d+}")
     public Response roomDetail(@PathVariable("roomId")Integer roomId){
         RoomDetailVo roomDetail = DouyuUtil.getRoomDetail(roomId);
         RoomVo roomVO = new RoomVo();
@@ -200,7 +200,7 @@ public class RoomController extends BaseController {
      * @param chatQO 查询条件对象
      * @return
      */
-    @GetMapping("/danmu/{roomId}")
+    @GetMapping("/danmu/{roomId:\\d+}")
     public Response getDanmuListByRoom(@PathVariable("roomId")String roomId, @RequestParam(value="from",required=false,defaultValue="0")Integer from
                         , @RequestParam(value = "size",defaultValue = "100")Integer size, ChatQuery chatQO){
         SearchPage searchPage = new SearchPage();

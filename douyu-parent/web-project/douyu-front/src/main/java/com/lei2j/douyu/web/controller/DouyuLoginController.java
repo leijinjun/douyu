@@ -20,7 +20,7 @@ import java.io.IOException;
  * Created by lei2j on 2018/6/24.
  */
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/room/client")
 public class DouyuLoginController extends BaseController{
 
     /**
@@ -31,7 +31,7 @@ public class DouyuLoginController extends BaseController{
     @Resource
     private CacheRoomService cacheRoomService;
 
-    @PostMapping("/login/{room}")
+    @PostMapping("/login/{room:\\d+}")
     public Response loginRoom(@PathVariable("room") Integer room) throws IOException{
         if (cacheRoomService.get(room)!=null){
             logger.info("该房间{}已存在",room);
