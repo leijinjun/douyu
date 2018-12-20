@@ -35,7 +35,6 @@ public class UserController extends BaseController {
     @PostMapping("/login")
     public Response login(@RequestParam("username")@NotBlank String username,
                           @RequestParam("password")@NotBlank String password){
-
         return Response.ok();
     }
 }

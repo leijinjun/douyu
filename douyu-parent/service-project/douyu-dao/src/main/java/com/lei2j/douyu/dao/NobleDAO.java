@@ -4,9 +4,9 @@ import com.lei2j.douyu.core.dao.CommonDAO;
 import com.lei2j.douyu.dao.plugin.PageHelper;
 import com.lei2j.douyu.pojo.NobleEntity;
 import com.lei2j.douyu.qo.NobleQuery;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +46,7 @@ public class NobleDAO extends CommonDAO<NobleEntity>{
 				sb.append(" and create_at <= ? ");
 			}
 			String sort = nobleQO.getSort();
-			if (StringUtils.isNotBlank(sort)) {
+			if (!StringUtils.isEmpty(sort)) {
 				sb.append(" ORDER BY ").append(sort);
 			}
 		}

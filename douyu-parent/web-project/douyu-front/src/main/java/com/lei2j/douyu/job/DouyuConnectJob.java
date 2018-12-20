@@ -11,11 +11,11 @@ import com.lei2j.douyu.qo.RoomConnectQuery;
 import com.lei2j.douyu.service.RoomConnectService;
 import com.lei2j.douyu.util.HttpUtil;
 import com.lei2j.douyu.web.response.Pagination;
-import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.io.IOException;
@@ -56,7 +56,7 @@ public class DouyuConnectJob extends DouyuJob {
         pagination.setParams(roomConnectQuery);
         Pagination<RoomConnectEntity, RoomConnectQuery> pageByCondition = roomConnectService.getPageByCondition(pagination);
         List<RoomConnectEntity> items = pageByCondition.getItems();
-        while (CollectionUtils.isNotEmpty(items)){
+        while (!CollectionUtils.isEmpty(items)){
             items.forEach((item)->{
                 Integer roomId = item.getRoomId();
                 if(cacheRoomService.containsKey(roomId)){

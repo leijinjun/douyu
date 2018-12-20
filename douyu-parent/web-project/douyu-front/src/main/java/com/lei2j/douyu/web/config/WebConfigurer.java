@@ -2,14 +2,19 @@ package com.lei2j.douyu.web.config;
 
 import com.lei2j.douyu.web.interceptor.AuthenticationInterceptor;
 import com.lei2j.douyu.web.interceptor.HttpRequestInterceptor;
+import com.lei2j.douyu.web.interceptor.LocaleInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.servlet.WebMvcRegistrations;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.util.List;
+
 @Configuration
-@EnableWebMvc
 public class WebConfigurer implements WebMvcConfigurer {
 
     @Autowired
@@ -17,6 +22,9 @@ public class WebConfigurer implements WebMvcConfigurer {
 
     @Autowired
     private HttpRequestInterceptor httpRequestInterceptor;
+
+    @Autowired
+    private LocaleInterceptor localeInterceptor;
 
     public WebConfigurer() {
         super();
@@ -26,5 +34,6 @@ public class WebConfigurer implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
     	registry.addInterceptor(httpRequestInterceptor);
         registry.addInterceptor(authenticationInterceptor);
+        registry.addInterceptor(localeInterceptor);
     }
 }

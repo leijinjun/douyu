@@ -17,21 +17,27 @@ public class Response {
 
     private Object body;
 
-    public Response() {
-    }
-
     public Response(ResponseCode responseCode) {
         this.code = responseCode.getCode();
         this.message = responseCode.getMessage();
     }
 
-    public Response(ResponseCode responseCode, Object body) {
-        this(responseCode);
+    public Response(int responseCode,String message) {
+        this.code = responseCode;
+        this.message = message;
+    }
+
+    public Response(int responseCode, Object body) {
+        this(responseCode,null);
         this.body = body;
     }
 
-    public static Response newInstance(ResponseCode code){
-        return new Response(code);
+    public static Response newInstance(int code){
+        return new Response(code,null);
+    }
+
+    public static Response newInstance(ResponseCode responseCode){
+        return new Response(responseCode);
     }
 
     public Response code(int code){

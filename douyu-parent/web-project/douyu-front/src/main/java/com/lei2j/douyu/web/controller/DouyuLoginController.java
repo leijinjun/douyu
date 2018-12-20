@@ -57,7 +57,7 @@ public class DouyuLoginController extends BaseController{
     public Response logoutRoom(@RequestParam("room") Integer room) {
         DouyuLogin login = cacheRoomService.get(room);
         if (login != null) {
-        	logger.info("房间|{}，准备退出",room);
+            logger.info("房间|{}，准备退出",room);
             login.logout();
         }
         return Response.ok();

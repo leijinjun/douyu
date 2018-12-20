@@ -1,9 +1,9 @@
 package com.lei2j.douyu.netty;
 
+import com.lei2j.douyu.thread.factory.DefaultThreadFactory;
 import com.lei2j.douyu.util.LHUtil;
 
-import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.concurrent.BasicThreadFactory;
+import com.lei2j.douyu.util.RandomUtil;
 import org.junit.Test;
 
 import java.net.InetSocketAddress;
@@ -107,7 +107,7 @@ public class TestNIO {
                 }else if(selectionKey.isWritable()){
                     SocketChannel channel = (SocketChannel)selectionKey.channel();
                     ByteBuffer w = ByteBuffer.allocate(1024);
-                    String msg = "hello"+ RandomStringUtils.randomNumeric(12,20);
+                    String msg = "hello"+ RandomUtil.getString(12);
                     byte[] bytes = msg.getBytes();
                     int len = bytes.length+4;
                     byte[] bs= LHUtil.toLowerInt(len);
@@ -124,7 +124,7 @@ public class TestNIO {
     @Test
     public void test8() throws InterruptedException,ExecutionException {
         ScheduledExecutorService executorService = new ScheduledThreadPoolExecutor(1,
-                new BasicThreadFactory.Builder().namingPattern("Thread-douyu-keeplive-%d").daemon(true).build());
+                new DefaultThreadFactory("Thread-douyu-keeplive-%d",true,10));
         ScheduledFuture<?> scheduledFuture = executorService.scheduleWithFixedDelay(() -> System.out.println("run>>>"), 100, 100, TimeUnit.MILLISECONDS);
         while (true){
             Thread.sleep(5000);

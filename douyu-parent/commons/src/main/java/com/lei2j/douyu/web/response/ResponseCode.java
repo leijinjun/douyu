@@ -5,7 +5,7 @@ package com.lei2j.douyu.web.response;
  */
 public enum  ResponseCode {
 
-    OK(200,""),
+    OK(200,"成功"),
     BAD_REQUEST(400,"请求出错"),
     UNAUTHORIZED(401,"未经授权"),
     FORBIDDEN(403,"权限不足"),
@@ -14,6 +14,10 @@ public enum  ResponseCode {
 
     ROOM_CONNECT_EXISTS(50,"房间连接已存在"),
     ROOM_CONNECT_ERROR(51,"房间连接失败");
+
+    ResponseCode(int code) {
+        this.code = code;
+    }
 
     ResponseCode(int code, String message) {
         this.code = code;
@@ -27,15 +31,19 @@ public enum  ResponseCode {
         return code;
     }
 
-    public void setCode(int code) {
-        this.code = code;
-    }
-
     public String getMessage() {
         return message;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public static ResponseCode codeOf(int code){
+        ResponseCode[] values = ResponseCode.values();
+        for (ResponseCode var:
+             values) {
+            if(var.getCode()==code){
+                return var;
+            }
+        }
+        return null;
     }
+
 }

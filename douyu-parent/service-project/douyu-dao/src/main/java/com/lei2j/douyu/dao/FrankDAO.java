@@ -5,9 +5,9 @@ import com.lei2j.douyu.dao.plugin.PageHelper;
 import com.lei2j.douyu.pojo.FrankEntity;
 import com.lei2j.douyu.qo.FrankQuery;
 import com.lei2j.douyu.vo.FrankVo;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +66,7 @@ public class FrankDAO extends CommonDAO<FrankEntity> {
 				sb.append(" and create_at <= ? ");
 			}
 			String sort = frankQO.getSort();
-			if (StringUtils.isNotBlank(sort)) {
+			if (!StringUtils.isEmpty(sort)) {
 				sb.append(" ORDER BY ").append(sort);
 			}
 		}

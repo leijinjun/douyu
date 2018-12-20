@@ -1,5 +1,6 @@
 package com.lei2j.douyu.web.controller;
 
+import com.alibaba.druid.util.StringUtils;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.lei2j.douyu.cache.CacheRoomService;
@@ -24,7 +25,6 @@ import com.lei2j.douyu.vo.*;
 import com.lei2j.douyu.web.response.Pagination;
 import com.lei2j.douyu.web.response.Response;
 import com.lei2j.douyu.web.util.DouyuUtil;
-import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.jsoup.Jsoup;
@@ -68,7 +68,7 @@ public class RoomController extends BaseController {
     public Response getRoomList(@RequestParam(value = "cate",required = false)String cateId){
         List<RoomVo> list = new LinkedList<>();
         String url;
-        if(StringUtils.isNotBlank(cateId)){
+        if(!StringUtils.isEmpty(cateId)){
             url = DouyuApi.ROOM_CATE_API.replace("{cateId}",cateId).replace("{page}","1");
         }else {
             url = DouyuApi.ROOM_ALL_API.replace("{page}","1");
@@ -205,7 +205,7 @@ public class RoomController extends BaseController {
                         , @RequestParam(value = "size",defaultValue = "100")Integer size, ChatQuery chatQO){
         SearchPage searchPage = new SearchPage();
         BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery().must(QueryBuilders.termQuery("rid", roomId));
-        if(StringUtils.isNotBlank(chatQO.getNn())){
+        if(!StringUtils.isEmpty(chatQO.getNn())){
             queryBuilder.must(QueryBuilders.termQuery("nn",chatQO.getNn()));
         }
         if(chatQO.getUid()!=null) {

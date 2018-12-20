@@ -1,10 +1,10 @@
 package com.lei2j.douyu.core.dao;
 
 import com.lei2j.douyu.util.BeanUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import javax.persistence.Column;
@@ -41,7 +41,7 @@ public class CommonDAO<T> {
             Deque<Object> values = new LinkedList<>();
             Deque<String> columns = new LinkedList<>();
             setColumnValue(t,columns,values);
-            sql.append(StringUtils.join(columns,","));
+            sql.append(StringUtils.collectionToDelimitedString(columns,","));
             sql.append(" ) ");
             sql.append(" values( ");
             for (int i=0;i<values.size();i++){
@@ -136,7 +136,7 @@ public class CommonDAO<T> {
                 if(column!=null){
                     name = column.name();
                 }else{
-                    if(StringUtils.isNotBlank(name)){
+                    if(!StringUtils.isEmpty(name)){
                         StringBuffer sb1 = new StringBuffer();
                         for (int i=0;i<name.length();i++){
                             char c = name.charAt(i);

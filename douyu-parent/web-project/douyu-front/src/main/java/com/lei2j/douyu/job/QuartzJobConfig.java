@@ -56,7 +56,7 @@ public class QuartzJobConfig {
         triggerFactoryBean.setGroup("group");
         triggerFactoryBean.setDescription("定时检查已连接房间");
         triggerFactoryBean.setJobDetail(jobDetail.getObject());
-        triggerFactoryBean.setCronExpression("0 0 * * * ?");
+        triggerFactoryBean.setCronExpression("0 0/20 * * * ?");
         return triggerFactoryBean;
     }
 }

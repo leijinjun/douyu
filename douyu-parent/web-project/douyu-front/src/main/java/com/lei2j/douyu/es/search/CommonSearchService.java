@@ -2,10 +2,10 @@ package com.lei2j.douyu.es.search;
 
 import javax.annotation.Resource;
 
+import com.alibaba.druid.util.StringUtils;
 import com.alibaba.fastjson.JSONObject;
 
 import com.lei2j.douyu.web.response.Pagination;
-import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.action.search.ClearScrollRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -146,7 +146,7 @@ public class CommonSearchService {
 
     private SearchRequestBuilder sortBuilder(SearchRequestBuilder searchBuilder,String sort){
         //排序
-        if(StringUtils.isNotBlank(sort)){
+        if(!StringUtils.isEmpty(sort)){
             String[] sp = sort.split(",");
             for (String var:
                     sp) {
