@@ -1,6 +1,8 @@
 package com.lei2j.douyu.web.interceptor;
 
 
+import com.lei2j.douyu.core.constant.WebConstants;
+import com.lei2j.douyu.util.IPUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -20,7 +22,9 @@ public class HttpRequestInterceptor implements HandlerInterceptor {
 			throws Exception {
 		Long st = System.currentTimeMillis();
 		String uri = request.getRequestURI();
+		String originIP = IPUtil.getOriginRequestIP(request);
 		LOGGER.info("Request URI:{}",uri);
+		request.setAttribute(WebConstants.REQUEST_ATTR_ORIGIN_IP,originIP);
 		request.setAttribute("st", st);
 		return true;
 	}

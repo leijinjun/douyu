@@ -7,8 +7,8 @@ public enum  ResponseCode {
 
     OK(200,"成功"),
     BAD_REQUEST(400,"请求出错"),
-    UNAUTHORIZED(401,"未经授权"),
-    FORBIDDEN(403,"权限不足"),
+    UNAUTHENTICATED(401,"未认证"),
+    FORBIDDEN(403,"未授权"),
     NOT_FOUND(404,"资源未找到"),
     SERVER_INTERNAL_ERROR(500,"服务器内部错误"),
 

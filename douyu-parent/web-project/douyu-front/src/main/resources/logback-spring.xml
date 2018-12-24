@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <configuration>
-    <contextName>douyuDanmu</contextName>
+    <contextName>${project.name}</contextName>
     <!-- 文件输出格式 -->
     <property name="PATTERN" value="%-12(%d{yyyy-MM-dd HH:mm:ss.SSS}) |-%-5level [%thread] %c [%L] -| %msg%n" />
+    <!-- dev文件路径 -->
+    <property name="DEV_FILE_PATH" value="/douyu-log/dev.log" />
     <!-- test文件路径 -->
-    <property name="TEST_FILE_PATH" value="/log-back/test.log" />
+    <property name="TEST_FILE_PATH" value="/douyu-log/test.log" />
     <!-- pro文件路径 -->
-    <property name="PRO_FILE_PATH" value="/log-back/prod.log" />
+    <property name="PRO_FILE_PATH" value="/douyu-log/prod.log" />
     <!--显示日志-->
 
     <!-- 开发环境 -->
@@ -22,10 +24,10 @@
         <!--指定输出到文件-->
         <appender name="OUT_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
             <!--写入的文件名-->
-            <file>${TEST_FILE_PATH}</file>
+            <file>${DEV_FILE_PATH}</file>
             <!--滚动策略-->
             <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-                <fileNamePattern>/log-back/%d{yyyy-MM-dd}/dev-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+                <fileNamePattern>/douyu-log/%d{yyyy-MM-dd}/dev-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
                 <MaxHistory>7</MaxHistory>
                 <TimeBasedFileNamingAndTriggeringPolicy
                         class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
@@ -57,12 +59,12 @@
     <!-- 测试环境 -->
     <springProfile name="test">
         <!-- 每天产生一个文件 -->
-        <appender name="TEST-FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <appender name="TEST_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
             <!-- 文件路径 -->
             <file>${TEST_FILE_PATH}</file>
             <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
                 <!-- 文件名称 -->
-                <fileNamePattern>/log-back/%d{yyyy-MM-dd}/dev-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+                <fileNamePattern>/douyu-log/%d{yyyy-MM-dd}/test-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
                 <!-- 文件最大保存历史数量 -->
                 <MaxHistory>100</MaxHistory>
             </rollingPolicy>
@@ -71,7 +73,7 @@
             </layout>
         </appender>
         <root level="INFO">
-            <appender-ref ref="TEST-FILE" />
+            <appender-ref ref="TEST_FILE" />
         </root>
     </springProfile>
 
@@ -87,7 +89,7 @@
         <appender name="PROD_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
             <file>${PRO_FILE_PATH}</file>
             <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-                <fileNamePattern>/log-back/warn.%d{yyyy-MM-dd}.log</fileNamePattern>
+                <fileNamePattern>/douyu-log/prod-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
                 <MaxHistory>100</MaxHistory>
             </rollingPolicy>
             <layout class="ch.qos.logback.classic.PatternLayout">
@@ -98,7 +100,7 @@
         <logger name="org.springframework.jdbc.core" additivity="false" level="INFO">
             <appender-ref ref="PROD_CONSOLE" />
         </logger>
-        <root level="warn">
+        <root level="info">
             <appender-ref ref="PROD_CONSOLE" />
             <appender-ref ref="PROD_FILE" />
         </root>

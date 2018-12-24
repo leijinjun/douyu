@@ -6,7 +6,7 @@ package com.lei2j.douyu.web.response;
 public class Response {
 
     public static final Response BAD_REQUEST = new Response(ResponseCode.BAD_REQUEST);
-    public static final Response UNAUTHORIZED = new Response(ResponseCode.UNAUTHORIZED);
+    public static final Response UNAUTHENTICATED = new Response(ResponseCode.UNAUTHENTICATED);
     public static final Response  FORBIDDEN = new Response(ResponseCode.FORBIDDEN);
     public static final Response NOT_FOUND = new Response(ResponseCode.NOT_FOUND);
     public static final Response SERVER_INTERNAL_ERROR = new Response(ResponseCode.SERVER_INTERNAL_ERROR);
@@ -71,4 +71,13 @@ public class Response {
         return body;
     }
 
+    @Override
+    public String toString() {
+        final StringBuffer sb = new StringBuffer("Response{");
+        sb.append("code=").append(code);
+        sb.append(", message='").append(message).append('\'');
+        sb.append(", body=").append(body);
+        sb.append('}');
+        return sb.toString();
+    }
 }
