@@ -9,7 +9,7 @@ public class Response {
     public static final Response UNAUTHENTICATED = new Response(ResponseCode.UNAUTHENTICATED);
     public static final Response  FORBIDDEN = new Response(ResponseCode.FORBIDDEN);
     public static final Response NOT_FOUND = new Response(ResponseCode.NOT_FOUND);
-    public static final Response SERVER_INTERNAL_ERROR = new Response(ResponseCode.SERVER_INTERNAL_ERROR);
+    public static final Response INTERNAL_SERVER_ERROR = new Response(ResponseCode.INTERNAL_SERVER_ERROR);
 
     private int code;
 

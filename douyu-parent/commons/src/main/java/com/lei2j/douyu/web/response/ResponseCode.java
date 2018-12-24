@@ -10,7 +10,7 @@ public enum  ResponseCode {
     UNAUTHENTICATED(401,"未认证"),
     FORBIDDEN(403,"未授权"),
     NOT_FOUND(404,"资源未找到"),
-    SERVER_INTERNAL_ERROR(500,"服务器内部错误"),
+    INTERNAL_SERVER_ERROR(500,"服务器内部错误"),
 
     ROOM_CONNECT_EXISTS(50,"房间连接已存在"),
     ROOM_CONNECT_ERROR(51,"房间连接失败");
