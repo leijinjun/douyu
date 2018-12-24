@@ -55,40 +55,4 @@ public class WebConfigurer implements WebMvcConfigurer {
                 .allowedOrigins("*")
                 .maxAge(10000);
     }
-
-    /*@Override
-    public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
-        HttpMessageConverter<?> httpMessageConverter = new HttpMessageConverter<Object>() {
-            @Override
-            public boolean canRead(Class<?> aClass, MediaType mediaType) {
-                return false;
-            }
-
-            @Override
-            public boolean canWrite(Class<?> aClass, MediaType mediaType) {
-                return false;
-            }
-
-            @Override
-            public List<MediaType> getSupportedMediaTypes() {
-                List<MediaType> mediaTypes = new ArrayList<>();
-                mediaTypes.add(MediaType.APPLICATION_JSON);
-                mediaTypes.add(MediaType.APPLICATION_JSON_UTF8);
-                mediaTypes.add(MediaType.APPLICATION_OCTET_STREAM);
-                mediaTypes.add(MediaType.MULTIPART_FORM_DATA);
-                return mediaTypes;
-            }
-
-            @Override
-            public Object read(Class<?> aClass, HttpInputMessage httpInputMessage) throws IOException, HttpMessageNotReadableException {
-                return null;
-            }
-
-            @Override
-            public void write(Object o, MediaType mediaType, HttpOutputMessage httpOutputMessage) throws IOException, HttpMessageNotWritableException {
-
-            }
-        };
-        converters.add(httpMessageConverter);
-    }*/
 }
