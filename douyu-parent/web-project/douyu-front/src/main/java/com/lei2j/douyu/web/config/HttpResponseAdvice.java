@@ -2,6 +2,8 @@ package com.lei2j.douyu.web.config;
 
 import com.lei2j.douyu.web.response.Response;
 import com.lei2j.douyu.web.response.ResponseCode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
@@ -19,6 +21,8 @@ import java.util.Locale;
 
 @RestControllerAdvice(annotations = {RestController.class, Controller.class})
 public class HttpResponseAdvice implements ResponseBodyAdvice<Object>{
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(HttpResponseAdvice.class);
 
 	@Resource
 	private MessageSource messageSource;
@@ -44,6 +48,7 @@ public class HttpResponseAdvice implements ResponseBodyAdvice<Object>{
 		if (responseBody.getCode() != ResponseCode.OK.getCode() && responseBody.getMessage() == null) {
 			responseBody.text(messageSource.getMessage(String.valueOf(responseBody.getCode()), null, locale));
 		}
+		LOGGER.info("Response message:{}",responseBody);
 		return responseBody;
 	}
 

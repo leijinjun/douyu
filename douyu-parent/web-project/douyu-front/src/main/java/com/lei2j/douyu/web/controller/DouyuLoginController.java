@@ -52,7 +52,6 @@ public class DouyuLoginController extends BaseController{
         return Response.ok();
     }
     
-    @ResponseBody
     @PostMapping(value = "/logout")
     public Response logoutRoom(@RequestParam("room") Integer room) {
         DouyuLogin login = cacheRoomService.get(room);
