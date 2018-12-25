@@ -15,6 +15,7 @@
     <artifactId>douyu-parent</artifactId>
     <version>1.0</version>
     <packaging>pom</packaging>
+    <name>douyu-parent</name>
     <modules>
         <module>commons</module>
         <module>web-project</module>

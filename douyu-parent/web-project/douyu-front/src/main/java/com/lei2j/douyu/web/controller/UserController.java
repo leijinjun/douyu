@@ -38,8 +38,7 @@ public class UserController extends BaseController {
     }
 
     @RequestMapping("/test")
-    public Response test(){
-
+    public Response test() {
         return Response.ok();
     }
 

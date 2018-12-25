@@ -9,6 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>douyu-service-interface</artifactId>
+    <name>douyu-service-interface</name>
     <packaging>jar</packaging>
     <version>1.0</version>
 

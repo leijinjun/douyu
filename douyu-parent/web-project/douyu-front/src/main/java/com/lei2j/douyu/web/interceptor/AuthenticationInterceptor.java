@@ -48,9 +48,10 @@ public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
 		}
 		if (!verify) {
 			LOGGER.warn("Request URI:{},OriginIP:{},用户未认证", request.getRequestURI(), request.getAttribute(WebConstants.REQUEST_ATTR_ORIGIN_IP));
-			setUnAuthResponse(response);
+			request.setAttribute(WebConstants.USER_LOGIN_STATUS,Boolean.FALSE);
+//			setUnAuthResponse(response);
 		}
-		return verify;
+		return true;
 	}
 
 	private void setUnAuthResponse(HttpServletResponse response) throws IOException{

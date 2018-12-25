@@ -1,5 +1,6 @@
 package com.lei2j.douyu.web.config;
 
+import com.lei2j.douyu.core.constant.WebConstants;
 import com.lei2j.douyu.web.response.Response;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -29,16 +30,17 @@ public class ControllerAspect {
     public void common(){}
 
     @Around("common()")
-    public Object around(ProceedingJoinPoint proceedingJoinPoint){
+    public Object around(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
         ServletRequestAttributes requestAttributes = (ServletRequestAttributes)RequestContextHolder.currentRequestAttributes();
         HttpServletRequest request = requestAttributes.getRequest();
         HttpServletResponse response = requestAttributes.getResponse();
-        try {
-            Object object = proceedingJoinPoint.proceed();
-            return object;
-        } catch (Throwable throwable) {
-            throwable.printStackTrace();
+        //获取用户登录状态
+        Boolean userLogin = (Boolean)request.getAttribute(WebConstants.USER_LOGIN_STATUS);
+        if (userLogin != null && userLogin.equals(Boolean.FALSE)) {
+            request.removeAttribute(WebConstants.USER_LOGIN_STATUS);
+            return Response.UNAUTHENTICATED;
         }
-        return Response.INTERNAL_SERVER_ERROR;
+        Object object = proceedingJoinPoint.proceed();
+        return object;
     }
 }
