@@ -1,5 +1,6 @@
 /target/
 /**/target/
+/**/bin/
 !.mvn/wrapper/maven-wrapper.jar
 /**/application-prod.properties
 ### STS ###
