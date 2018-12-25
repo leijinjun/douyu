@@ -40,7 +40,7 @@ public class CustomErrorController extends AbstractErrorController {
         HttpStatus httpStatus = getStatus(request);
         Response response ;
         if (httpStatus == null) {
-            response = Response.SERVER_INTERNAL_ERROR;
+            response = Response.INTERNAL_SERVER_ERROR;
         }else {
             response = new Response(httpStatus.value(),httpStatus.name());
         }

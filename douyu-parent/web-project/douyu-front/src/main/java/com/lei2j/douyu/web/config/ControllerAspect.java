@@ -40,6 +40,6 @@ public class ControllerAspect {
         } catch (Throwable throwable) {
             throwable.printStackTrace();
         }
-        return Response.SERVER_INTERNAL_ERROR;
+        return Response.INTERNAL_SERVER_ERROR;
     }
 }
