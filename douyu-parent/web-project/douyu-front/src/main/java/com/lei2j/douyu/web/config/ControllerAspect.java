@@ -34,8 +34,7 @@ public class ControllerAspect {
         HttpServletRequest request = requestAttributes.getRequest();
         HttpServletResponse response = requestAttributes.getResponse();
         try {
-            Object[] args = proceedingJoinPoint.getArgs();
-            Object object = proceedingJoinPoint.proceed(args);
+            Object object = proceedingJoinPoint.proceed();
             return object;
         } catch (Throwable throwable) {
             throwable.printStackTrace();
