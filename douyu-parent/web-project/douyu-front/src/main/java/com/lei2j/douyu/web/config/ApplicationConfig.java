@@ -1,6 +1,9 @@
-package com.lei2j.douyu.web.validator;
+package com.lei2j.douyu.web.config;
 
 import org.hibernate.validator.HibernateValidator;
+import org.springframework.boot.autoconfigure.cache.CacheManagerCustomizer;
+import org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean;
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -8,12 +11,15 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 
 /**
- * hibernate validator 校验配置
- * Created by lei2j on 2018/12/18.
+ * Created by leijinjun on 2018/12/25.
  */
 @Configuration
-public class HibernateValidatorConfig {
+public class ApplicationConfig {
 
+    /**
+     * 设置Validator
+     * @return
+     */
     @Bean("validator")
     public Validator configValidator(){
         Validator validator = Validation.byProvider(HibernateValidator.class)
@@ -23,4 +29,12 @@ public class HibernateValidatorConfig {
                 .getValidator();
         return validator;
     }
+
+    @Bean
+    public CacheManagerCustomizer<ConcurrentMapCacheManager> cacheManagerCustomizer(){
+        return (cacheManager)->{
+            //do nothing
+        };
+    }
+
 }

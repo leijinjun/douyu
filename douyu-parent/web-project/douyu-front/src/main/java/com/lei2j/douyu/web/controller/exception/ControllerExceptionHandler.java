@@ -1,4 +1,4 @@
-package com.lei2j.douyu.web.config;
+package com.lei2j.douyu.web.controller.exception;
 
 import com.lei2j.douyu.web.response.Response;
 import com.lei2j.douyu.web.response.ResponseCode;
@@ -29,7 +29,7 @@ import java.util.Set;
  * Created by leijinjun on 2018/12/19.
  */
 @ControllerAdvice(annotations = {RestController.class, Controller.class})
-public class ControllerExceptionAdvice {
+public class ControllerExceptionHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConstraintViolationException.class);
 
@@ -52,7 +52,7 @@ public class ControllerExceptionAdvice {
             String errorMessage = "";
             if(!CollectionUtils.isEmpty(violationSet)){
                 Optional<ConstraintViolation<?>> violationOptional = violationSet.stream().findFirst();
-                errorMessage = violationOptional.isPresent()?"":violationOptional.get().getMessage();
+                errorMessage = violationOptional.isPresent()?violationOptional.get().getMessage():"";
             }
             return handleExceptionInternal(HttpStatus.OK, new Response(400,errorMessage),ex);
         } else if (ex instanceof MissingServletRequestParameterException){
