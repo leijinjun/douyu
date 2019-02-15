@@ -1,6 +1,5 @@
 package com.lei2j.douyu.web.controller;
 
-import com.alibaba.druid.util.StringUtils;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.lei2j.douyu.cache.CacheRoomService;
@@ -27,9 +26,8 @@ import com.lei2j.douyu.web.response.Response;
 import com.lei2j.douyu.web.util.DouyuUtil;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
+import org.elasticsearch.index.query.RangeQueryBuilder;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -61,50 +59,36 @@ public class RoomController extends BaseController {
 
     /**
      * 获取直播列表
-     * @param cateId 分类id
+     * @param cateId 分类标识
+     * @param limit
      * @return
      */
     @GetMapping("/list")
-    public Response getRoomList(@RequestParam(value = "cate",required = false)String cateId){
-        List<RoomVo> list = new LinkedList<>();
-        String url;
+    public Response getRoomList(@RequestParam(value = "cate",required = false)String cateId,
+                                @RequestParam(value = "limit",required = false,defaultValue = "100") Integer limit){
+        LinkedList<RoomVo> list = new LinkedList<>();
+        StringBuilder url = new StringBuilder(DouyuApi.ROOM_ALL_API);
         if(!StringUtils.isEmpty(cateId)){
-            url = DouyuApi.ROOM_CATE_API.replace("{cateId}",cateId).replace("{page}","1");
-        }else {
-            url = DouyuApi.ROOM_ALL_API.replace("{page}","1");
+            url.append("/").append(cateId);
         }
-        String s = HttpUtil.get(url);
+        url.append("?limit=").append(limit);
+        String s = HttpUtil.get(url.toString());
         JSONObject var1 = JSONObject.parseObject(s);
-        String codeKey = "code";
+        String codeKey = "error";
         if(var1.getIntValue(codeKey)==0){
-            JSONArray jsonArray = var1.getJSONObject("data").getJSONArray("rl");
-            for (int j = 0; j < jsonArray.size(); j++) {
-                JSONObject jsonObject = jsonArray.getJSONObject(j);
-                int ot = jsonObject.getIntValue("ot");
-                if(ot==0){
-                    Integer roomId = jsonObject.getInteger("rid");
-                    String roomSrc = jsonObject.getString("rs16");
-                    String roomName = jsonObject.getString("rn");
-                    Integer hn = jsonObject.getInteger("ol");
-                    String nickname = jsonObject.getString("nn");
-                    RoomVo roomVO = new RoomVo();
-                    roomVO.setRoomId(roomId);
-                    roomVO.setRoomSrc(roomSrc);
-                    roomVO.setRoomName(roomName);
-                    roomVO.setHn(hn);
-                    roomVO.setNickname(nickname);
-                    if(cacheRoomService.get(roomId)!=null) {
-                        roomVO.setConnected(true);
+            JSONArray jsonArray = var1.getJSONArray("data");
+            for (Object jsonObject:
+                 jsonArray) {
+                    RoomVo roomVo = JSONObject.toJavaObject((JSONObject) jsonObject, RoomVo.class);
+                    boolean f = cacheRoomService.containsKey(roomVo.getRoomId());
+                    roomVo.setConnected(f);
+                    if(f){
+                        list.addFirst(roomVo);
+                    }else {
+                        list.add(roomVo);
                     }
-                    list.add(roomVO);
-                }
             }
         }
-        list.sort((v1,v2)->{
-        	int b1=v1.isConnected()!=null&&v1.isConnected()?1:-1;
-        	int b2=v2.isConnected()!=null&&v2.isConnected()?1:-1;
-        	return b1-b2>0?-1:b1-b2==0?0:1;
-        });
         return Response.ok().entity(list);
     }
 
@@ -163,7 +147,7 @@ public class RoomController extends BaseController {
         responseMap.put("roomDetail", roomDetailVO);
         responseMap.put("gifts", voPagination.getItems());
         responseMap.put("chats", pagination.getItems());
-        responseMap.put("connected",cacheRoomService.get(roomId)==null?false:true);
+        responseMap.put("connected",cacheRoomService.containsKey(roomId));
         responseMap.put("chatTotalCount",pagination.getTotal());
         responseMap.put("aggregate",aggregateMap);
         responseMap.put("giftTop", giftTopList);
@@ -184,9 +168,7 @@ public class RoomController extends BaseController {
         roomVO.setRoomSrc(roomDetail.getRoomThumb());
         roomVO.setHn(roomDetail.getHn());
         roomVO.setNickname(roomDetail.getOwnerName());
-        if(cacheRoomService.get(roomId)!=null){
-            roomVO.setConnected(true);
-        }
+        roomVO.setConnected(cacheRoomService.containsKey(roomId));
         Map<String,Object> data = new HashMap<>(1);
         data.put("room",roomVO);
         return Response.ok().entity(data);
@@ -208,22 +190,20 @@ public class RoomController extends BaseController {
         if(!StringUtils.isEmpty(chatQO.getNn())){
             queryBuilder.must(QueryBuilders.termQuery("nn",chatQO.getNn()));
         }
-        if(chatQO.getUid()!=null) {
-        	queryBuilder.must(QueryBuilders.termQuery("uid", chatQO.getUid()));
+        if (chatQO.getUid() != null) {
+            queryBuilder.must(QueryBuilders.termQuery("uid", chatQO.getUid()));
         }
-        if(chatQO.getStart()!=null&&chatQO.getEnd()!=null) {
-        	queryBuilder.must(QueryBuilders.rangeQuery("createAt")
-        			.from(DateUtil.localDateTimeFormat(chatQO.getStart()), true)
-        			.to(DateUtil.localDateTimeFormat(chatQO.getEnd()), true))
-        			;
+        RangeQueryBuilder rangeQuery = QueryBuilders.rangeQuery("createAt");
+        LocalDateTime startTime = chatQO.getStart();
+        LocalDateTime endTime = chatQO.getEnd();
+        if (startTime != null) {
+            rangeQuery.from(DateUtil.localDateTimeFormat(startTime), true);
         }
-        if(chatQO.getStart()!=null&&chatQO.getEnd()==null) {
-        	queryBuilder.must(QueryBuilders.rangeQuery("createAt")
-        			.from(DateUtil.localDateTimeFormat(chatQO.getStart()), true));
+        if (endTime != null) {
+            rangeQuery.to(DateUtil.localDateTimeFormat(endTime), true);
         }
-        if(chatQO.getEnd()!=null&&chatQO.getStart()==null){
-        	queryBuilder.must(QueryBuilders.rangeQuery("createAt")
-        			.to(DateUtil.localDateTimeFormat(chatQO.getEnd()), true));
+        if (rangeQuery.format() != null || rangeQuery.to() != null) {
+            queryBuilder.must(rangeQuery);
         }
         searchPage.setQueryBuilder(queryBuilder);
         searchPage.setSort("createAt DESC");
@@ -242,47 +222,37 @@ public class RoomController extends BaseController {
      */
     @GetMapping("/logged")
     public Response getLoggedRooms(){
-        String result = HttpUtil.get(DouyuApi.ROOM_ALL_API.replace("{page}","1"));
+        String result = HttpUtil.get(DouyuApi.ROOM_ALL_API);
         Map<Integer,RoomVo> resultMap = new HashMap<>(80);
         JSONObject var1 = JSONObject.parseObject(result);
-        String codeKey = "code";
+        String codeKey = "error";
         if(var1.getIntValue(codeKey)==0){
-            JSONArray jsonArray = var1.getJSONObject("data").getJSONArray("rl");
-            for (int j = 0; j < jsonArray.size(); j++) {
-                JSONObject jsonObject = jsonArray.getJSONObject(j);
-                int ot = jsonObject.getIntValue("ot");
-                if(ot==0){
-                    Integer roomId = jsonObject.getInteger("rid");
-                    String roomSrc = jsonObject.getString("rs16");
-                    String roomName = jsonObject.getString("rn");
-                    Integer hn = jsonObject.getInteger("ol");
-                    String nickname = jsonObject.getString("nn");
-                    RoomVo roomVO = new RoomVo();
-                    roomVO.setRoomId(roomId);
-                    roomVO.setRoomSrc(roomSrc);
-                    roomVO.setRoomName(roomName);
-                    roomVO.setHn(hn);
-                    roomVO.setNickname(nickname);
-                    if(cacheRoomService.get(roomId)!=null) {
-                        roomVO.setConnected(true);
-                        resultMap.put(roomId,roomVO);
-                    }
+            JSONArray jsonArray = var1.getJSONArray("data");
+            for (Object jsonobj:
+                 jsonArray) {
+                RoomVo roomVo = JSONObject.toJavaObject((JSONObject) jsonobj, RoomVo.class);
+                Integer roomId = roomVo.getRoomId();
+                boolean f = cacheRoomService.containsKey(roomId);
+                roomVo.setConnected(f);
+                if(f){
+                    resultMap.put(roomId,roomVo);
                 }
             }
         }
         Map<Integer, DouyuLogin> map = cacheRoomService.getAll();
         Set<Integer> set = new HashSet<>(map.keySet());
         set.removeAll(resultMap.keySet());
-        List<RoomVo> list = new ArrayList<>();
+        List<RoomVo> list = new ArrayList<>(set.size());
         list.addAll(resultMap.values());
-        set.forEach((room)->{
-            RoomDetailVo roomDetail = DouyuUtil.getRoomDetail(room);
+        for (Integer roomId:
+             set) {
+            RoomDetailVo roomDetail = DouyuUtil.getRoomDetail(roomId);
             RoomVo roomVO = BeanUtils.copyProperties(roomDetail,RoomVo.class);
             roomVO.setConnected(true);
             roomVO.setNickname(roomDetail.getOwnerName());
             roomVO.setRoomSrc(roomDetail.getRoomThumb());
             list.add(roomVO);
-        });
+        }
         return Response.ok().entity(list);
     }
 
@@ -293,31 +263,7 @@ public class RoomController extends BaseController {
      */
     @GetMapping("/cates")
     public Response getAllCate()throws IOException {
-        String url = "https://www.douyu.com/directory";
-        Element element = Jsoup.connect(url).get().body().getElementById("live-list-contentbox");
-        Elements lis = element.select("li");
-        List<CateVo> list = new ArrayList<>();
-        lis.forEach((var)->{
-            CateVo cate = new CateVo();
-            Element a = var.getElementsByTag("a").get(0);
-            Integer cateId = Integer.parseInt(a.attr("data-tid"));
-            String href = a.attr("href");
-            String alias = href;
-            String startStr = "/g_";
-            if(href.startsWith(startStr)){
-                alias = href.substring(2);
-            }
-            Element img = a.getElementsByTag("img").get(0);
-            String src = img.attr("data-original");
-            Element p = a.getElementsByTag("p").get(0);
-            String cateName = p.text();
-            cate.setCateId(cateId);
-            cate.setAlias(alias);
-            cate.setCateName(cateName);
-            cate.setImg(src);
-            list.add(cate);
-        });
-        return  Response.ok().entity(list);
+        return  Response.ok().entity(DouyuUtil.getAllCates());
     }
 
     /**
@@ -338,10 +284,11 @@ public class RoomController extends BaseController {
         List<NobleEntity> nobles = nobleService.findByCondition(nobleQO);
         List<Object> xAxis = new ArrayList<>();
         List<Object> yAxis = new ArrayList<>();
-        nobles.forEach((var)->{
+        for (NobleEntity var:
+             nobles) {
             xAxis.add(var.getCreateAt());
             yAxis.add(var.getNum());
-        });
+        }
         Map<String,Object> dataMap = new HashMap<>(2);
         dataMap.put("xAxis",xAxis);
         dataMap.put("yAxis",yAxis);

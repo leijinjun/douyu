@@ -1,5 +1,6 @@
 package com.lei2j.douyu.login.service;
 
+import com.lei2j.douyu.service.ExecutorTaskService;
 import com.lei2j.douyu.web.util.DouyuUtil;
 
 import java.io.IOException;

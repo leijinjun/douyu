@@ -6,6 +6,7 @@ import com.lei2j.douyu.core.ApplicationContextUtil;
 import com.lei2j.douyu.es.search.ChatMessageIndex;
 import com.lei2j.douyu.es.search.GiftIndex;
 import com.lei2j.douyu.login.service.DouyuNormalLogin;
+import com.lei2j.douyu.service.ExecutorTaskService;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.http.HttpEntity;

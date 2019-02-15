@@ -14,7 +14,7 @@ import java.util.List;
  * @author lei2j
  */
 @Service
-public class FrankServiceImpl implements FrankService {
+public class FrankServiceImpl extends BaseServiceImpl implements FrankService {
 
     @Resource
     private FrankDAO frankDAO;

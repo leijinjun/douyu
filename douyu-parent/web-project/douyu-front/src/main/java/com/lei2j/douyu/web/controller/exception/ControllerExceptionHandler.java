@@ -46,32 +46,32 @@ public class ControllerExceptionHandler {
         if (webRequest instanceof ServletWebRequest) {
             ServletWebRequest servletWebRequest = (ServletWebRequest) webRequest;
         }
-        if(ex instanceof ConstraintViolationException){
+        if (ex instanceof ConstraintViolationException) {
             ConstraintViolationException violationException = (ConstraintViolationException) ex;
             Set<ConstraintViolation<?>> violationSet = violationException.getConstraintViolations();
             String errorMessage = "";
-            if(!CollectionUtils.isEmpty(violationSet)){
+            if (!CollectionUtils.isEmpty(violationSet)) {
                 Optional<ConstraintViolation<?>> violationOptional = violationSet.stream().findFirst();
-                errorMessage = violationOptional.isPresent()?violationOptional.get().getMessage():"";
+                errorMessage = violationOptional.isPresent() ? violationOptional.get().getMessage() : "";
             }
-            return handleExceptionInternal(HttpStatus.OK, new Response(400,errorMessage),ex);
-        } else if (ex instanceof MissingServletRequestParameterException){
-            MissingServletRequestParameterException requestParameterException = (MissingServletRequestParameterException)ex;
+            return handleExceptionInternal(HttpStatus.OK, new Response(400, errorMessage), ex);
+        } else if (ex instanceof MissingServletRequestParameterException) {
+            MissingServletRequestParameterException requestParameterException = (MissingServletRequestParameterException) ex;
             String errorMessage = requestParameterException.getMessage();
-            return handleExceptionInternal(HttpStatus.OK,new Response(400,errorMessage),ex);
+            return handleExceptionInternal(HttpStatus.OK, new Response(400, errorMessage), ex);
         } else if (ex instanceof BindException) {
-            BindException bindException = (BindException)ex;
+            BindException bindException = (BindException) ex;
             FieldError fieldError = bindException.getFieldError();
             String errorMessage = fieldError.getDefaultMessage();
-            return handleExceptionInternal(HttpStatus.OK,new Response(400,errorMessage),ex);
+            return handleExceptionInternal(HttpStatus.OK, new Response(400, errorMessage), ex);
         } else {
-            return handleExceptionInternal(HttpStatus.INTERNAL_SERVER_ERROR,Response.INTERNAL_SERVER_ERROR,ex);
+            return handleExceptionInternal(HttpStatus.INTERNAL_SERVER_ERROR, Response.INTERNAL_SERVER_ERROR, ex);
         }
     }
 
     private Response handleExceptionInternal(HttpStatus status,Response response,Exception ex){
-        if (status==HttpStatus.INTERNAL_SERVER_ERROR){
-            LOGGER.error("Controller exception error message:",ex);
+        if (status == HttpStatus.INTERNAL_SERVER_ERROR) {
+            LOGGER.error("Controller exception error message:", ex);
         }
         return response;
     }

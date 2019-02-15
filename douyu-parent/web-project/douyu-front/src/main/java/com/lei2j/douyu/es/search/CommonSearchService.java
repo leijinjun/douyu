@@ -41,12 +41,12 @@ public class CommonSearchService {
         pagination.setPageNum(pageNum);
         pagination.setLimit(limit);
         SearchResponse response;
-        if(searchPage.isScroll()){
-            response = deepPage(searchPage,indexName,typeName);
-        }else{
-            response = shallowPage(pagination,indexName,typeName);
+        if (searchPage.isScroll()) {
+            response = deepPage(searchPage, indexName, typeName);
+        } else {
+            response = shallowPage(pagination, indexName, typeName);
         }
-        if(RestStatus.OK!=response.status()){
+        if (RestStatus.OK != response.status()) {
             throw new RuntimeException("查询数据错误");
         }
         SearchHits responseHits = response.getHits();
@@ -55,11 +55,11 @@ public class CommonSearchService {
         List<T> list = convert(it,mapperClass);
         if(searchPage.isScroll()){
             int totalCount = pagination.getTotal();
-            logger.info("查询总数:{}",totalCount);
+            logger.info("查询总数:{}", totalCount);
             List<T> totalList = new ArrayList<>(totalCount);
             totalList.addAll(list);
-            while (list.size()!=0){
-                response = deepPage(searchPage,indexName,typeName);
+            while (list.size() != 0) {
+                response = deepPage(searchPage, indexName, typeName);
                 list = convert(response.getHits().iterator(), mapperClass);
                 totalList.addAll(list);
             }
@@ -68,7 +68,7 @@ public class CommonSearchService {
             ClearScrollRequest clearScrollRequest = new ClearScrollRequest();
             clearScrollRequest.addScrollId(scrollId);
             boolean succeeded = searchClient.client().clearScroll(clearScrollRequest).actionGet().isSucceeded();
-            logger.info("clear scrollId:{},status:{}",scrollId,succeeded);
+            logger.info("clear scrollId:{},status:{}", scrollId, succeeded);
         }
         pagination.setItems(list);
         return  pagination;
@@ -133,12 +133,12 @@ public class CommonSearchService {
 
     private <T> List<T> convert(Iterator<SearchHit> it,Class<T> mapperClass){
         List<T> list = new ArrayList<>(10);
-        if(it!=null){
-            while (it.hasNext()){
+        if (it != null) {
+            while (it.hasNext()) {
                 SearchHit next = it.next();
                 Map<String, Object> source = next.getSourceAsMap();
                 String json = JSONObject.toJSONString(source);
-                list.add(JSONObject.parseObject(json,mapperClass));
+                list.add(JSONObject.parseObject(json, mapperClass));
             }
         }
         return list;

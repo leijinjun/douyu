@@ -1,5 +1,7 @@
 package com.lei2j.douyu.vo;
 
+import com.alibaba.fastjson.annotation.JSONField;
+
 import java.io.Serializable;
 
 /**
@@ -9,10 +11,13 @@ public class RoomVo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    @JSONField(name = "room_id")
     private Integer roomId;
 
+    @JSONField(name="room_src")
     private String roomSrc;
 
+    @JSONField(name = "room_name")
     private String roomName;
 
     private String nickname;

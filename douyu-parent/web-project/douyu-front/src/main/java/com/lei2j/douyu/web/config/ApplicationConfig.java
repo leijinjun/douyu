@@ -2,8 +2,7 @@ package com.lei2j.douyu.web.config;
 
 import org.hibernate.validator.HibernateValidator;
 import org.springframework.boot.autoconfigure.cache.CacheManagerCustomizer;
-import org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean;
-import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
+import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -30,11 +29,9 @@ public class ApplicationConfig {
         return validator;
     }
 
-    @Bean
-    public CacheManagerCustomizer<ConcurrentMapCacheManager> cacheManagerCustomizer(){
-        return (cacheManager)->{
-            //do nothing
-        };
-    }
+    /*@Bean
+    public CacheManagerCustomizer<CaffeineCacheManager> cacheManagerCustomizer() {
+        return (cacheManager)-> cacheManager.setAllowNullValues(false);
+    }*/
 
 }

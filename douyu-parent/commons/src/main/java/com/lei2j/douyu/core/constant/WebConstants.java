@@ -5,7 +5,7 @@ package com.lei2j.douyu.core.constant;
  */
 public interface WebConstants {
 
-    String REQUEST_ATTR_ORIGIN_IP = "originIP";
+    String REQUEST_ATTR_ORIGIN_IP = "ORIGIN_IP";
 
-    String USER_LOGIN_STATUS = "userLoginStatus";
+    String USER_LOGIN_STATUS = "USER_LOGIN_STATUS";
 }

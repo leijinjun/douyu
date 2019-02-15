@@ -25,7 +25,7 @@ public interface DouyuLogin {
      * @return
      */
     Integer getRoom();
-    
+
     /**
      * 重连
      */

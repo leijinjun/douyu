@@ -1,9 +1,11 @@
 package com.lei2j.douyu.web.response;
 
+import com.lei2j.douyu.core.enums.EnumType;
+
 /**
  * Created by lei2j on 2018/5/17.
  */
-public enum  ResponseCode {
+public enum  ResponseCode implements EnumType<ResponseCode>{
 
     OK(200,"成功"),
     BAD_REQUEST(400,"请求出错"),
@@ -35,15 +37,8 @@ public enum  ResponseCode {
         return message;
     }
 
-    public static ResponseCode codeOf(int code){
-        ResponseCode[] values = ResponseCode.values();
-        for (ResponseCode var:
-             values) {
-            if(var.getCode()==code){
-                return var;
-            }
-        }
-        return null;
+    @Override
+    public boolean eq(int code) {
+        return this.code == code;
     }
-
 }

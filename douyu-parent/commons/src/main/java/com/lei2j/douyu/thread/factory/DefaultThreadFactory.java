@@ -4,16 +4,16 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class DefaultThreadFactory implements ThreadFactory{
-	
+
 	private static ThreadGroup threadGroup;
 	private AtomicInteger threadNumber = new AtomicInteger(1);
-	
+
 	private String namePattern;
-	
+
 	private Boolean daemon;
-	
+
 	private Integer priority;
-	
+
 	public DefaultThreadFactory() {
 		SecurityManager securityManager = System.getSecurityManager();
 		if (securityManager != null) {
@@ -22,7 +22,7 @@ public class DefaultThreadFactory implements ThreadFactory{
 			threadGroup = Thread.currentThread().getThreadGroup();
 		}
 	}
-	
+
 	public DefaultThreadFactory(String namePattern, boolean daemon, int priority) {
 		this();
 		this.namePattern = namePattern;
@@ -37,7 +37,7 @@ public class DefaultThreadFactory implements ThreadFactory{
 		if (priority != null) {
 			thread.setPriority(priority);
 		}
-		thread.setDaemon(daemon==null?null:daemon);
+		thread.setDaemon(daemon == null ? null : daemon);
 		return thread;
 	}
 

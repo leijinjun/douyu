@@ -47,6 +47,7 @@
         <quartz.version>2.3.0</quartz.version>
         <spring.version>5.0.6.RELEASE</spring.version>
         <hibernate.validator.version>6.0.13.Final</hibernate.validator.version>
+        <caffeine.version>2.6.2</caffeine.version>
     </properties>
 
     <dependencies>
@@ -149,6 +150,11 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-context-support</artifactId>
                 <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.ben-manes.caffeine</groupId>
+                <artifactId>caffeine</artifactId>
+                <version>${caffeine.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

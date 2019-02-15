@@ -36,25 +36,25 @@ public class GiftIndex extends AbstractIndex {
     }
 
     @Override
-    public boolean createDocumentWithMap(String id,Map<String,Object> document){
+    public boolean createDocumentWithMap(String id, Map<String, Object> document) {
         IndexResponse response = client.client().prepareIndex(INDEX_NAME, TYPE_NAME)
                 .setId(id).setSource(document, XContentType.JSON)
                 .get();
-        return response.status()==RestStatus.OK?true:false;
+        return response.status() == RestStatus.OK ? true : false;
     }
 
     @Override
     public boolean createDocumentWithString(String id, String json) {
         IndexResponse response = client.client().prepareIndex(INDEX_NAME, TYPE_NAME)
                 .setId(id)
-                .setSource(json,XContentType.JSON)
+                .setSource(json, XContentType.JSON)
                 .get();
-        return response.status()==RestStatus.OK?true:false;
+        return response.status() == RestStatus.OK ? true : false;
     }
 
     @Override
-    protected boolean createDocumentWithBuilder(String id, Serializable giftVO) throws IOException{
-		return false;
+    protected boolean createDocumentWithBuilder(String id, Serializable giftVO) throws IOException {
+        return false;
 //        IndexResponse response = client.client().prepareIndex(INDEX_NAME, TYPE_NAME)
 //                .setId(id).setSource(super.builderDocument(giftVO))
 //                .get();

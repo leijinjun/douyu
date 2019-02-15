@@ -4,6 +4,7 @@ import com.lei2j.douyu.cache.CacheRoomService;
 import com.lei2j.douyu.core.ApplicationContextUtil;
 import com.lei2j.douyu.core.config.DouyuAddress;
 import com.lei2j.douyu.login.message.handler.MessageHandler;
+import com.lei2j.douyu.service.ExecutorTaskService;
 import com.lei2j.douyu.thread.factory.DefaultThreadFactory;
 import com.lei2j.douyu.vo.RoomDetailVo;
 import com.lei2j.douyu.vo.RoomGiftVo;
@@ -32,10 +33,12 @@ public abstract class AbstractDouyuLogin implements DouyuLogin,MessageDispatcher
     /**
      * 斗鱼消息处理线程池
      */
-    protected static ThreadPoolExecutor executor = new ThreadPoolExecutor(2,5, 30, TimeUnit.MINUTES, new ArrayBlockingQueue<>(10000),
-    		new DefaultThreadFactory("Thread-douyu-message-%d", true, 10),(runnable,threadPoolExecutor)->{
-    			
-        }
+    protected static ThreadPoolExecutor douyuMessageExecutor = new ThreadPoolExecutor(Runtime.getRuntime()
+            .availableProcessors()
+            +1,5, 30, TimeUnit.MINUTES, new ArrayBlockingQueue<>(10000),
+            new DefaultThreadFactory("Thread-douyu-message-%d", true, 10),(runnable,threadPoolExecutor)->{
+
+    }
     );
 
     /**
@@ -100,13 +103,13 @@ public abstract class AbstractDouyuLogin implements DouyuLogin,MessageDispatcher
             return;
         }
         DouyuLogin douyuLogin = this;
-        executor.execute(()->{
+        douyuMessageExecutor.execute(() -> {
             MessageHandler messageHandler = MessageHandler.HANDLER_MAP.get(type);
             if (messageHandler != null) {
-                messageHandler.handler(messageMap,douyuLogin);
+                messageHandler.handler(messageMap, douyuLogin);
             }
         });
-	}
+    }
 
     public Map<Integer,RoomGiftVo> getRoomGift(){
         Map<Integer,RoomGiftVo> dataMap = new HashMap<>(8);

@@ -5,6 +5,7 @@ import com.lei2j.douyu.core.controller.BaseController;
 import com.lei2j.douyu.login.service.DouyuLogin;
 import com.lei2j.douyu.login.service.DouyuNioLogin;
 import com.lei2j.douyu.login.service.DouyuNormalLogin;
+import com.lei2j.douyu.service.ExecutorTaskService;
 import com.lei2j.douyu.vo.RoomDetailVo;
 import com.lei2j.douyu.web.response.Response;
 
@@ -33,8 +34,8 @@ public class DouyuLoginController extends BaseController{
 
     @PostMapping("/login/{room:\\d+}")
     public Response loginRoom(@PathVariable("room") Integer room) throws IOException{
-        if (cacheRoomService.get(room)!=null){
-            logger.info("该房间{}已存在",room);
+        if (cacheRoomService.containsKey(room)) {
+            logger.info("该房间{}已存在", room);
             return Response.newInstance(ResponseCode.ROOM_CONNECT_EXISTS);
         }
         RoomDetailVo roomDetailVO = DouyuUtil.getRoomDetail(room);

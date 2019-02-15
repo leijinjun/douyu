@@ -6,9 +6,8 @@ import org.springframework.util.StringUtils;
 
 
 public class IPUtil {
-	
-	private IPUtil() throws IllegalAccessException {
-		throw new IllegalAccessException(" does not access,is private");
+
+	private IPUtil() {
 	}
 
 	public static String getOriginRequestIP(HttpServletRequest request) {

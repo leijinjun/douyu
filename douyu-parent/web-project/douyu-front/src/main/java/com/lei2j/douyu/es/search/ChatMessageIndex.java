@@ -69,25 +69,25 @@ public class ChatMessageIndex extends AbstractIndex {
     }
 
     public void createBatchDocument(List<ChatMessageVo> list) throws IOException, InterruptedException, ExecutionException {
-    	BulkRequestBuilder prepareBulk = client.client().prepareBulk();
-    	if(list!=null) {
-    		for (ChatMessageVo item : list) {
-    			prepareBulk.add(client.client()
-    					.prepareIndex(INDEX_NAME, TYPE_NAME,item.getCid())
-    					.setSource(buildSource(item)));
+		BulkRequestBuilder prepareBulk = client.client().prepareBulk();
+		if (list != null) {
+			for (ChatMessageVo item : list) {
+				prepareBulk.add(client.client()
+						.prepareIndex(INDEX_NAME, TYPE_NAME, item.getCid())
+						.setSource(buildSource(item)));
 			}
-    		BulkResponse bulkResponse = prepareBulk.get();
-    		if(bulkResponse.hasFailures()) {
-    			logger.error("执行结果:"+bulkResponse.buildFailureMessage());
-    			Iterator<BulkItemResponse> iterator = bulkResponse.iterator();
-    			while(iterator.hasNext()){
-    				BulkItemResponse itemResponse = iterator.next();
-    				String id = itemResponse.getFailure().getId();
-    				logger.error("chat[id:{},插入失败,失败原因:{}]",id,itemResponse.getFailureMessage());
-    			}
-    		}
-    	}
-    }
+			BulkResponse bulkResponse = prepareBulk.get();
+			if (bulkResponse.hasFailures()) {
+				logger.error("执行结果:" + bulkResponse.buildFailureMessage());
+				Iterator<BulkItemResponse> iterator = bulkResponse.iterator();
+				while (iterator.hasNext()) {
+					BulkItemResponse itemResponse = iterator.next();
+					String id = itemResponse.getFailure().getId();
+					logger.error("chat[id:{},插入失败,失败原因:{}]", id, itemResponse.getFailureMessage());
+				}
+			}
+		}
+	}
 
     protected XContentBuilder buildSource(ChatMessageVo chatMessage) throws IOException {
     	XContentBuilder xContentBuilder = XContentFactory.jsonBuilder()

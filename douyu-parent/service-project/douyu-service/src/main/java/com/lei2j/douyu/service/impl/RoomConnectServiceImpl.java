@@ -18,7 +18,7 @@ import java.util.List;
  * Created by lei2j on 2018/11/18.
  */
 @Component
-public class RoomConnectServiceImpl implements RoomConnectService{
+public class RoomConnectServiceImpl extends BaseServiceImpl implements RoomConnectService{
 
     @Resource
     private RoomConnectDAO roomConnectDAO;

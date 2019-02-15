@@ -8,6 +8,7 @@ import com.lei2j.douyu.login.service.DouyuNioLogin;
 import com.lei2j.douyu.login.service.DouyuNormalLogin;
 import com.lei2j.douyu.pojo.RoomConnectEntity;
 import com.lei2j.douyu.qo.RoomConnectQuery;
+import com.lei2j.douyu.service.ExecutorTaskService;
 import com.lei2j.douyu.service.RoomConnectService;
 import com.lei2j.douyu.util.HttpUtil;
 import com.lei2j.douyu.web.response.Pagination;
@@ -57,10 +58,11 @@ public class DouyuConnectJob extends DouyuJob {
         Pagination<RoomConnectEntity, RoomConnectQuery> pageByCondition = roomConnectService.getPageByCondition(pagination);
         List<RoomConnectEntity> items = pageByCondition.getItems();
         while (!CollectionUtils.isEmpty(items)){
-            items.forEach((item)->{
+            for (RoomConnectEntity item :
+                    items) {
                 Integer roomId = item.getRoomId();
-                if(cacheRoomService.containsKey(roomId)){
-                   return;
+                if (cacheRoomService.containsKey(roomId)) {
+                    return;
                 }
                 String url = DouyuApi.ROOM_DETAIL_API.replace("{room}",String.valueOf(roomId));
                 String jsonStr = HttpUtil.get(url,null);
@@ -89,7 +91,7 @@ public class DouyuConnectJob extends DouyuJob {
                 }else{
                     LOGGER.error("获取房间|{}信息错误",roomId);
                 }
-            });
+            }
             pageNum++;
             pagination.setPageNum(pageNum);
             pageByCondition = roomConnectService.getPageByCondition(pagination);

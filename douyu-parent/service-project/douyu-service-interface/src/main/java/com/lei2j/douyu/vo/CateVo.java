@@ -10,7 +10,7 @@ public class CateVo implements Serializable {
 
     private String alias;
 
-    private Integer cateId;
+    private String cateId;
 
     private String img;
 
@@ -22,11 +22,11 @@ public class CateVo implements Serializable {
         this.cateName = cateName;
     }
 
-    public Integer getCateId() {
+    public String getCateId() {
         return cateId;
     }
 
-    public void setCateId(Integer cateId) {
+    public void setCateId(String cateId) {
         this.cateId = cateId;
     }
 
@@ -44,5 +44,16 @@ public class CateVo implements Serializable {
 
     public void setAlias(String alias) {
         this.alias = alias;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuffer sb = new StringBuffer("CateVo{");
+        sb.append("cateName='").append(cateName).append('\'');
+        sb.append(", alias='").append(alias).append('\'');
+        sb.append(", cateId='").append(cateId).append('\'');
+        sb.append(", img='").append(img).append('\'');
+        sb.append('}');
+        return sb.toString();
     }
 }

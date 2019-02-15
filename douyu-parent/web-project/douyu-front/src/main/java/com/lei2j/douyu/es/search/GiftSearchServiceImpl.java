@@ -69,10 +69,10 @@ public class GiftSearchServiceImpl extends CommonSearchService implements GiftSe
         logger.info("ElasticSearch查询参数:{}",searchRequestBuilder.toString());
         SearchResponse userCountsResponse = searchRequestBuilder.get();
         BigDecimal sum = BigDecimal.ZERO;
-        if(userCountsResponse.status()==RestStatus.OK){
+        if (userCountsResponse.status() == RestStatus.OK) {
             InternalSum vaInternalSum = userCountsResponse.getAggregations().get(key);
             sum = new BigDecimal(vaInternalSum.getValue());
-            logger.info("sum:{}",sum);
+            logger.info("sum:{}", sum);
         }
         return sum;
     }
@@ -97,7 +97,7 @@ public class GiftSearchServiceImpl extends CommonSearchService implements GiftSe
         logger.info("ElasticSearch查询参数:{}",searchRequestBuilder.toString());
         SearchResponse userCountsResponse = searchRequestBuilder.get();
         Integer giftUserCounts = 0;
-        if(RestStatus.OK==userCountsResponse.status()){
+        if (RestStatus.OK == userCountsResponse.status()) {
             Cardinality cardinality = userCountsResponse.getAggregations().get(key);
             Long value = cardinality.getValue();
             giftUserCounts = value.intValue();
@@ -130,15 +130,16 @@ public class GiftSearchServiceImpl extends CommonSearchService implements GiftSe
         logger.info("ElasticSearch查询参数：{}",searchRequestBuilder);
         SearchResponse searchResponse = searchRequestBuilder.get();
         Map<String,Object> map = new HashMap<>(7);
-        if(RestStatus.OK==searchResponse.status()){
+        if (RestStatus.OK == searchResponse.status()) {
             InternalDateHistogram dateHistogramInterval = searchResponse.getAggregations().get(key);
             List<InternalDateHistogram.Bucket> buckets = dateHistogramInterval.getBuckets();
-            buckets.forEach((var)->{
-                InternalAggregations internalAggregations = (InternalAggregations)var.getAggregations();
-                InternalSum aggregation = (InternalSum)internalAggregations.asList().get(0);
-                DateTime dateTime = (DateTime)var.getKey();
-                map.put(dateTime.toLocalDate().toString(DateFormatConstants.DATE_FORMAT),aggregation.getValue());
-            });
+            for (InternalDateHistogram.Bucket item:
+                 buckets) {
+                InternalAggregations internalAggregations = (InternalAggregations) item.getAggregations();
+                InternalSum aggregation = (InternalSum) internalAggregations.asList().get(0);
+                DateTime dateTime = (DateTime) item.getKey();
+                map.put(dateTime.toLocalDate().toString(DateFormatConstants.DATE_FORMAT), aggregation.getValue());
+            }
         }
         return map;
     }
@@ -169,15 +170,16 @@ public class GiftSearchServiceImpl extends CommonSearchService implements GiftSe
         logger.info("ElasticSearch查询参数：{}",searchRequestBuilder);
         SearchResponse searchResponse = searchRequestBuilder.get();
         Map<String,Integer> dataMap = new HashMap<>(7);
-        if(searchResponse.status()==RestStatus.OK){
+        if (searchResponse.status() == RestStatus.OK) {
             InternalDateHistogram dateHistogramInterval = searchResponse.getAggregations().get(key);
             List<InternalDateHistogram.Bucket> buckets = dateHistogramInterval.getBuckets();
-            buckets.forEach((var)->{
-                Cardinality cardinality = var.getAggregations().get(subKey);
+            for (InternalDateHistogram.Bucket item :
+                    buckets) {
+                Cardinality cardinality = item.getAggregations().get(subKey);
                 Long value = cardinality.getValue();
-                DateTime dateTime = (DateTime)var.getKey();
-                dataMap.put(dateTime.toLocalDate().toString(DateFormatConstants.DATE_FORMAT),value.intValue());
-            });
+                DateTime dateTime = (DateTime) item.getKey();
+                dataMap.put(dateTime.toLocalDate().toString(DateFormatConstants.DATE_FORMAT), value.intValue());
+            }
         }
         return dataMap;
     }
@@ -210,27 +212,28 @@ public class GiftSearchServiceImpl extends CommonSearchService implements GiftSe
         	.get();
         List<Map<String, Object>> list = new ArrayList<>(7);
         if(searchResponse.status()==RestStatus.OK) {
-        	LongTerms longTerms = searchResponse.getAggregations().get(key);
-        	List<Bucket> buckets = longTerms.getBuckets();
-        	buckets.forEach((item)->{
-        		Map<String, Object> dataMap = new HashMap<>(3);
-        		//用户uid
-        		Object uid = item.getKey();
-        		InternalAggregations internalAggregations = (InternalAggregations) item.getAggregations();
-        		InternalSum internalSum = internalAggregations.get(subKey);
-        		//礼物价值
-        		double giftValue = internalSum.getValue();
-        		InternalTopHits internalTopHits = internalAggregations.get(topHitKey);
-        		SearchHit searchHit = internalTopHits.getHits().getAt(0);
-        		//用户昵称
-        		Object nn = searchHit.field("nn").getValue();
-        		Object ic = searchHit.field("ic").getValue();
-        		dataMap.put("uid", uid);
-        		dataMap.put("value", giftValue);
-        		dataMap.put("nn", nn);
-        		dataMap.put("ic", ic);
-        		list.add(dataMap);
-        	});
+            LongTerms longTerms = searchResponse.getAggregations().get(key);
+            List<Bucket> buckets = longTerms.getBuckets();
+            for (Bucket item :
+                    buckets) {
+                Map<String, Object> dataMap = new HashMap<>(3);
+                //用户uid
+                Object uid = item.getKey();
+                InternalAggregations internalAggregations = (InternalAggregations) item.getAggregations();
+                InternalSum internalSum = internalAggregations.get(subKey);
+                //礼物价值
+                double giftValue = internalSum.getValue();
+                InternalTopHits internalTopHits = internalAggregations.get(topHitKey);
+                SearchHit searchHit = internalTopHits.getHits().getAt(0);
+                //用户昵称
+                Object nn = searchHit.field("nn").getValue();
+                Object ic = searchHit.field("ic").getValue();
+                dataMap.put("uid", uid);
+                dataMap.put("value", giftValue);
+                dataMap.put("nn", nn);
+                dataMap.put("ic", ic);
+                list.add(dataMap);
+            }
         }
         return list;
 	}

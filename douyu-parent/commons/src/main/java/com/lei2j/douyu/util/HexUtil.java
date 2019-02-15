@@ -5,9 +5,9 @@ package com.lei2j.douyu.util;
  */
 public class HexUtil {
 
-    public static String toHexString(byte[] bs){
+    public static String toHexString(byte[] bs) {
         StringBuilder sb = new StringBuilder();
-        for (byte b:
+        for (byte b :
                 bs) {
             int var1 = 0XFF & b;
             String var2 = Integer.toHexString(var1);
@@ -21,12 +21,12 @@ public class HexUtil {
 
     public static byte[] hexToBytes(String hexStr) {
         if ((hexStr.length() & 1) == 1) {
-            hexStr = "0"+hexStr;
+            hexStr = "0" + hexStr;
         }
         int len = (hexStr.length() + 1) / 2;
         byte[] bs = new byte[len];
-        for (int i = 0,j=0; i < hexStr.length(); i += 2,j++) {
-            bs[j] = (byte)Integer.parseInt(hexStr.substring(i,i+2),16);
+        for (int i = 0, j = 0; i < hexStr.length(); i += 2, j++) {
+            bs[j] = (byte) Integer.parseInt(hexStr.substring(i, i + 2), 16);
         }
         return bs;
     }

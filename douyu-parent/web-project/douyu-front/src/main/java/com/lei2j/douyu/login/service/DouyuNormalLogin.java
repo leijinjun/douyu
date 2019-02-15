@@ -1,6 +1,7 @@
 package com.lei2j.douyu.login.service;
 
 import com.lei2j.douyu.login.exception.DouyuMessageReadException;
+import com.lei2j.douyu.service.ExecutorTaskService;
 import com.lei2j.douyu.web.util.DouyuUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,8 +16,6 @@ import java.util.concurrent.*;
  * Created by lei2j on 2018/5/28.
  */
 public class DouyuNormalLogin extends AbstractDouyuLogin {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(DouyuNormalLogin.class);
 
     private DouyuConnection douyuConnection;
 
@@ -47,10 +46,10 @@ public class DouyuNormalLogin extends AbstractDouyuLogin {
         }
         this.douyuAddress = danmuLoginAuth.getAddress();
         String username = danmuLoginAuth.getUsername();
-        LOGGER.info("开始连接弹幕服务器:{}:{}", douyuAddress.getIp(), douyuAddress.getPort());
+        logger.info("开始连接弹幕服务器:{}:{}", douyuAddress.getIp(), douyuAddress.getPort());
         this.douyuConnection = DouyuConnection.initConnection(douyuAddress);
         douyuConnection.write(DouyuMessageConfig.getLoginMessage(room, username, "1234567890123456"));
-        LOGGER.info("房间|{},连接弹幕服务器成功", room);
+        logger.info("房间|{},连接弹幕服务器成功", room);
         join();
         if (keepliveSchedule != null) {
             keepliveSchedule.cancel();
@@ -84,15 +83,15 @@ public class DouyuNormalLogin extends AbstractDouyuLogin {
     private void join() throws IOException {
         //加入房间分组
         douyuConnection.write(DouyuMessageConfig.getJoinMessage(room));
-        LOGGER.info("房间|{},开始加入房间分组", room);
+        logger.info("房间|{},开始加入房间分组", room);
         Map<String, Object> messageMap = MessageParse.parse(douyuConnection.read());
         String type = "type";
         String error = "error";
         if (error.equals(messageMap.get(type))) {
-            LOGGER.error("房间|{},加入分组失败,错误信息:{}", messageMap);
+            logger.error("房间|{},加入分组失败,错误信息:{}", messageMap);
             return;
         }
-        LOGGER.info("房间{}|加入分组成功", room);
+        logger.info("房间{}|加入分组成功", room);
     }
     
     private int read() {
@@ -107,7 +106,7 @@ public class DouyuNormalLogin extends AbstractDouyuLogin {
 			if (douyuConnection.isClosed()) {
 				return 0;
 			} else {
-				LOGGER.error("房间|{}读取消息异常",room);
+                logger.error("房间|{}读取消息异常",room);
 				e.printStackTrace();
 			}
         }
@@ -139,7 +138,7 @@ public class DouyuNormalLogin extends AbstractDouyuLogin {
      */
     @Override
     public void retry() {
-        LOGGER.info("重新登录房间:{}", room);
+        logger.info("重新登录房间:{}", room);
         try {
 			if (!douyuConnection.isClosed()) {
 				douyuConnection.close();
@@ -163,7 +162,7 @@ public class DouyuNormalLogin extends AbstractDouyuLogin {
         DouyuMessage keepliveMessage = DouyuMessageConfig.getKeepliveMessage();
         try {
             douyuConnection.write(keepliveMessage);
-            LOGGER.info("房间|{}发送心跳检测,时间:{}", this.room, LocalDateTime.now().toString());
+            logger.info("房间|{}发送心跳检测,时间:{}", this.room, LocalDateTime.now().toString());
         } catch (Exception e) {
             keepliveSchedule.cancel();
             logger.info("房间{}|心跳检测停止", room);

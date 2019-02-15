@@ -55,13 +55,13 @@ public class ChatSearchServiceImpl extends CommonSearchService implements ChatSe
         SearchRequestBuilder searchRequestBuilder = searchClient.client().prepareSearch(ChatMessageIndex.INDEX_NAME).setTypes(ChatMessageIndex.TYPE_NAME)
                 .setQuery(queryBuilder)
                 .addAggregation(aggregationBuilder);
-        logger.info("查询参数:{}",searchRequestBuilder.toString());
+        logger.info("查询参数:{}", searchRequestBuilder.toString());
         SearchResponse userCountsResponse = searchRequestBuilder.get();
         Integer userCounts = 0;
-        if(userCountsResponse.status()==RestStatus.OK){
-            Cardinality cardinality  = userCountsResponse.getAggregations().get(key);
+        if (userCountsResponse.status() == RestStatus.OK) {
+            Cardinality cardinality = userCountsResponse.getAggregations().get(key);
             Long value = cardinality.getValue();
-            logger.info("total:{}",value);
+            logger.info("total:{}", value);
             userCounts = value.intValue();
         }
         return userCounts;
@@ -90,14 +90,15 @@ public class ChatSearchServiceImpl extends CommonSearchService implements ChatSe
         logger.info("ElasticSearch查询参数：{}",searchRequestBuilder);
         SearchResponse searchResponse = searchRequestBuilder.get();
         Map<String,Integer> map = new HashMap<>(7);
-        if(RestStatus.OK==searchResponse.status()){
+        if (RestStatus.OK == searchResponse.status()) {
             InternalDateHistogram dateHistogramInterval = searchResponse.getAggregations().get(key);
             List<InternalDateHistogram.Bucket> buckets = dateHistogramInterval.getBuckets();
-            buckets.forEach((var)->{
-                Long docCount = var.getDocCount();
-                DateTime dateTime = (DateTime)var.getKey();
-                map.put(dateTime.toLocalDate().toString(DateFormatConstants.DATE_FORMAT),docCount.intValue());
-            });
+            for (InternalDateHistogram.Bucket item:
+                 buckets) {
+                Long docCount = item.getDocCount();
+                DateTime dateTime = (DateTime) item.getKey();
+                map.put(dateTime.toLocalDate().toString(DateFormatConstants.DATE_FORMAT), docCount.intValue());
+            }
         }
         return map;
     }
@@ -131,12 +132,13 @@ public class ChatSearchServiceImpl extends CommonSearchService implements ChatSe
         if(RestStatus.OK==searchResponse.status()){
             InternalDateHistogram dateHistogramInterval = searchResponse.getAggregations().get(key);
             List<InternalDateHistogram.Bucket> buckets = dateHistogramInterval.getBuckets();
-            buckets.forEach((var)->{
-                Cardinality cardinality = var.getAggregations().get(subKey);
+            for (InternalDateHistogram.Bucket item:
+                 buckets) {
+                Cardinality cardinality = item.getAggregations().get(subKey);
                 Long value = cardinality.getValue();
-                DateTime dateTime = (DateTime)var.getKey();
+                DateTime dateTime = (DateTime)item.getKey();
                 map.put(dateTime.toLocalDate().toString(DateFormatConstants.DATE_FORMAT),value.intValue());
-            });
+            }
         }
         return map;
     }

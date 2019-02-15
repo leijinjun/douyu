@@ -24,10 +24,6 @@ public class GiftHandler extends AbstractMessageHandler{
     @Resource
     private GiftIndex giftIndex;
 
-    public GiftHandler() {
-        super();
-    }
-
     @Override
     public void handler(Map<String, Object> messageMap, DouyuLogin douyuLogin) {
         GiftVo giftVO = JSONObject.parseObject(JSONObject.toJSONString(messageMap), GiftVo.class);

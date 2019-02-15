@@ -24,10 +24,7 @@ public class ChatHandler extends AbstractMessageHandler{
 
     @Resource
     private ChatMessageIndex chatMessageIndex;
-    
-    protected ChatHandler() {
-        super();
-    }
+
     @Override
     public void handler(Map<String, Object> messageMap, DouyuLogin douyuLogin) {
         ChatMessageVo chatMessage = JSONObject.parseObject(JSONObject.toJSONString(messageMap), ChatMessageVo.class);

@@ -22,10 +22,6 @@ public abstract class AbstractIndex {
 
     protected ElasticSearchClient client;
 
-    protected AbstractIndex(){
-
-    }
-
     protected AbstractIndex(ElasticSearchClient client){
         this.client = client;
     }
@@ -38,7 +34,7 @@ public abstract class AbstractIndex {
                             settings
                     ).addMapping(type,this.buildMapping()).get();
         }
-        boolean isCreated= indexResponse!=null?indexResponse.isAcknowledged():false;
+        boolean isCreated = indexResponse != null ? indexResponse.isAcknowledged() : false;
         if(isCreated){
             logger.info("created index [{}]",indexName);
         }else {
