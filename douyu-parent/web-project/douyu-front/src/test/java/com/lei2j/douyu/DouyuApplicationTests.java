@@ -3,10 +3,8 @@ package com.lei2j.douyu;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.lei2j.douyu.core.ApplicationContextUtil;
-import com.lei2j.douyu.es.search.ChatMessageIndex;
-import com.lei2j.douyu.es.search.GiftIndex;
-import com.lei2j.douyu.login.service.DouyuNormalLogin;
-import com.lei2j.douyu.service.ExecutorTaskService;
+import com.lei2j.douyu.service.impl.es.ChatMessageIndex;
+import com.lei2j.douyu.service.impl.es.GiftIndex;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.http.HttpEntity;
@@ -41,7 +39,7 @@ public class DouyuApplicationTests {
     @Autowired
     private ChatMessageIndex chatMessageIndex;
     @Autowired
-    private  GiftIndex giftIndex;
+    private GiftIndex giftIndex;
     @Autowired
     private ApplicationContextUtil applicationContextUtil;
 
@@ -139,14 +137,6 @@ public class DouyuApplicationTests {
 //            System.out.println(new String(dst));
 //        }
         System.out.println(b.toString());
-    }
-
-    @Test
-    public void test7() throws IOException{
-        DouyuNormalLogin douyuNormalLogin = new DouyuNormalLogin(485503);
-        douyuNormalLogin.login();
-        //115.231.106.21,chat
-        //114.118.20.37 login
     }
 
 }

@@ -50,6 +50,11 @@
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.lei2j</groupId>
+            <artifactId>douyu-service</artifactId>
+            <version>1.0</version>
+        </dependency>
     </dependencies>
 
     <build>

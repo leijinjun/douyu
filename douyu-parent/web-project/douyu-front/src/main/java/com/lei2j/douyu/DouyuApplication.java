@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.core.env.*;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.support.DefaultPropertySourceFactory;
@@ -25,7 +24,7 @@ public class DouyuApplication {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DouyuApplication.class);
 
-	private static final String FILE_PATH = "/opt/prod/prod.properties";
+	private static final String FILE_PATH = "/opt/prod/front.properties";
 
 	public static void main(String[] args) {
 		SpringApplication springApplication = new SpringApplication(DouyuApplication.class);
@@ -39,7 +38,8 @@ public class DouyuApplication {
 					return;
 				}
 				EncodedResource encodedResource = new EncodedResource(fileResource, Charset.forName("utf-8"));
-				PropertySource<?> propertySource = defaultPropertySourceFactory.createPropertySource("prod-resource", encodedResource);
+				PropertySource<?> propertySource = defaultPropertySourceFactory.createPropertySource(null,
+						encodedResource);
 				environment.getPropertySources().addFirst(propertySource);
 			} catch (IOException e) {
 				e.printStackTrace();

@@ -26,7 +26,7 @@ public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationInterceptor.class);
 
-	private static String JWT_TOKEN_NAME = "one_token";
+	private static String JWT_TOKEN_NAME = "X-Token";
 
 	private final String SECRET_KEY = "";
 

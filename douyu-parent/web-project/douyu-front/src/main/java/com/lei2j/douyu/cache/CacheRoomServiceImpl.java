@@ -1,10 +1,8 @@
 package com.lei2j.douyu.cache;
 
+import com.lei2j.douyu.danmu.service.DouyuLogin;
 import org.springframework.stereotype.Component;
 
-import com.lei2j.douyu.login.service.DouyuLogin;
-
-import java.lang.ref.SoftReference;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
