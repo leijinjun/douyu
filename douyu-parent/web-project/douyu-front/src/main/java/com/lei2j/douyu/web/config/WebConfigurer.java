@@ -20,10 +20,10 @@ public class WebConfigurer implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(httpRequestInterceptor).order(1).addPathPatterns("/**");
-        registry.addInterceptor(authenticationInterceptor)
-                .order(2)
-                .addPathPatterns("/**")
-                .excludePathPatterns("/auth/user/**");
+//        registry.addInterceptor(authenticationInterceptor)
+//                .order(2)
+//                .addPathPatterns("/**")
+//                .excludePathPatterns("/auth/user/**");
     }
 
     @Override
