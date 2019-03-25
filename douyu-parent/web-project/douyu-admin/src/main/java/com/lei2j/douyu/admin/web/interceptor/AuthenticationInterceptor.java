@@ -1,4 +1,4 @@
-package com.lei2j.douyu.web.interceptor;
+package com.lei2j.douyu.admin.web.interceptor;
 
 import com.alibaba.fastjson.JSONObject;
 import com.lei2j.douyu.core.constant.WebConstants;
@@ -46,7 +46,6 @@ public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
 			verify = jwtVerify.verify();
 		}
 		if (!verify) {
-			LOGGER.warn("Request URI:{},OriginIP:{},用户未认证", request.getRequestURI(), request.getAttribute(WebConstants.REQUEST_ATTR_ORIGIN_IP));
 			request.setAttribute(WebConstants.USER_LOGIN_STATUS,Boolean.FALSE);
 //			setUnAuthResponse(response);
 		}

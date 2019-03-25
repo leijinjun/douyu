@@ -1,4 +1,4 @@
-package com.lei2j.douyu.admin.web.controller;
+package com.lei2j.douyu.web.controller;
 
 import com.lei2j.douyu.web.response.Response;
 import org.springframework.boot.autoconfigure.web.servlet.error.AbstractErrorController;

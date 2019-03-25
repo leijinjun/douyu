@@ -7,7 +7,7 @@ import com.lei2j.douyu.core.enums.EnumType;
  */
 public enum  ResponseCode implements EnumType<ResponseCode>{
 
-    OK(200,"成功"),
+    OK(0,"成功"),
     BAD_REQUEST(400,"请求出错"),
     UNAUTHENTICATED(401,"未认证"),
     FORBIDDEN(403,"未授权"),

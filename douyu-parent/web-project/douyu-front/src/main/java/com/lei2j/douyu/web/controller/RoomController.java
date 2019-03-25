@@ -1,4 +1,4 @@
-package com.lei2j.douyu.admin.web.controller;
+package com.lei2j.douyu.web.controller;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;

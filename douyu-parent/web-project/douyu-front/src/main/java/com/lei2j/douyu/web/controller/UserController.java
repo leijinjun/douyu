@@ -1,4 +1,4 @@
-package com.lei2j.douyu.admin.web.controller;
+package com.lei2j.douyu.web.controller;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.lei2j.douyu.core.constant.ValidatorConstants;

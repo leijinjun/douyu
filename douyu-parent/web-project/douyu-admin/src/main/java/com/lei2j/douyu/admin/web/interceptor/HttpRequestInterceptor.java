@@ -1,4 +1,4 @@
-package com.lei2j.douyu.web.interceptor;
+package com.lei2j.douyu.admin.web.interceptor;
 
 
 import com.lei2j.douyu.core.constant.WebConstants;

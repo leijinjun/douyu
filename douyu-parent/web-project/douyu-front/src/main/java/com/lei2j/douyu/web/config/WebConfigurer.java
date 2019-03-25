@@ -1,4 +1,4 @@
-package com.lei2j.douyu.admin.web.config;
+package com.lei2j.douyu.web.config;
 
 import com.lei2j.douyu.web.interceptor.AuthenticationInterceptor;
 import com.lei2j.douyu.web.interceptor.HttpRequestInterceptor;

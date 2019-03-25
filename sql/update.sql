@@ -95,3 +95,24 @@ UNIQUE INDEX `username_index` (`username`) USING BTREE
 ALTER TABLE `u_user`
 ADD COLUMN `login_fail_num`  int(11) NULL AFTER `regist_ip`,
 ADD COLUMN `login_lock_time`  datetime NULL AFTER `login_fail_num`;
+
+DROP TABLE IF EXISTS `dy_admin_user`;
+CREATE TABLE `dy_admin_user` (
+  `bg_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `username` varchar(255) NOT NULL COMMENT '用户名',
+  `password` varchar(255) NOT NULL COMMENT '密码',
+  `pass_salt` varchar(64) NOT NULL COMMENT '密码盐',
+  `name` varchar(20) DEFAULT NULL COMMENT '姓名',
+  `email` varchar(50) DEFAULT NULL COMMENT '邮箱',
+  `last_login_time` datetime DEFAULT NULL COMMENT '上次登录时间',
+  `last_login_ip` varchar(255) DEFAULT NULL COMMENT '上次登陆IP',
+  `curr_login_time` datetime DEFAULT NULL COMMENT '本次登录时间',
+  `curr_login_ip` varchar(255) DEFAULT NULL COMMENT '本次登录IP',
+  `fail_num` int(11) DEFAULT NULL COMMENT '连续登录失败次数',
+  `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '状态。1=正常，0=删除',
+  `create_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `update_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `create_by` bigint(20) DEFAULT NULL,
+  `update_by` bigint(20) DEFAULT NULL,
+  PRIMARY KEY (`bg_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

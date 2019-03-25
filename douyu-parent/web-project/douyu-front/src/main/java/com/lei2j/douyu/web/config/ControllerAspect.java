@@ -1,4 +1,4 @@
-package com.lei2j.douyu.admin.web.config;
+package com.lei2j.douyu.web.config;
 
 import com.lei2j.douyu.core.constant.WebConstants;
 import com.lei2j.douyu.web.response.Response;

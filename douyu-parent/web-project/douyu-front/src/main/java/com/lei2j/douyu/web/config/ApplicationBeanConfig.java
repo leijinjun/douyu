@@ -1,4 +1,4 @@
-package com.lei2j.douyu.admin.web.config;
+package com.lei2j.douyu.web.config;
 
 import org.hibernate.validator.HibernateValidator;
 import org.springframework.boot.autoconfigure.cache.CacheManagerCustomizer;

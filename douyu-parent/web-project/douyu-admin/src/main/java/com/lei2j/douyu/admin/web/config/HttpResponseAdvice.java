@@ -45,8 +45,8 @@ public class HttpResponseAdvice implements ResponseBodyAdvice<Object> {
 			locale = localeList.get(0);
 		}
 		Response responseBody = (Response) body;
-		if (responseBody.getCode() != ResponseCode.OK.getCode() && responseBody.getMessage() == null) {
-			responseBody.text(messageSource.getMessage(String.valueOf(responseBody.getCode()), null, locale));
+		if (responseBody.getErrCode() != ResponseCode.OK.getCode() && responseBody.getErrMsg() == null) {
+			responseBody.text(messageSource.getMessage(String.valueOf(responseBody.getErrCode()), null, locale));
 		}
 		LOGGER.info("Response message:{}", responseBody);
 		return responseBody;
