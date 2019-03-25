@@ -13,7 +13,7 @@ import java.util.List;
  * @author lei2j
  */
 @Service
-public class NobleServiceImpl implements NobleService {
+public class NobleServiceImpl extends BaseServiceImpl implements NobleService {
 
     @Resource
     private NobleDAO nobleDAO;

@@ -18,7 +18,7 @@ public class RandomUtil {
         return random.nextInt(max);
     }
 
-    public static String getString(int len){
+    public static String getString(int len) {
         Random random = new Random();
         StringBuilder sb = new StringBuilder();
         int max = SER.length;

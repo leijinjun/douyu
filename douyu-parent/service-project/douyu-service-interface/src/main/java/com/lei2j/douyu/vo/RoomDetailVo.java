@@ -1,5 +1,7 @@
 package com.lei2j.douyu.vo;
 
+import com.alibaba.fastjson.annotation.JSONField;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -14,48 +16,58 @@ public class RoomDetailVo implements Serializable{
     /**
      * 房间
      */
+    @JSONField(name = "room_id")
 	private Integer roomId;
 
     /**
      * 房间图片
      */
+    @JSONField(name = "room_thumb")
     private String roomThumb;
 
     /**
      * 分类id
      */
+    @JSONField(name = "cate_id")
     private String cateId;
 
     /**
      * 分类名称
      */
+    @JSONField(name = "cate_name")
     private String cateName;
 
     /**
      * 房间名称
      */
+    @JSONField(name = "room_name")
     private String roomName;
 
     /**
-     * //房间开播状态，1=正在直播，2=还未开播
+     * 房间开播状态，1=正在直播，2=还未开播
      */
+    @JSONField(name = "room_status")
     private Integer roomStatus;
 
     /**
-     * //房间拥有者昵称
+     * 房间拥有者昵称
      */
+    @JSONField(name = "owner_name")
     private String ownerName;
 
     /**
-     * //房间人气
+     * 房间人气
      */
+    @JSONField(name = "hn")
     private Integer hn;
 
     /**
-     * //粉丝数
+     * 粉丝数
      */
+    @JSONField(name = "fans_num")
     private Integer fansNum;
 
+    @JSONField(name = "gift")
     private List<RoomGiftVo> roomGifts;
 
     public Integer getRoomId() {

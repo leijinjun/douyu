@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Locale;
 
 @RestControllerAdvice(annotations = {RestController.class, Controller.class})
-public class HttpResponseAdvice implements ResponseBodyAdvice<Object>{
+public class HttpResponseAdvice implements ResponseBodyAdvice<Object> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(HttpResponseAdvice.class);
 
@@ -29,7 +29,7 @@ public class HttpResponseAdvice implements ResponseBodyAdvice<Object>{
 
 	@Override
 	public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
-		if(returnType.getParameterType()== Response.class){
+		if (returnType.getParameterType() == Response.class) {
 			return true;
 		}
 		return false;
@@ -42,13 +42,13 @@ public class HttpResponseAdvice implements ResponseBodyAdvice<Object>{
 		List<Locale> localeList = request.getHeaders().getAcceptLanguageAsLocales();
 		Locale locale = Locale.getDefault();
 		if (localeList != null && !localeList.isEmpty()) {
-		  locale = localeList.get(0);
+			locale = localeList.get(0);
 		}
-    	Response responseBody = (Response) body;
-		if (responseBody.getCode() != ResponseCode.OK.getCode() && responseBody.getMessage() == null) {
-			responseBody.text(messageSource.getMessage(String.valueOf(responseBody.getCode()), null, locale));
+		Response responseBody = (Response) body;
+		if (responseBody.getErrCode() != ResponseCode.OK.getCode() && responseBody.getErrMsg() == null) {
+			responseBody.text(messageSource.getMessage(String.valueOf(responseBody.getErrCode()), null, locale));
 		}
-		LOGGER.info("Response message:{}",responseBody);
+		LOGGER.info("Response message:{}", responseBody);
 		return responseBody;
 	}
 

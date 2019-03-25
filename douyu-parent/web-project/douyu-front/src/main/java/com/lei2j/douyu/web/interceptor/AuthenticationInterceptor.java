@@ -1,9 +1,5 @@
 package com.lei2j.douyu.web.interceptor;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.alibaba.fastjson.JSONObject;
 import com.lei2j.douyu.core.constant.WebConstants;
 import com.lei2j.douyu.jwt.DefaultJwtClaimsValidator;
@@ -18,6 +14,9 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
@@ -26,7 +25,7 @@ public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationInterceptor.class);
 
-	private static String JWT_TOKEN_NAME = "one_token";
+	private static String JWT_TOKEN_NAME = "X-Token";
 
 	private final String SECRET_KEY = "";
 
@@ -47,7 +46,6 @@ public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
 			verify = jwtVerify.verify();
 		}
 		if (!verify) {
-			LOGGER.warn("Request URI:{},OriginIP:{},用户未认证", request.getRequestURI(), request.getAttribute(WebConstants.REQUEST_ATTR_ORIGIN_IP));
 			request.setAttribute(WebConstants.USER_LOGIN_STATUS,Boolean.FALSE);
 //			setUnAuthResponse(response);
 		}

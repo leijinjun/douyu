@@ -32,7 +32,7 @@ public class WebConfigurer implements WebMvcConfigurer {
                 .allowCredentials(true)
                 .allowedHeaders("*")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                .allowedOrigins("http://127.0.0.1:8882", "https://www.opendanmu.com",
+                .allowedOrigins("http://127.0.0.1:8883","http://localhost:8883", "https://www.opendanmu.com",
                         "http://www.opendanmu.com" ,"https://www.lei2j.com","http://www.lei2j.com")
                 .maxAge(10000);
     }

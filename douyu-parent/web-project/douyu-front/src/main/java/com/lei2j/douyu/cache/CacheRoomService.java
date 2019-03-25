@@ -1,8 +1,8 @@
 package com.lei2j.douyu.cache;
 
-import java.util.Map;
+import com.lei2j.douyu.danmu.service.DouyuLogin;
 
-import com.lei2j.douyu.login.service.DouyuLogin;
+import java.util.Map;
 
 /**
  * @author lei2j

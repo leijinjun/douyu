@@ -5,6 +5,9 @@ import com.lei2j.douyu.jwt.algorithm.Algorithm;
 
 import org.junit.Test;
 
+import java.lang.ref.Reference;
+import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
 import java.util.Date;
 
 /**
@@ -27,5 +30,13 @@ public class TestJwt {
         JwtDecoder jwtDecoder = JwtDecoder.decode(token);
         JwtVerify jwtVerify = new JwtVerify(jwtDecoder, Algorithm.hmacSHA256("12343123123"), new DefaultJwtClaimsValidator());
         System.out.println(jwtVerify.verify());
+    }
+
+    @Test
+    public void test3(){
+        Reference<String> reference  = new SoftReference<>("232");
+        System.out.println(reference.get());
+        Reference<String> weakReference = new WeakReference<>("weak");
+        System.out.println(weakReference.get());
     }
 }

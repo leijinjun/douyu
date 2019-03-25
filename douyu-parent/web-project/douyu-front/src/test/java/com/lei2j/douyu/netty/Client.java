@@ -1,8 +1,8 @@
 package com.lei2j.douyu.netty;
 
-import com.lei2j.douyu.login.converter.MessageConvert;
-import com.lei2j.douyu.login.service.DouyuMessage;
-import com.lei2j.douyu.login.service.MessageType;
+import com.lei2j.douyu.danmu.message.converter.MessageConvert;
+import com.lei2j.douyu.danmu.pojo.DouyuMessage;
+import com.lei2j.douyu.danmu.service.MessageType;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;

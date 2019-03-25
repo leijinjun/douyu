@@ -35,10 +35,12 @@ public class ControllerAspect {
         HttpServletRequest request = requestAttributes.getRequest();
         HttpServletResponse response = requestAttributes.getResponse();
         //获取用户登录状态
-        Boolean userLogin = (Boolean)request.getAttribute(WebConstants.USER_LOGIN_STATUS);
-        if (userLogin != null && userLogin.equals(Boolean.FALSE)) {
-            request.removeAttribute(WebConstants.USER_LOGIN_STATUS);
-            return Response.UNAUTHENTICATED;
+        Boolean userLogin = (Boolean) request.getAttribute(WebConstants.USER_LOGIN_STATUS);
+        if(userLogin!=null){
+            if (Boolean.FALSE.equals(userLogin)) {
+                request.removeAttribute(WebConstants.USER_LOGIN_STATUS);
+                return Response.UNAUTHENTICATED;
+            }
         }
         Object object = proceedingJoinPoint.proceed();
         return object;
