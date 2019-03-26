@@ -39,7 +39,7 @@ public abstract class AbstractDouyuLogin implements DouyuLogin,MessageDispatcher
      */
     protected static ThreadPoolExecutor douyuMessageExecutor = new ThreadPoolExecutor(Runtime.getRuntime()
             .availableProcessors()
-            +1,5, 30, TimeUnit.MINUTES, new ArrayBlockingQueue<>(10000),
+            +1,Runtime.getRuntime().availableProcessors()*2, 30, TimeUnit.MINUTES, new ArrayBlockingQueue<>(10000),
             new DefaultThreadFactory("Thread-douyu-message-%d", true, 10),(runnable,threadPoolExecutor)->{
 
     }
