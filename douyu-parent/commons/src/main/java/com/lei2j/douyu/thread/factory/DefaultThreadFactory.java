@@ -37,7 +37,7 @@ public class DefaultThreadFactory implements ThreadFactory{
 		if (priority != null) {
 			thread.setPriority(priority);
 		}
-		thread.setDaemon(daemon == null ? null : daemon);
+		thread.setDaemon(daemon);
 		return thread;
 	}
 
