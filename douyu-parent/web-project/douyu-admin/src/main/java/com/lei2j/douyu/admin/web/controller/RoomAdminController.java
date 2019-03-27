@@ -24,6 +24,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
@@ -165,6 +166,15 @@ public class RoomAdminController extends BaseController {
         return Response.ok().entity(data);
     }
 
+    /**
+     * 获取所有直播分类列表
+     * @return
+     * @throws IOException
+     */
+    @GetMapping("/cates")
+    public Response getAllCate()throws IOException {
+        return  Response.ok().entity(DouyuUtil.getAllCates());
+    }
     /**
      * 今日开始时间
      * @return
