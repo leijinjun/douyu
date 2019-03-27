@@ -21,7 +21,7 @@ import java.util.Map;
 @Component
 public class GiftIndex extends AbstractIndex {
 
-    public static final String INDEX_NAME = "gift";
+    public static final String INDEX_NAME = "gift_v1";
     public static final String TYPE_NAME = "gift";
 
     public GiftIndex(@Autowired ElasticSearchClient client) throws IOException{

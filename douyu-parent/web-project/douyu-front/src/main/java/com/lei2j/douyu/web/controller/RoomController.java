@@ -1,22 +1,16 @@
 package com.lei2j.douyu.web.controller;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.lei2j.douyu.cache.CacheRoomService;
 import com.lei2j.douyu.core.constant.DateFormatConstants;
-import com.lei2j.douyu.core.constant.DouyuApi;
 import com.lei2j.douyu.core.controller.BaseController;
-import com.lei2j.douyu.danmu.service.DouyuLogin;
 import com.lei2j.douyu.pojo.NobleEntity;
 import com.lei2j.douyu.qo.*;
 import com.lei2j.douyu.service.FrankService;
 import com.lei2j.douyu.service.NobleService;
 import com.lei2j.douyu.service.es.ChatSearchService;
 import com.lei2j.douyu.service.es.GiftSearchService;
-import com.lei2j.douyu.util.BeanUtils;
 import com.lei2j.douyu.util.DateUtil;
 import com.lei2j.douyu.util.DouyuUtil;
-import com.lei2j.douyu.util.HttpUtil;
 import com.lei2j.douyu.vo.*;
 import com.lei2j.douyu.web.response.Pagination;
 import com.lei2j.douyu.web.response.Response;
@@ -27,7 +21,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
@@ -52,41 +45,6 @@ public class RoomController extends BaseController {
     private NobleService nobleService;
     @Resource
     private FrankService frankService;
-
-    /**
-     * 获取直播列表
-     * @param cateId 分类标识
-     * @param limit
-     * @return
-     */
-    @GetMapping("/list")
-    public Response getRoomList(@RequestParam(value = "cate",required = false)String cateId,
-                                @RequestParam(value = "limit",required = false,defaultValue = "100") Integer limit){
-        LinkedList<RoomVo> list = new LinkedList<>();
-        StringBuilder url = new StringBuilder(DouyuApi.ROOM_ALL_API);
-        if(!StringUtils.isEmpty(cateId)){
-            url.append("/").append(cateId);
-        }
-        url.append("?limit=").append(limit);
-        String s = HttpUtil.get(url.toString());
-        JSONObject var1 = JSONObject.parseObject(s);
-        String codeKey = "error";
-        if(var1.getIntValue(codeKey)==0){
-            JSONArray jsonArray = var1.getJSONArray("data");
-            for (Object jsonObject:
-                 jsonArray) {
-                    RoomVo roomVo = JSONObject.toJavaObject((JSONObject) jsonObject, RoomVo.class);
-                    boolean f = cacheRoomService.containsKey(roomVo.getRoomId());
-                    roomVo.setConnected(f);
-                    if(f){
-                        list.addFirst(roomVo);
-                    }else {
-                        list.add(roomVo);
-                    }
-            }
-        }
-        return Response.ok().entity(list);
-    }
 
     /**
      * 根据房间Id获取直播间综合信息
@@ -210,56 +168,6 @@ public class RoomController extends BaseController {
         data.put("pageNum",pagination.getPageNum());
         data.put("chats",pagination.getItems());
         return Response.ok().entity(data);
-    }
-
-    /**
-     * 获取已连接房间列表
-     * @return
-     */
-    @GetMapping("/logged")
-    public Response getLoggedRooms(){
-        String result = HttpUtil.get(DouyuApi.ROOM_ALL_API);
-        Map<Integer,RoomVo> resultMap = new HashMap<>(80);
-        JSONObject var1 = JSONObject.parseObject(result);
-        String codeKey = "error";
-        if(var1.getIntValue(codeKey)==0){
-            JSONArray jsonArray = var1.getJSONArray("data");
-            for (Object jsonobj:
-                 jsonArray) {
-                RoomVo roomVo = JSONObject.toJavaObject((JSONObject) jsonobj, RoomVo.class);
-                Integer roomId = roomVo.getRoomId();
-                boolean f = cacheRoomService.containsKey(roomId);
-                roomVo.setConnected(f);
-                if(f){
-                    resultMap.put(roomId,roomVo);
-                }
-            }
-        }
-        Map<Integer, DouyuLogin> map = cacheRoomService.getAll();
-        Set<Integer> set = new HashSet<>(map.keySet());
-        set.removeAll(resultMap.keySet());
-        List<RoomVo> list = new ArrayList<>(set.size());
-        list.addAll(resultMap.values());
-        for (Integer roomId:
-             set) {
-            RoomDetailVo roomDetail = DouyuUtil.getRoomDetail(roomId);
-            RoomVo roomVO = BeanUtils.copyProperties(roomDetail,RoomVo.class);
-            roomVO.setConnected(true);
-            roomVO.setNickname(roomDetail.getOwnerName());
-            roomVO.setRoomSrc(roomDetail.getRoomThumb());
-            list.add(roomVO);
-        }
-        return Response.ok().entity(list);
-    }
-
-    /**
-     * 获取所有直播分类列表
-     * @return
-     * @throws IOException
-     */
-    @GetMapping("/cates")
-    public Response getAllCate()throws IOException {
-        return  Response.ok().entity(DouyuUtil.getAllCates());
     }
 
     /**
