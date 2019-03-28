@@ -40,7 +40,7 @@ public class GiftIndex extends AbstractIndex {
         IndexResponse response = client.client().prepareIndex(INDEX_NAME, TYPE_NAME)
                 .setId(id).setSource(document, XContentType.JSON)
                 .get();
-        return response.status() == RestStatus.OK ? true : false;
+        return response.status() == RestStatus.OK;
     }
 
     @Override
@@ -49,7 +49,7 @@ public class GiftIndex extends AbstractIndex {
                 .setId(id)
                 .setSource(json, XContentType.JSON)
                 .get();
-        return response.status() == RestStatus.OK ? true : false;
+        return response.status() == RestStatus.OK ;
     }
 
     @Override
