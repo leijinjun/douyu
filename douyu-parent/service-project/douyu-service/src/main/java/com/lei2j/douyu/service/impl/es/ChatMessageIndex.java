@@ -48,7 +48,7 @@ public class ChatMessageIndex extends AbstractIndex {
         IndexResponse response = client.client().prepareIndex(INDEX_NAME, TYPE_NAME)
                 .setId(id).setSource(document)
                 .get();
-        return response.status()==RestStatus.OK?true:false;
+        return response.status()==RestStatus.OK;
     }
 
     @Override
@@ -56,7 +56,7 @@ public class ChatMessageIndex extends AbstractIndex {
         IndexResponse response = client.client().prepareIndex(INDEX_NAME, TYPE_NAME)
                 .setId(id).setSource(json, XContentType.JSON)
                 .get();
-        return response.status()==RestStatus.OK?true:false;
+        return response.status()==RestStatus.OK;
     }
 
     @Override
