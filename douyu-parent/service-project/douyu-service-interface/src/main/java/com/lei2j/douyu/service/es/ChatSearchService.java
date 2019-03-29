@@ -5,6 +5,7 @@ import com.lei2j.douyu.qo.SearchPage;
 import com.lei2j.douyu.vo.ChatMessageVo;
 import com.lei2j.douyu.web.response.Pagination;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 /**
@@ -40,4 +41,10 @@ public interface ChatSearchService {
      * @return
      */
     Map<String,Integer> getIntervalDayChatPersonCountsByRoom(ChatQuery chatQO);
+
+    /**
+     * 当天主播弹幕排行榜
+     * @return
+     */
+    Map<String, Long> getTodayDanmuSumAggregation();
 }

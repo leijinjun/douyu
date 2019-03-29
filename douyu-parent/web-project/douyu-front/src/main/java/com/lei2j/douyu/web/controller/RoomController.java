@@ -293,6 +293,24 @@ public class RoomController extends BaseController {
     	return Response.ok().entity(list);
     }
 
+    @GetMapping("/view/today/giftRankingList")
+    public Response viewTodayGiftRankingList(){
+        Map<String, BigDecimal> sumAggregation = giftSearchService.getToDayGiftSumAggregation();
+        if(sumAggregation==null){
+            return Response.INTERNAL_SERVER_ERROR;
+        }
+        return Response.ok().entity(sumAggregation);
+    }
+
+    @GetMapping("/view/today/danmuRankingList")
+    public Response viewTodayDanmuRankingList(){
+        Map<String,Long> sumAggregation = chatSearchService.getTodayDanmuSumAggregation();
+        if(sumAggregation==null){
+            return Response.INTERNAL_SERVER_ERROR;
+        }
+        return Response.ok().entity(sumAggregation);
+    }
+
     /*@GetMapping("/view/{roomId}")
     public response viewRoom(@PathVariable("roomId")Integer room){
         logger.info("参数room:{}",room);

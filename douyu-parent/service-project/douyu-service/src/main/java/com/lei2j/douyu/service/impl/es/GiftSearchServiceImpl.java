@@ -1,6 +1,7 @@
 package com.lei2j.douyu.service.impl.es;
 
 import com.lei2j.douyu.core.constant.DateFormatConstants;
+import com.lei2j.douyu.jwt.algorithm.Key;
 import com.lei2j.douyu.qo.GiftQuery;
 import com.lei2j.douyu.qo.SearchPage;
 import com.lei2j.douyu.service.es.GiftSearchService;
@@ -14,10 +15,8 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.script.Script;
 import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.aggregations.AggregationBuilder;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.BucketOrder;
-import org.elasticsearch.search.aggregations.InternalAggregations;
+import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.aggregations.*;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
 import org.elasticsearch.search.aggregations.bucket.histogram.ExtendedBounds;
 import org.elasticsearch.search.aggregations.bucket.histogram.InternalDateHistogram;
@@ -32,11 +31,9 @@ import org.joda.time.DateTime;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author lei2j
@@ -68,7 +65,7 @@ public class GiftSearchServiceImpl extends CommonSearchService implements GiftSe
                 .setSize(0)
                 .setQuery(queryBuilder)
                 .addAggregation(AggregationBuilders.sum(key).script(new Script("doc['pc'].value*doc['gfcnt'].value")));
-        logger.info("ElasticSearch查询参数:{}",searchRequestBuilder.toString());
+        logger.info("[getToDayGiftSumAggregationByRoom]ElasticSearch查询参数:{}",searchRequestBuilder.toString());
         SearchResponse userCountsResponse = searchRequestBuilder.get();
         BigDecimal sum = BigDecimal.ZERO;
         if (userCountsResponse.status() == RestStatus.OK) {
@@ -239,4 +236,46 @@ public class GiftSearchServiceImpl extends CommonSearchService implements GiftSe
         }
         return list;
 	}
+
+    @Override
+    public Map<String,BigDecimal> getToDayGiftSumAggregation() {
+        LocalDateTime start = super.getTodayStart();
+        LocalDateTime end = super.getTodayEnd();
+        BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery()
+                .must(QueryBuilders.rangeQuery("pc").from(0, false))
+                .must(QueryBuilders.rangeQuery("createAt")
+                        .from(DateUtil.localDateTimeFormat(start), true)
+                        .to(DateUtil.localDateTimeFormat(end), true));
+        String roomKey = "ROOM_KEY";
+        String subSumRoomKey = "SUM_ROOM_KEY";
+        TermsAggregationBuilder termsAggregationBuilder =
+                AggregationBuilders.terms(roomKey)
+                        .field("rid")
+                        .size(10)
+                        .order(BucketOrder.aggregation(subSumRoomKey,true))
+                        .subAggregation(
+                                AggregationBuilders.sum(subSumRoomKey)
+                                        .script(new Script("doc['pc'].value*doc['gfcnt'].value"))
+                        );
+
+        SearchResponse searchResponse = searchClient.client().prepareSearch(GiftIndex.INDEX_NAME).setTypes(GiftIndex.TYPE_NAME)
+                .setQuery(queryBuilder)
+                .addAggregation(termsAggregationBuilder)
+                .setSize(0)
+                .get();
+        if(searchResponse.status()==RestStatus.OK){
+            LongTerms longTerms = searchResponse.getAggregations().get(roomKey);
+            List<Bucket> buckets = longTerms.getBuckets();
+            Map<String,BigDecimal> dataMap = new LinkedHashMap<>(buckets.size());
+            for (Bucket item:
+                    buckets) {
+                String rid = item.getKeyAsString();
+                InternalSum internalSum = item.getAggregations().get(subSumRoomKey);
+                BigDecimal value = new BigDecimal(internalSum.getValue()).setScale(2, RoundingMode.HALF_UP);
+                dataMap.put(rid,value);
+            }
+            return dataMap;
+        }
+        return null;
+    }
 }

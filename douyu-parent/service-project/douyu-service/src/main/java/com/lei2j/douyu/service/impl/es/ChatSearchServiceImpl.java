@@ -12,18 +12,24 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.rest.RestStatus;
+import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.BucketOrder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
 import org.elasticsearch.search.aggregations.bucket.histogram.ExtendedBounds;
 import org.elasticsearch.search.aggregations.bucket.histogram.InternalDateHistogram;
+import org.elasticsearch.search.aggregations.bucket.terms.LongTerms;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.cardinality.Cardinality;
 import org.elasticsearch.search.aggregations.metrics.cardinality.CardinalityAggregationBuilder;
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -143,5 +149,40 @@ public class ChatSearchServiceImpl extends CommonSearchService implements ChatSe
             }
         }
         return map;
+    }
+
+    @Override
+    public Map<String, Long> getTodayDanmuSumAggregation() {
+        LocalDateTime todayStart = getTodayStart();
+        LocalDateTime todayEnd = getTodayEnd();
+        BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery()
+                .must(QueryBuilders.rangeQuery("createAt")
+                        .from(DateUtil.localDateTimeFormat(todayStart),true)
+                        .to(DateUtil.localDateTimeFormat(todayEnd),true)
+                );
+        String roomKey = "ROOM_KEY";
+        TermsAggregationBuilder termsAggregationBuilder = AggregationBuilders.terms(roomKey)
+                .field("rid")
+                .size(10)
+                .order(BucketOrder.count(false));
+        SearchResponse searchResponse = searchClient.client().prepareSearch(ChatMessageIndex.INDEX_NAME)
+                .setTypes(ChatMessageIndex.TYPE_NAME)
+                .setQuery(queryBuilder)
+                .addAggregation(termsAggregationBuilder)
+                .setSize(0)
+                .get();
+        if(searchResponse.status()==RestStatus.OK){
+            LongTerms longTerms = searchResponse.getAggregations().get(roomKey);
+            List<LongTerms.Bucket> buckets = longTerms.getBuckets();
+            Map<String,Long> dataMap = new LinkedHashMap<>(buckets.size());
+            for (LongTerms.Bucket item:
+                 buckets) {
+                String rid = item.getKeyAsString();
+                long docCount = item.getDocCount();
+                dataMap.put(rid,docCount);
+            }
+            return dataMap;
+        }
+        return null;
     }
 }

@@ -56,4 +56,10 @@ public interface GiftSearchService {
 	 * @return
 	 */
 	List<Map<String, Object>> getToDayGiftTopSum(GiftQuery giftQO);
+
+    /**
+     * 当天主播收礼排行榜
+     * @return
+     */
+    Map<String,BigDecimal> getToDayGiftSumAggregation();
 }

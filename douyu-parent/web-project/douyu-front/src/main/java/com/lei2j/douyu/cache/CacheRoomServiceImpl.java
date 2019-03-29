@@ -29,11 +29,7 @@ public class CacheRoomServiceImpl implements CacheRoomService {
     @Override
     public void cache(Integer room,DouyuLogin value) {
         if(!cache.containsKey(room)){
-            synchronized (cache){
-                if(!cache.containsKey(room)){
-                    cache.put(room,value);
-                }
-            }
+            cache.put(room,value);
         }
     }
 
