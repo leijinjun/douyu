@@ -1,18 +1,22 @@
 package com.lei2j.douyu.service.impl.es;
 
 import com.lei2j.douyu.core.constant.DateFormatConstants;
+import com.lei2j.douyu.functions.IndexSearchConvert;
 import com.lei2j.douyu.qo.ChatQuery;
 import com.lei2j.douyu.qo.SearchPage;
 import com.lei2j.douyu.service.es.ChatSearchService;
 import com.lei2j.douyu.util.DateUtil;
 import com.lei2j.douyu.vo.ChatMessageVo;
+import com.lei2j.douyu.vo.DanmuSearchView;
+import com.lei2j.douyu.vo.DanmuSearchWithUserView;
 import com.lei2j.douyu.web.response.Pagination;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.common.document.DocumentField;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.rest.RestStatus;
-import org.elasticsearch.search.aggregations.Aggregation;
+import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.BucketOrder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramAggregationBuilder;
@@ -26,12 +30,8 @@ import org.elasticsearch.search.aggregations.metrics.cardinality.CardinalityAggr
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author lei2j
@@ -42,7 +42,50 @@ public class ChatSearchServiceImpl extends CommonSearchService implements ChatSe
 
     @Override
     public Pagination<ChatMessageVo,SearchPage> query(Pagination<ChatMessageVo,SearchPage> pagination){
-        pagination = super.search(pagination,ChatMessageVo.class, ChatMessageIndex.INDEX_NAME, ChatMessageIndex.TYPE_NAME);
+        pagination = super.search(pagination, ChatMessageIndex.INDEX_NAME,
+                ChatMessageIndex.TYPE_NAME,(it)->IndexSearchConvert.convertToChatMessageVo(it));
+        return pagination;
+    }
+
+    @Override
+    public Pagination<DanmuSearchView, SearchPage> queryDanmuByCondition(Pagination<DanmuSearchView, SearchPage> pagination) {
+        pagination = super.search(pagination, ChatMessageIndex.INDEX_NAME,
+                ChatMessageIndex.TYPE_NAME,(it)->{
+                    List<DanmuSearchView> list = new ArrayList<>();
+                    while (it.hasNext()) {
+                        SearchHit next = it.next();
+                        Map<String, Object> sourceAsMap = next.getSourceAsMap();
+                        DanmuSearchView danmuSearchView = new DanmuSearchView();
+                        danmuSearchView.setRoomId(String.valueOf(sourceAsMap.get("rid")));
+                        danmuSearchView.setNn(String.valueOf(sourceAsMap.get("nn")));
+                        danmuSearchView.setLevel(Integer.parseInt(String.valueOf(sourceAsMap.get("level"))));
+                        danmuSearchView.setFansLevel(Integer.parseInt(String.valueOf(sourceAsMap.get("bl"))));
+                        list.add(danmuSearchView);
+                    }
+                    return list;
+                });
+        return pagination;
+    }
+
+    @Override
+    public Pagination<DanmuSearchWithUserView, SearchPage> queryDanmuWithUserByCondition(Pagination<DanmuSearchWithUserView, SearchPage> pagination) {
+        super.search(pagination,ChatMessageIndex.INDEX_NAME,
+                ChatMessageIndex.TYPE_NAME,(it)->{
+                    List<DanmuSearchWithUserView> list = new ArrayList<>();
+                    while (it.hasNext()) {
+                        SearchHit next = it.next();
+                        Map<String, Object> sourceAsMap = next.getSourceAsMap();
+                        DanmuSearchWithUserView danmuSearchWithUserView = new DanmuSearchWithUserView();
+                        danmuSearchWithUserView.setRoomId(String.valueOf(sourceAsMap.get("rid")));
+                        danmuSearchWithUserView.setNn(String.valueOf(sourceAsMap.get("nn")));
+                        danmuSearchWithUserView.setIc(String.valueOf(sourceAsMap.get("ic")));
+                        danmuSearchWithUserView.setTxt(String.valueOf(sourceAsMap.get("txt")));
+                        Object craeteAt = sourceAsMap.get("createAt");
+                        danmuSearchWithUserView.setCreateAt(String.valueOf(sourceAsMap.get("createAt")));
+                        list.add(danmuSearchWithUserView);
+                    }
+                    return list;
+                });
         return pagination;
     }
 

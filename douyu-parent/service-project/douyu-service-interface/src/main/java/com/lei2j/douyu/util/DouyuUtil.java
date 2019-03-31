@@ -8,10 +8,12 @@ import com.lei2j.douyu.vo.RoomGiftVo;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.jsoup.select.NodeFilter;
 
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -70,7 +72,80 @@ public class DouyuUtil {
         return cateVos;
     }
 
-    public static void main(String[] args) throws IOException {
-        System.out.println(getRoomDetail(485503));
+    public static Optional<SearchRoomInfo> search(String keyword){
+        SearchRoomInfo searchRoomInfo = null;
+        try {
+            searchRoomInfo  = new SearchRoomInfo();
+            Element body =
+                    Jsoup.connect("https://www.douyu.com/search/").data("kw", keyword).header("user-agent","Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36").get().body();
+            Element select = body.selectFirst("ul[class='anchor-list-box']");
+            Element li = select.selectFirst("li");
+            Element a = li.getElementsByTag("a").first();
+            String rid = a.attr("data-rid");
+            String img = a.getElementsByClass("anchor-avatar").first().getElementsByTag("img").first().attr("data-original");
+            String ownerName = a.getElementsByClass("anchor-name").text();
+            String fansNum = a.getElementsByClass("anchor-info").first().ownText().trim();
+            searchRoomInfo.setRoomId(rid);
+            searchRoomInfo.setRoomThumb(img);
+            searchRoomInfo.setOwnerName(ownerName);
+            searchRoomInfo.setFansNum(Integer.parseInt(fansNum));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return Optional.ofNullable(searchRoomInfo);
+    }
+
+    public static class SearchRoomInfo {
+
+        private String roomId;
+
+        private String roomThumb;
+
+        private String ownerName;
+
+        private Integer fansNum;
+
+        public String getRoomId() {
+            return roomId;
+        }
+
+        public void setRoomId(String roomId) {
+            this.roomId = roomId;
+        }
+
+        public String getRoomThumb() {
+            return roomThumb;
+        }
+
+        public void setRoomThumb(String roomThumb) {
+            this.roomThumb = roomThumb;
+        }
+
+        public String getOwnerName() {
+            return ownerName;
+        }
+
+        public void setOwnerName(String ownerName) {
+            this.ownerName = ownerName;
+        }
+
+        public Integer getFansNum() {
+            return fansNum;
+        }
+
+        public void setFansNum(Integer fansNum) {
+            this.fansNum = fansNum;
+        }
+
+        @Override
+        public String toString() {
+            final StringBuffer sb = new StringBuffer("SearchRoomInfo{");
+            sb.append("roomId='").append(roomId).append('\'');
+            sb.append(", roomThumb='").append(roomThumb).append('\'');
+            sb.append(", ownerName='").append(ownerName).append('\'');
+            sb.append(", fansNum=").append(fansNum);
+            sb.append('}');
+            return sb.toString();
+        }
     }
 }

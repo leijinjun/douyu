@@ -14,6 +14,8 @@ import com.lei2j.douyu.util.DouyuUtil;
 import com.lei2j.douyu.vo.*;
 import com.lei2j.douyu.web.response.Pagination;
 import com.lei2j.douyu.web.response.Response;
+import com.lei2j.douyu.web.view.DanmuRankingListView;
+import com.lei2j.douyu.web.view.GiftRankingListView;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -299,7 +302,21 @@ public class RoomController extends BaseController {
         if(sumAggregation==null){
             return Response.INTERNAL_SERVER_ERROR;
         }
-        return Response.ok().entity(sumAggregation);
+        List<GiftRankingListView> list = new ArrayList<>(sumAggregation.size());
+        for (Map.Entry<String,BigDecimal> entry:
+             sumAggregation.entrySet()) {
+            String roomId = entry.getKey();
+            RoomDetailVo roomDetailVo = DouyuUtil.getRoomDetail(Integer.valueOf(roomId));
+            BigDecimal value = entry.getValue();
+            GiftRankingListView giftRankingListView = new GiftRankingListView();
+            giftRankingListView.setRoomId(roomId);
+            giftRankingListView.setGiftMoney(value.setScale(2, RoundingMode.HALF_UP));
+            giftRankingListView.setNickName(roomDetailVo.getOwnerName());
+            giftRankingListView.setRoomName(roomDetailVo.getRoomName());
+            giftRankingListView.setRoomThumb(roomDetailVo.getRoomThumb());
+            list.add(giftRankingListView);
+        }
+        return Response.ok().entity(list);
     }
 
     @GetMapping("/view/today/danmuRankingList")
@@ -308,7 +325,21 @@ public class RoomController extends BaseController {
         if(sumAggregation==null){
             return Response.INTERNAL_SERVER_ERROR;
         }
-        return Response.ok().entity(sumAggregation);
+        List<DanmuRankingListView> list = new ArrayList<>(sumAggregation.size());
+        for (Map.Entry<String,Long> entry:
+             sumAggregation.entrySet()) {
+            String roomId = entry.getKey();
+            Long count = entry.getValue();
+            RoomDetailVo roomDetailVo = DouyuUtil.getRoomDetail(Integer.valueOf(roomId));
+            DanmuRankingListView danmuRankingListView = new DanmuRankingListView();
+            danmuRankingListView.setRoomId(roomId);
+            danmuRankingListView.setCount(count);
+            danmuRankingListView.setNickName(roomDetailVo.getOwnerName());
+            danmuRankingListView.setRoomName(roomDetailVo.getRoomName());
+            danmuRankingListView.setRoomThumb(roomDetailVo.getRoomThumb());
+            list.add(danmuRankingListView);
+        }
+        return Response.ok().entity(list);
     }
 
     /*@GetMapping("/view/{roomId}")

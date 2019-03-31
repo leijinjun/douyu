@@ -3,6 +3,8 @@ package com.lei2j.douyu.service.es;
 import com.lei2j.douyu.qo.ChatQuery;
 import com.lei2j.douyu.qo.SearchPage;
 import com.lei2j.douyu.vo.ChatMessageVo;
+import com.lei2j.douyu.vo.DanmuSearchView;
+import com.lei2j.douyu.vo.DanmuSearchWithUserView;
 import com.lei2j.douyu.web.response.Pagination;
 
 import java.math.BigDecimal;
@@ -47,4 +49,8 @@ public interface ChatSearchService {
      * @return
      */
     Map<String, Long> getTodayDanmuSumAggregation();
+
+    Pagination<DanmuSearchView, SearchPage> queryDanmuByCondition(Pagination<DanmuSearchView, SearchPage> pagination);
+
+    Pagination<DanmuSearchWithUserView, SearchPage> queryDanmuWithUserByCondition(Pagination<DanmuSearchWithUserView, SearchPage> pagination);
 }

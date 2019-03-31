@@ -1,6 +1,7 @@
 package com.lei2j.douyu.service.impl.es;
 
 import com.lei2j.douyu.core.constant.DateFormatConstants;
+import com.lei2j.douyu.functions.IndexSearchConvert;
 import com.lei2j.douyu.jwt.algorithm.Key;
 import com.lei2j.douyu.qo.GiftQuery;
 import com.lei2j.douyu.qo.SearchPage;
@@ -44,7 +45,8 @@ public class GiftSearchServiceImpl extends CommonSearchService implements GiftSe
 
     @Override
     public Pagination<GiftVo,SearchPage> query(Pagination<GiftVo,SearchPage> pagination) {
-        pagination = super.search(pagination,GiftVo.class, GiftIndex.INDEX_NAME, GiftIndex.TYPE_NAME);
+        pagination = super.search(pagination,GiftIndex.INDEX_NAME, GiftIndex.TYPE_NAME,
+                (it)->IndexSearchConvert.convertToGiftVo(it));
         return pagination;
     }
 
@@ -252,7 +254,7 @@ public class GiftSearchServiceImpl extends CommonSearchService implements GiftSe
                 AggregationBuilders.terms(roomKey)
                         .field("rid")
                         .size(10)
-                        .order(BucketOrder.aggregation(subSumRoomKey,true))
+                        .order(BucketOrder.aggregation(subSumRoomKey,false))
                         .subAggregation(
                                 AggregationBuilders.sum(subSumRoomKey)
                                         .script(new Script("doc['pc'].value*doc['gfcnt'].value"))

@@ -1,6 +1,6 @@
 package com.lei2j.douyu.service.impl.es;
 
-import com.alibaba.fastjson.JSONObject;
+import com.lei2j.douyu.functions.IndexSearchConvert;
 import com.lei2j.douyu.qo.SearchPage;
 import com.lei2j.douyu.web.response.Pagination;
 import org.elasticsearch.action.search.ClearScrollRequest;
@@ -21,7 +21,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author lei2j
@@ -33,7 +32,9 @@ public class CommonSearchService {
 	@Resource
     protected ElasticSearchClient searchClient;
 	
-	protected <T,P extends SearchPage> Pagination<T,P> search(Pagination<T,P> pagination, Class<T> mapperClass, String indexName, String typeName) {
+	protected <T,P extends SearchPage> Pagination<T,P> search(Pagination<T,P> pagination,
+                                                              String indexName, String typeName,
+                                                              IndexSearchConvert<T> indexSearchConvert) {
         SearchPage searchPage = pagination.getParams();
         Integer pageNum = pagination.getPageNum();
         Integer limit = pagination.getLimit();
@@ -51,7 +52,7 @@ public class CommonSearchService {
         SearchHits responseHits = response.getHits();
         Iterator<SearchHit> it = responseHits.iterator();
         pagination.setTotal(((Long)responseHits.getTotalHits()).intValue());
-        List<T> list = convert(it,mapperClass);
+        List<T> list = indexSearchConvert.convert(it);
         if(searchPage.isScroll()){
             int totalCount = pagination.getTotal();
             logger.info("查询总数:{}", totalCount);
@@ -59,7 +60,7 @@ public class CommonSearchService {
             totalList.addAll(list);
             while (list.size() != 0) {
                 response = deepPage(searchPage, indexName, typeName);
-                list = convert(response.getHits().iterator(), mapperClass);
+                list = indexSearchConvert.convert(response.getHits().iterator());
                 totalList.addAll(list);
             }
             list = totalList;
@@ -128,19 +129,6 @@ public class CommonSearchService {
             response = searchClient.client().prepareSearchScroll(scrollId).setScroll(TimeValue.timeValueMinutes(1)).get();
         }
         return  response;
-    }
-
-    private <T> List<T> convert(Iterator<SearchHit> it,Class<T> mapperClass){
-        List<T> list = new ArrayList<>(10);
-        if (it != null) {
-            while (it.hasNext()) {
-                SearchHit next = it.next();
-                Map<String, Object> source = next.getSourceAsMap();
-                String json = JSONObject.toJSONString(source);
-                list.add(JSONObject.parseObject(json, mapperClass));
-            }
-        }
-        return list;
     }
 
     private SearchRequestBuilder sortBuilder(SearchRequestBuilder searchBuilder,String sort){

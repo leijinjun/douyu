@@ -1,5 +1,7 @@
 package com.lei2j.douyu.web.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.List;
 /**
  * @author lei2j
@@ -22,6 +24,7 @@ public class Pagination<T,P> {
 	/**
 	 * 查询参数
 	 */
+	@JsonIgnore
 	private P params;
 
 	public Pagination() {
