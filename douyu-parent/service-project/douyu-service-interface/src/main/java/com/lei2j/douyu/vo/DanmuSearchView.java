@@ -17,6 +17,12 @@ public class DanmuSearchView {
 
     private Integer fansLevel;
 
+    private String ic;
+
+    private String txt;
+
+    private String createAt;
+
 
     public String getRoomId() {
         return roomId;
@@ -58,6 +64,30 @@ public class DanmuSearchView {
         this.fansLevel = fansLevel;
     }
 
+    public String getIc() {
+        return ic;
+    }
+
+    public void setIc(String ic) {
+        this.ic = ic;
+    }
+
+    public String getTxt() {
+        return txt;
+    }
+
+    public void setTxt(String txt) {
+        this.txt = txt;
+    }
+
+    public String getCreateAt() {
+        return createAt;
+    }
+
+    public void setCreateAt(String createAt) {
+        this.createAt = createAt;
+    }
+
     @Override
     public String toString() {
         final StringBuffer sb = new StringBuffer("DanmuSearchView{");
@@ -66,6 +96,9 @@ public class DanmuSearchView {
         sb.append(", nn='").append(nn).append('\'');
         sb.append(", level=").append(level);
         sb.append(", fansLevel=").append(fansLevel);
+        sb.append(", ic='").append(ic).append('\'');
+        sb.append(", txt='").append(txt).append('\'');
+        sb.append(", createAt='").append(createAt).append('\'');
         sb.append('}');
         return sb.toString();
     }

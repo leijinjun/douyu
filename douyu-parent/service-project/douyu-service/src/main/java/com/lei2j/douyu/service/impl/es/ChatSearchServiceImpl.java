@@ -8,11 +8,9 @@ import com.lei2j.douyu.service.es.ChatSearchService;
 import com.lei2j.douyu.util.DateUtil;
 import com.lei2j.douyu.vo.ChatMessageVo;
 import com.lei2j.douyu.vo.DanmuSearchView;
-import com.lei2j.douyu.vo.DanmuSearchWithUserView;
 import com.lei2j.douyu.web.response.Pagination;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.common.document.DocumentField;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.rest.RestStatus;
@@ -60,29 +58,11 @@ public class ChatSearchServiceImpl extends CommonSearchService implements ChatSe
                         danmuSearchView.setNn(String.valueOf(sourceAsMap.get("nn")));
                         danmuSearchView.setLevel(Integer.parseInt(String.valueOf(sourceAsMap.get("level"))));
                         danmuSearchView.setFansLevel(Integer.parseInt(String.valueOf(sourceAsMap.get("bl"))));
-                        list.add(danmuSearchView);
-                    }
-                    return list;
-                });
-        return pagination;
-    }
+                        danmuSearchView.setIc(String.valueOf(sourceAsMap.get("ic")));
+                        danmuSearchView.setCreateAt(String.valueOf(sourceAsMap.get("createAt")));
+                        danmuSearchView.setTxt(String.valueOf(sourceAsMap.get("txt")));
 
-    @Override
-    public Pagination<DanmuSearchWithUserView, SearchPage> queryDanmuWithUserByCondition(Pagination<DanmuSearchWithUserView, SearchPage> pagination) {
-        super.search(pagination,ChatMessageIndex.INDEX_NAME,
-                ChatMessageIndex.TYPE_NAME,(it)->{
-                    List<DanmuSearchWithUserView> list = new ArrayList<>();
-                    while (it.hasNext()) {
-                        SearchHit next = it.next();
-                        Map<String, Object> sourceAsMap = next.getSourceAsMap();
-                        DanmuSearchWithUserView danmuSearchWithUserView = new DanmuSearchWithUserView();
-                        danmuSearchWithUserView.setRoomId(String.valueOf(sourceAsMap.get("rid")));
-                        danmuSearchWithUserView.setNn(String.valueOf(sourceAsMap.get("nn")));
-                        danmuSearchWithUserView.setIc(String.valueOf(sourceAsMap.get("ic")));
-                        danmuSearchWithUserView.setTxt(String.valueOf(sourceAsMap.get("txt")));
-                        Object craeteAt = sourceAsMap.get("createAt");
-                        danmuSearchWithUserView.setCreateAt(String.valueOf(sourceAsMap.get("createAt")));
-                        list.add(danmuSearchWithUserView);
+                        list.add(danmuSearchView);
                     }
                     return list;
                 });
