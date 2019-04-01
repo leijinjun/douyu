@@ -5,6 +5,7 @@ import com.lei2j.douyu.core.controller.BaseController;
 import com.lei2j.douyu.qo.DanmuQuery;
 import com.lei2j.douyu.qo.SearchPage;
 import com.lei2j.douyu.service.es.ChatSearchService;
+import com.lei2j.douyu.util.DateUtil;
 import com.lei2j.douyu.util.DouyuUtil;
 import com.lei2j.douyu.vo.DanmuSearchView;
 import com.lei2j.douyu.vo.RoomDetailVo;
@@ -21,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
@@ -43,7 +43,7 @@ public class DanmuController extends BaseController {
                          @RequestParam(value = "pageNum",required = false,defaultValue = "1") Integer pageNum,
                          DanmuQuery danmuQuery){
         String ownerName = danmuQuery.getOwnerName();
-        String roomId = danmuQuery.getRoomId();
+        Integer roomId = danmuQuery.getRoomId();
         if (!StringUtils.isEmpty(ownerName)) {
             Optional<DouyuUtil.SearchRoomInfo> roomInfoOptional = DouyuUtil.search(ownerName);
             if(!roomInfoOptional.isPresent()){
@@ -52,7 +52,7 @@ public class DanmuController extends BaseController {
             DouyuUtil.SearchRoomInfo searchRoomInfo = roomInfoOptional.get();
             roomId = searchRoomInfo.getRoomId();
         }else if(!StringUtils.isEmpty(roomId)){
-            RoomDetailVo roomDetail = DouyuUtil.getRoomDetail(Integer.parseInt(roomId));
+            RoomDetailVo roomDetail = DouyuUtil.getRoomDetail(roomId);
             if(roomDetail==null){
                 return Response.NOT_FOUND;
             }
@@ -69,14 +69,13 @@ public class DanmuController extends BaseController {
         if(danmuQuery.getStartDate()!=null){
             boolQueryBuilder.must(
                     QueryBuilders.rangeQuery("createAt")
-                            .format(DateFormatConstants.DATE_FORMAT)
-                            .from(LocalDateTime.of(danmuQuery.getStartDate(), LocalTime.MIN),true));
+                            .from(DateUtil.localDateTimeFormat(LocalDateTime.of(danmuQuery.getStartDate(), LocalTime.MIN)),true));
         }
         if(danmuQuery.getEndDate()!=null){
             boolQueryBuilder.must(
                     QueryBuilders.rangeQuery("createAt")
                             .format(DateFormatConstants.DATETIME_FORMAT)
-                            .to(LocalDateTime.of(danmuQuery.getEndDate(), LocalTime.MAX), true));
+                            .to(DateUtil.localDateTimeFormat(LocalDateTime.of(danmuQuery.getEndDate(), LocalTime.MAX)), true));
         }
         QueryBuilder queryBuilder = boolQueryBuilder;
         SearchPage searchPage = new SearchPage(queryBuilder,null);

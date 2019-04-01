@@ -1,5 +1,8 @@
 package com.lei2j.douyu.qo;
 
+import com.lei2j.douyu.core.constant.DateFormatConstants;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.io.Serializable;
 import java.time.LocalDate;
 
@@ -10,21 +13,23 @@ import java.time.LocalDate;
 
 public class DanmuQuery implements Serializable {
 
-    private String roomId;
+    private Integer roomId;
 
     private String ownerName;
 
     private String nn;
 
+    @DateTimeFormat(pattern = DateFormatConstants.DATE_FORMAT)
     private LocalDate startDate;
 
+    @DateTimeFormat(pattern = DateFormatConstants.DATE_FORMAT)
     private LocalDate endDate;
 
-    public String getRoomId() {
+    public Integer getRoomId() {
         return roomId;
     }
 
-    public void setRoomId(String roomId) {
+    public void setRoomId(Integer roomId) {
         this.roomId = roomId;
     }
 
@@ -63,7 +68,7 @@ public class DanmuQuery implements Serializable {
     @Override
     public String toString() {
         final StringBuffer sb = new StringBuffer("DanmuQuery{");
-        sb.append("roomId='").append(roomId).append('\'');
+        sb.append("roomId=").append(roomId);
         sb.append(", ownerName='").append(ownerName).append('\'');
         sb.append(", nn='").append(nn).append('\'');
         sb.append(", startDate=").append(startDate);

@@ -8,7 +8,6 @@ import com.lei2j.douyu.vo.RoomGiftVo;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.jsoup.select.NodeFilter;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -28,24 +27,29 @@ public class DouyuUtil {
      */
     public static RoomDetailVo getRoomDetail(Integer room){
         String url = DouyuApi.ROOM_DETAIL_API.replace("{room}",String.valueOf(room));
-        String jsonStr = HttpUtil.get(url,null);
-        JSONObject jsonObj = JSONObject.parseObject(jsonStr);
-        //获取主播信息
-        String errorKey = "error";
-        if(jsonObj.getIntValue(errorKey)==0) {
-            JSONObject dataObj = jsonObj.getJSONObject("data");
-            RoomDetailVo roomDetailVo = dataObj.toJavaObject(RoomDetailVo.class);
-            List<RoomGiftVo> roomGifts = roomDetailVo.getRoomGifts();
-            roomGifts = roomGifts.parallelStream().filter((var) -> {
-                if (var.getType() == 1) {
-                    return false;
-                }
-                return true;
-            }).collect(Collectors.toList());
-            roomDetailVo.setRoomGifts(roomGifts);
-            return roomDetailVo;
+        RoomDetailVo roomDetailVo = null;
+        try {
+            String jsonStr = HttpUtil.get(url,null);
+            JSONObject jsonObj = JSONObject.parseObject(jsonStr);
+            //获取主播信息
+            String errorKey = "error";
+            if(jsonObj.getIntValue(errorKey)==0) {
+                JSONObject dataObj = jsonObj.getJSONObject("data");
+                roomDetailVo = dataObj.toJavaObject(RoomDetailVo.class);
+                List<RoomGiftVo> roomGifts = roomDetailVo.getRoomGifts();
+                roomGifts = roomGifts.parallelStream().filter((var) -> {
+                    if (var.getType() == 1) {
+                        return false;
+                    }
+                    return true;
+                }).collect(Collectors.toList());
+                roomDetailVo.setRoomGifts(roomGifts);
+                return roomDetailVo;
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
-        throw new RuntimeException("获取主播房间"+room+"信息和礼物列表失败,请检查该房间！");
+        return roomDetailVo;
     }
 
     /**
@@ -85,7 +89,7 @@ public class DouyuUtil {
             String img = a.getElementsByClass("anchor-avatar").first().getElementsByTag("img").first().attr("data-original");
             String ownerName = a.getElementsByClass("anchor-name").text();
             String fansNum = a.getElementsByClass("anchor-info").first().ownText().trim();
-            searchRoomInfo.setRoomId(rid);
+            searchRoomInfo.setRoomId(Integer.parseInt(rid));
             searchRoomInfo.setRoomThumb(img);
             searchRoomInfo.setOwnerName(ownerName);
             searchRoomInfo.setFansNum(Integer.parseInt(fansNum));
@@ -97,7 +101,7 @@ public class DouyuUtil {
 
     public static class SearchRoomInfo {
 
-        private String roomId;
+        private Integer roomId;
 
         private String roomThumb;
 
@@ -105,11 +109,11 @@ public class DouyuUtil {
 
         private Integer fansNum;
 
-        public String getRoomId() {
+        public Integer getRoomId() {
             return roomId;
         }
 
-        public void setRoomId(String roomId) {
+        public void setRoomId(Integer roomId) {
             this.roomId = roomId;
         }
 
@@ -140,7 +144,7 @@ public class DouyuUtil {
         @Override
         public String toString() {
             final StringBuffer sb = new StringBuffer("SearchRoomInfo{");
-            sb.append("roomId='").append(roomId).append('\'');
+            sb.append("roomId=").append(roomId);
             sb.append(", roomThumb='").append(roomThumb).append('\'');
             sb.append(", ownerName='").append(ownerName).append('\'');
             sb.append(", fansNum=").append(fansNum);
