@@ -173,6 +173,11 @@ public abstract class AbstractDouyuLogin implements DouyuLogin,MessageDispatcher
         return room;
     }
 
+    @Override
+    public RoomDetailVo getRoomDetail() {
+        return roomDetail;
+    }
+
     public DouyuAddress getDouyuAddress() {
         return douyuAddress;
     }

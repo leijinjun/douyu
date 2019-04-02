@@ -1,5 +1,7 @@
 package com.lei2j.douyu.danmu.service;
 
+import com.lei2j.douyu.vo.RoomDetailVo;
+
 import java.io.IOException;
 
 /**
@@ -30,5 +32,7 @@ public interface DouyuLogin {
      * 重连
      */
     void retry();
+
+    RoomDetailVo getRoomDetail();
     
 }

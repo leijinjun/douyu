@@ -5,11 +5,13 @@ import com.alibaba.fastjson.JSONObject;
 import com.lei2j.douyu.admin.cache.CacheRoomService;
 import com.lei2j.douyu.core.constant.DouyuApi;
 import com.lei2j.douyu.core.controller.BaseController;
+import com.lei2j.douyu.danmu.service.DouyuLogin;
 import com.lei2j.douyu.qo.*;
 import com.lei2j.douyu.service.FrankService;
 import com.lei2j.douyu.service.NobleService;
 import com.lei2j.douyu.service.es.ChatSearchService;
 import com.lei2j.douyu.service.es.GiftSearchService;
+import com.lei2j.douyu.util.BeanUtils;
 import com.lei2j.douyu.util.DateUtil;
 import com.lei2j.douyu.util.DouyuUtil;
 import com.lei2j.douyu.util.HttpUtil;
@@ -92,5 +94,27 @@ public class RoomAdminController extends BaseController {
     @GetMapping("/cates")
     public Response getAllCate()throws IOException {
         return  Response.ok().entity(DouyuUtil.getAllCates());
+    }
+
+    /**
+     * 获取已连接房间列表
+     * @return
+     */
+    @GetMapping("/logged")
+    public Response getLoggedRooms(){
+        Map<Integer, DouyuLogin> map = cacheRoomService.getAll();
+        Set<Map.Entry<Integer, DouyuLogin>> entrySet = map.entrySet();
+        List<RoomVo> list = new ArrayList<>();
+        for (Map.Entry<Integer, DouyuLogin> entry :
+                entrySet) {
+            DouyuLogin value = entry.getValue();
+            RoomDetailVo roomDetail = value.getRoomDetail();
+            RoomVo roomVO = BeanUtils.copyProperties(roomDetail,RoomVo.class);
+            roomVO.setConnected(true);
+            roomVO.setNickname(roomDetail.getOwnerName());
+            roomVO.setRoomSrc(roomDetail.getRoomThumb());
+            list.add(roomVO);
+        }
+        return Response.ok().entity(list);
     }
 }
