@@ -61,10 +61,10 @@ public class DanmuController extends BaseController {
 
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
         if(!StringUtils.isEmpty(roomId)){
-            boolQueryBuilder.should(QueryBuilders.termQuery("rid", roomId));
+            boolQueryBuilder.must(QueryBuilders.termQuery("rid", roomId));
         }
         if(!StringUtils.isEmpty(danmuQuery.getNn())){
-            boolQueryBuilder.should(QueryBuilders.termsQuery("nn", danmuQuery.getNn()));
+            boolQueryBuilder.must(QueryBuilders.termsQuery("nn", danmuQuery.getNn()));
         }
         if(danmuQuery.getStartDate()!=null){
             boolQueryBuilder.must(
