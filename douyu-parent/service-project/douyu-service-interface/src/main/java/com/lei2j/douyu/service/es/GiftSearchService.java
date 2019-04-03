@@ -61,5 +61,12 @@ public interface GiftSearchService {
      * 当天主播收礼排行榜
      * @return
      */
-    Map<String,BigDecimal> getToDayGiftSumAggregation();
+    Map<String,BigDecimal> getToDayGiftByRoomId(Integer topSize);
+
+    /**
+     * 当天土豪排行榜
+     * @param topSize
+     * @return
+     */
+    List<Map<String, Object>> getTodayGiftMoneyByUserId(Integer topSize);
 }

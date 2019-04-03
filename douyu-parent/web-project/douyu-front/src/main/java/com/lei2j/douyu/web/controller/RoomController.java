@@ -139,39 +139,39 @@ public class RoomController extends BaseController {
      * @param chatQO 查询条件对象
      * @return
      */
-    @GetMapping("/danmu/{roomId:\\d+}")
-    public Response getDanmuListByRoom(@PathVariable("roomId")String roomId, @RequestParam(value="from",required=false,defaultValue="0")Integer from
-                        , @RequestParam(value = "size",defaultValue = "100")Integer size, ChatQuery chatQO){
-        SearchPage searchPage = new SearchPage();
-        BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery().must(QueryBuilders.termQuery("rid", roomId));
-        if(!StringUtils.isEmpty(chatQO.getNn())){
-            queryBuilder.must(QueryBuilders.termQuery("nn",chatQO.getNn()));
-        }
-        if (chatQO.getUid() != null) {
-            queryBuilder.must(QueryBuilders.termQuery("uid", chatQO.getUid()));
-        }
-        RangeQueryBuilder rangeQuery = QueryBuilders.rangeQuery("createAt");
-        LocalDateTime startTime = chatQO.getStart();
-        LocalDateTime endTime = chatQO.getEnd();
-        if (startTime != null) {
-            rangeQuery.from(DateUtil.localDateTimeFormat(startTime), true);
-        }
-        if (endTime != null) {
-            rangeQuery.to(DateUtil.localDateTimeFormat(endTime), true);
-        }
-        if (rangeQuery.format() != null || rangeQuery.to() != null) {
-            queryBuilder.must(rangeQuery);
-        }
-        searchPage.setQueryBuilder(queryBuilder);
-        searchPage.setSort("createAt DESC");
-        Pagination<ChatMessageVo,SearchPage> pagination = new Pagination<>(size,from/size+1,searchPage);
-        pagination = chatSearchService.query(pagination);
-        Map<String,Object> data = new HashMap<>(3);
-        data.put("isMore",pagination.getPageNum()<pagination.getTotalPage());
-        data.put("pageNum",pagination.getPageNum());
-        data.put("chats",pagination.getItems());
-        return Response.ok().entity(data);
-    }
+//    @GetMapping("/danmu/{roomId:\\d+}")
+//    public Response getDanmuListByRoom(@PathVariable("roomId")String roomId, @RequestParam(value="from",required=false,defaultValue="0")Integer from
+//                        , @RequestParam(value = "size",defaultValue = "100")Integer size, ChatQuery chatQO){
+//        SearchPage searchPage = new SearchPage();
+//        BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery().must(QueryBuilders.termQuery("rid", roomId));
+//        if(!StringUtils.isEmpty(chatQO.getNn())){
+//            queryBuilder.must(QueryBuilders.termQuery("nn",chatQO.getNn()));
+//        }
+//        if (chatQO.getUid() != null) {
+//            queryBuilder.must(QueryBuilders.termQuery("uid", chatQO.getUid()));
+//        }
+//        RangeQueryBuilder rangeQuery = QueryBuilders.rangeQuery("createAt");
+//        LocalDateTime startTime = chatQO.getStart();
+//        LocalDateTime endTime = chatQO.getEnd();
+//        if (startTime != null) {
+//            rangeQuery.from(DateUtil.localDateTimeFormat(startTime), true);
+//        }
+//        if (endTime != null) {
+//            rangeQuery.to(DateUtil.localDateTimeFormat(endTime), true);
+//        }
+//        if (rangeQuery.format() != null || rangeQuery.to() != null) {
+//            queryBuilder.must(rangeQuery);
+//        }
+//        searchPage.setQueryBuilder(queryBuilder);
+//        searchPage.setSort("createAt DESC");
+//        Pagination<ChatMessageVo,SearchPage> pagination = new Pagination<>(size,from/size+1,searchPage);
+//        pagination = chatSearchService.query(pagination);
+//        Map<String,Object> data = new HashMap<>(3);
+//        data.put("isMore",pagination.getPageNum()<pagination.getTotalPage());
+//        data.put("pageNum",pagination.getPageNum());
+//        data.put("chats",pagination.getItems());
+//        return Response.ok().entity(data);
+//    }
 
     /**
      * 获取当天贵族视图数据
@@ -294,52 +294,6 @@ public class RoomController extends BaseController {
     	giftQO.setEnd(getEndToDay());
     	List<Map<String, Object>> list = giftSearchService.getToDayGiftTopSum(giftQO);
     	return Response.ok().entity(list);
-    }
-
-    @GetMapping("/view/today/giftRankingList")
-    public Response viewTodayGiftRankingList(){
-        Map<String, BigDecimal> sumAggregation = giftSearchService.getToDayGiftSumAggregation();
-        if(sumAggregation==null){
-            return Response.INTERNAL_SERVER_ERROR;
-        }
-        List<GiftRankingListView> list = new ArrayList<>(sumAggregation.size());
-        for (Map.Entry<String,BigDecimal> entry:
-             sumAggregation.entrySet()) {
-            String roomId = entry.getKey();
-            RoomDetailVo roomDetailVo = DouyuUtil.getRoomDetail(Integer.valueOf(roomId));
-            BigDecimal value = entry.getValue();
-            GiftRankingListView giftRankingListView = new GiftRankingListView();
-            giftRankingListView.setRoomId(roomId);
-            giftRankingListView.setGiftMoney(value.setScale(2, RoundingMode.HALF_UP));
-            giftRankingListView.setNickName(roomDetailVo.getOwnerName());
-            giftRankingListView.setRoomName(roomDetailVo.getRoomName());
-            giftRankingListView.setRoomThumb(roomDetailVo.getRoomThumb());
-            list.add(giftRankingListView);
-        }
-        return Response.ok().entity(list);
-    }
-
-    @GetMapping("/view/today/danmuRankingList")
-    public Response viewTodayDanmuRankingList(){
-        Map<String,Long> sumAggregation = chatSearchService.getTodayDanmuSumAggregation();
-        if(sumAggregation==null){
-            return Response.INTERNAL_SERVER_ERROR;
-        }
-        List<DanmuRankingListView> list = new ArrayList<>(sumAggregation.size());
-        for (Map.Entry<String,Long> entry:
-             sumAggregation.entrySet()) {
-            String roomId = entry.getKey();
-            Long count = entry.getValue();
-            RoomDetailVo roomDetailVo = DouyuUtil.getRoomDetail(Integer.valueOf(roomId));
-            DanmuRankingListView danmuRankingListView = new DanmuRankingListView();
-            danmuRankingListView.setRoomId(roomId);
-            danmuRankingListView.setCount(count);
-            danmuRankingListView.setNickName(roomDetailVo.getOwnerName());
-            danmuRankingListView.setRoomName(roomDetailVo.getRoomName());
-            danmuRankingListView.setRoomThumb(roomDetailVo.getRoomThumb());
-            list.add(danmuRankingListView);
-        }
-        return Response.ok().entity(list);
     }
 
     /*@GetMapping("/view/{roomId}")

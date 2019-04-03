@@ -175,7 +175,7 @@ public class ChatSearchServiceImpl extends CommonSearchService implements ChatSe
     }
 
     @Override
-    public Map<String, Long> getTodayDanmuSumAggregation() {
+    public Map<String, Long> getTodayDanmuSumByRoomId(Integer topSize) {
         LocalDateTime todayStart = getTodayStart();
         LocalDateTime todayEnd = getTodayEnd();
         BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery()
@@ -186,7 +186,7 @@ public class ChatSearchServiceImpl extends CommonSearchService implements ChatSe
         String roomKey = "ROOM_KEY";
         TermsAggregationBuilder termsAggregationBuilder = AggregationBuilders.terms(roomKey)
                 .field("rid")
-                .size(10)
+                .size(topSize)
                 .order(BucketOrder.count(false));
         SearchResponse searchResponse = searchClient.client().prepareSearch(ChatMessageIndex.INDEX_NAME)
                 .setTypes(ChatMessageIndex.TYPE_NAME)

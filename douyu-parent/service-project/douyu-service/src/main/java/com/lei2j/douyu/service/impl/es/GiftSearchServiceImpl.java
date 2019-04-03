@@ -240,7 +240,7 @@ public class GiftSearchServiceImpl extends CommonSearchService implements GiftSe
 	}
 
     @Override
-    public Map<String,BigDecimal> getToDayGiftSumAggregation() {
+    public Map<String,BigDecimal> getToDayGiftByRoomId(Integer topSize) {
         LocalDateTime start = super.getTodayStart();
         LocalDateTime end = super.getTodayEnd();
         BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery()
@@ -253,7 +253,7 @@ public class GiftSearchServiceImpl extends CommonSearchService implements GiftSe
         TermsAggregationBuilder termsAggregationBuilder =
                 AggregationBuilders.terms(roomKey)
                         .field("rid")
-                        .size(10)
+                        .size(topSize)
                         .order(BucketOrder.aggregation(subSumRoomKey,false))
                         .subAggregation(
                                 AggregationBuilders.sum(subSumRoomKey)
@@ -277,6 +277,62 @@ public class GiftSearchServiceImpl extends CommonSearchService implements GiftSe
                 dataMap.put(rid,value);
             }
             return dataMap;
+        }
+        return null;
+    }
+
+    @Override
+    public List<Map<String, Object>> getTodayGiftMoneyByUserId(Integer topSize) {
+        LocalDateTime start = super.getTodayStart();
+        LocalDateTime end = super.getTodayEnd();
+        BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery()
+                .must(QueryBuilders.rangeQuery("pc").from(0, false))
+                .must(QueryBuilders.rangeQuery("createAt")
+                        .from(DateUtil.localDateTimeFormat(start), true)
+                        .to(DateUtil.localDateTimeFormat(end), true));
+        String key = "MONEY_KEY";
+        String subKey = "SUB_MONEY_KEY";
+        String fieldKeys = "FIELD_KEYS";
+        List<String> fieldDataFields = new ArrayList<>(2);
+        fieldDataFields.add("ic");
+        fieldDataFields.add("nn");
+        AggregatorFactories.Builder builder = new AggregatorFactories.Builder();
+        builder.addAggregator(AggregationBuilders.sum(subKey)
+                .script(new Script("doc['pc'].value*doc['gfcnt'].value")));
+        builder.addAggregator(AggregationBuilders.topHits(fieldKeys).fieldDataFields(fieldDataFields));
+        TermsAggregationBuilder aggregationBuilder = AggregationBuilders.terms(key).size(topSize)
+                .field("uid").order(BucketOrder.aggregation(subKey, false))
+                .subAggregations(builder);
+        SearchRequestBuilder searchRequestBuilder = searchClient.client().prepareSearch(GiftIndex.INDEX_NAME).setTypes(GiftIndex.TYPE_NAME)
+                .setQuery(queryBuilder)
+                .addAggregation(aggregationBuilder)
+                .setSize(0);
+        logger.info("[getTodayGiftMoneyByUserId]统计参数:{}",searchRequestBuilder);
+        SearchResponse searchResponse = searchRequestBuilder.get();
+        if(searchResponse.status()==RestStatus.OK){
+            List<Map<String, Object>> mapList = new ArrayList<>();
+            LongTerms longTerms = searchResponse.getAggregations().get(key);
+            List<Bucket> buckets = longTerms.getBuckets();
+            for (Bucket bucket :
+                    buckets) {
+                Number uid = bucket.getKeyAsNumber();
+                Aggregations aggregations = bucket.getAggregations();
+                InternalSum internalSum = aggregations.get(subKey);
+                InternalTopHits internalTopHits = aggregations.get(fieldKeys);
+                //礼物价值
+                double giftValue = internalSum.getValue();
+                SearchHit searchHit = internalTopHits.getHits().getAt(0);
+                //用户昵称
+                Object nn = searchHit.field("nn").getValue();
+                Object ic = searchHit.field("ic").getValue();
+                Map<String,Object> map = new HashMap<>(4);
+                map.put("uid",uid);
+                map.put("money",new BigDecimal(giftValue).setScale(2,RoundingMode.HALF_UP));
+                map.put("nn",nn);
+                map.put("ic",ic);
+                mapList.add(map);
+            }
+            return mapList;
         }
         return null;
     }

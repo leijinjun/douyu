@@ -46,7 +46,7 @@ public interface ChatSearchService {
      * 当天主播弹幕排行榜
      * @return
      */
-    Map<String, Long> getTodayDanmuSumAggregation();
+    Map<String, Long> getTodayDanmuSumByRoomId(Integer topSize);
 
     Pagination<DanmuSearchView, SearchPage> queryDanmuByCondition(Pagination<DanmuSearchView, SearchPage> pagination);
 
