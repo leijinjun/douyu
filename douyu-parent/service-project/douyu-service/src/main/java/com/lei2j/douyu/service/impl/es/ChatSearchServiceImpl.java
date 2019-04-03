@@ -61,7 +61,8 @@ public class ChatSearchServiceImpl extends CommonSearchService implements ChatSe
                         danmuSearchView.setIc(String.valueOf(sourceAsMap.get("ic")));
                         danmuSearchView.setCreateAt(String.valueOf(sourceAsMap.get("createAt")));
                         danmuSearchView.setTxt(String.valueOf(sourceAsMap.get("txt")));
-
+                        danmuSearchView.setIfs(Integer.parseInt(String.valueOf(sourceAsMap.get("ifs"))));
+                        danmuSearchView.setCol(Integer.parseInt(String.valueOf(sourceAsMap.get("col"))));
                         list.add(danmuSearchView);
                     }
                     return list;

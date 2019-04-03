@@ -23,6 +23,10 @@ public class DanmuSearchView {
 
     private String createAt;
 
+    private Integer ifs;
+
+    private Integer col;
+
 
     public String getRoomId() {
         return roomId;
@@ -88,6 +92,22 @@ public class DanmuSearchView {
         this.createAt = createAt;
     }
 
+    public Integer getIfs() {
+        return ifs;
+    }
+
+    public void setIfs(Integer ifs) {
+        this.ifs = ifs;
+    }
+
+    public Integer getCol() {
+        return col;
+    }
+
+    public void setCol(Integer col) {
+        this.col = col;
+    }
+
     @Override
     public String toString() {
         final StringBuffer sb = new StringBuffer("DanmuSearchView{");
@@ -99,6 +119,8 @@ public class DanmuSearchView {
         sb.append(", ic='").append(ic).append('\'');
         sb.append(", txt='").append(txt).append('\'');
         sb.append(", createAt='").append(createAt).append('\'');
+        sb.append(", ifs=").append(ifs);
+        sb.append(", col=").append(col);
         sb.append('}');
         return sb.toString();
     }
