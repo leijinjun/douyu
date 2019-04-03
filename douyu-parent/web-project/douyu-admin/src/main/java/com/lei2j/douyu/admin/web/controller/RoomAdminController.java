@@ -42,14 +42,6 @@ public class RoomAdminController extends BaseController {
 
     @Resource
     private CacheRoomService cacheRoomService;
-    @Resource
-    private GiftSearchService giftSearchService;
-    @Resource
-    private ChatSearchService chatSearchService;
-    @Resource
-    private NobleService nobleService;
-    @Resource
-    private FrankService frankService;
 
     /**
      * 获取直播列表
