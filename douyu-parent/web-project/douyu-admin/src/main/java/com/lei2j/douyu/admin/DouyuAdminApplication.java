@@ -26,7 +26,7 @@ public class DouyuAdminApplication {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DouyuAdminApplication.class);
 
-	private static final String FILE_PATH = "/opt/douyu-prod/admin.properties";
+	private static final String FILE_PATH = "/opt/douyu/front/admin.properties";
 
 	public static void main(String[] args) {
 		SpringApplication springApplication = new SpringApplication(DouyuAdminApplication.class);
