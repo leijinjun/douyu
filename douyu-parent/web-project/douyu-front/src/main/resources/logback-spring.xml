@@ -4,11 +4,11 @@
     <!-- 文件输出格式 -->
     <property name="PATTERN" value="%-12(%d{yyyy-MM-dd HH:mm:ss.SSS}) |-%-5level [%thread] %c [%L] -| %msg%n" />
     <!-- dev文件路径 -->
-    <property name="DEV_FILE_PATH" value="/douyu-log/dev.log" />
+    <property name="DEV_FILE_PATH" value="/douyu-log/front/dev.log" />
     <!-- test文件路径 -->
-    <property name="TEST_FILE_PATH" value="/douyu-log/test.log" />
+    <property name="TEST_FILE_PATH" value="/douyu-log/front/test.log" />
     <!-- pro文件路径 -->
-    <property name="PRO_FILE_PATH" value="/douyu-log/prod.log" />
+    <property name="PRO_FILE_PATH" value="/douyu-log/front/prod.log" />
     <!--显示日志-->
 
     <!-- 开发环境 -->
@@ -27,7 +27,7 @@
             <file>${DEV_FILE_PATH}</file>
             <!--滚动策略-->
             <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-                <fileNamePattern>/douyu-log/%d{yyyy-MM-dd}/dev-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+                <fileNamePattern>/douyu-log/front/%d{yyyy-MM-dd}/dev-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
                 <MaxHistory>7</MaxHistory>
                 <TimeBasedFileNamingAndTriggeringPolicy
                         class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
@@ -64,7 +64,7 @@
             <file>${TEST_FILE_PATH}</file>
             <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
                 <!-- 文件名称 -->
-                <fileNamePattern>/douyu-log/%d{yyyy-MM-dd}/test-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+                <fileNamePattern>/douyu-log/front/%d{yyyy-MM-dd}/test-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
                 <!-- 文件最大保存历史数量 -->
                 <MaxHistory>100</MaxHistory>
             </rollingPolicy>
@@ -89,7 +89,7 @@
         <appender name="PROD_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
             <file>${PRO_FILE_PATH}</file>
             <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-                <fileNamePattern>/douyu-log/prod-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+                <fileNamePattern>/douyu-log/front/prod-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
                 <MaxHistory>100</MaxHistory>
             </rollingPolicy>
             <layout class="ch.qos.logback.classic.PatternLayout">

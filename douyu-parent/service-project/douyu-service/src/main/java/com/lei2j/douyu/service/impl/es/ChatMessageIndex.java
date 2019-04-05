@@ -49,7 +49,7 @@ public class ChatMessageIndex extends AbstractIndex {
                 .setId(id).setSource(document).execute().actionGet();
 		int status = response.status().getStatus();
 		if (status >= 300) {
-			logger.error("[chat]保存数据失败status:{},record:{}", response.status(), document);
+			logger.info("[chat]保存数据失败status:{},record:{}", response.status(), document);
 		}
         return status < 300;
     }
@@ -61,7 +61,7 @@ public class ChatMessageIndex extends AbstractIndex {
                 .get();
 		int status = response.status().getStatus();
 		if (status >= 300) {
-			logger.error("[chat]保存数据失败status:{},record:{}", response.status(), json);
+			logger.info("[chat]保存数据失败status:{},record:{}", response.status(), json);
 		}
 		return status < 300;
     }
