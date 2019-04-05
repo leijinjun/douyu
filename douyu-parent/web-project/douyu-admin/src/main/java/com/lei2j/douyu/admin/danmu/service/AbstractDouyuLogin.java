@@ -29,6 +29,8 @@ public abstract class AbstractDouyuLogin implements DouyuLogin,MessageDispatcher
 
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDouyuLogin.class);
+
     /**
      * 心跳时间间隔，单位s
      */
@@ -39,10 +41,8 @@ public abstract class AbstractDouyuLogin implements DouyuLogin,MessageDispatcher
      */
     protected static ThreadPoolExecutor douyuMessageExecutor = new ThreadPoolExecutor(Runtime.getRuntime()
             .availableProcessors()
-            +1,Runtime.getRuntime().availableProcessors()*2, 30, TimeUnit.MINUTES, new ArrayBlockingQueue<>(10000),
-            new DefaultThreadFactory("Thread-douyu-message-%d", true, 10),(runnable,threadPoolExecutor)->{
-
-    }
+            +1,Runtime.getRuntime().availableProcessors()*2, 30, TimeUnit.MINUTES, new ArrayBlockingQueue<>(100000),
+            new DefaultThreadFactory("Thread-douyu-message-%d", true, 10),(runnable,threadPoolExecutor)->LOGGER.warn("警告！！！，队列已满")
     );
 
     /**
@@ -108,9 +108,14 @@ public abstract class AbstractDouyuLogin implements DouyuLogin,MessageDispatcher
         }
         DouyuLogin douyuLogin = this;
         douyuMessageExecutor.execute(() -> {
-            MessageHandler messageHandler = MessageHandler.HANDLER_MAP.get(type);
-            if (messageHandler != null) {
-                messageHandler.handler(messageMap, douyuLogin);
+            try {
+                MessageHandler messageHandler = MessageHandler.HANDLER_MAP.get(type);
+                if (messageHandler != null) {
+                    messageHandler.handler(messageMap, douyuLogin);
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+                logger.error("保存消息失败",e.getCause());
             }
         });
     }

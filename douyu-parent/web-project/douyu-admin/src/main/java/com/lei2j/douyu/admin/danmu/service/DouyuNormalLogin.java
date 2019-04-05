@@ -64,6 +64,7 @@ public class DouyuNormalLogin extends AbstractDouyuLogin {
             }
             //logout,do nothing
             if(f == 0) {
+                cacheRoomService.remove(room);
                 return;
             }
             //read error
@@ -100,7 +101,7 @@ public class DouyuNormalLogin extends AbstractDouyuLogin {
                 super.dispatch(douyuMessage);
                 return 1;
             }
-        } catch (IOException |DouyuMessageReadException e) {
+        } catch (Exception e) {
             //非正常退出
 			if (douyuConnection.isClosed()) {
 				return 0;
@@ -144,7 +145,7 @@ public class DouyuNormalLogin extends AbstractDouyuLogin {
 			}
             this.init();
             this.login();
-        } catch (IOException e1) {
+        } catch (Exception e1) {
             e1.printStackTrace();
         }
     }
