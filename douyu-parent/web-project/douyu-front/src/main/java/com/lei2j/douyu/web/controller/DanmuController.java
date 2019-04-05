@@ -85,6 +85,9 @@ public class DanmuController extends BaseController {
         searchPage.setSort("createAt desc");
         Pagination<DanmuSearchView,SearchPage> pagination = new Pagination<>(limit,pageNum,searchPage);
         pagination = chatSearchService.queryDanmuByCondition(pagination);
+        int total = pagination.getTotal();
+        int maxShowTotal = 10000;
+        pagination.setTotal(total>maxShowTotal?maxShowTotal:total);
         List<DanmuSearchView> items = pagination.getItems();
         if(!CollectionUtils.isEmpty(items)){
             for (DanmuSearchView item :

@@ -40,7 +40,11 @@ public class GiftIndex extends AbstractIndex {
         IndexResponse response = client.client().prepareIndex(INDEX_NAME, TYPE_NAME)
                 .setId(id).setSource(document, XContentType.JSON)
                 .get();
-        return response.status() == RestStatus.OK;
+        int status = response.status().getStatus();
+        if(status >= 300){
+            logger.error("[gift]保存数据失败status:{},record:{}",response.status(),document);
+        }
+        return status < 300;
     }
 
     @Override
@@ -49,7 +53,11 @@ public class GiftIndex extends AbstractIndex {
                 .setId(id)
                 .setSource(json, XContentType.JSON)
                 .get();
-        return response.status() == RestStatus.OK ;
+        int status = response.status().getStatus();
+        if(status >= 300){
+            logger.error("[gift]保存数据失败status:{},record:{}",response.status(),json);
+        }
+        return status < 300;
     }
 
     @Override

@@ -51,7 +51,9 @@ public class CommonDAO<T> {
                 }
             }
             sql.append(" ) ");
-            jdbcTemplate.update(sql.toString(),values.toArray(new Object[0]));
+            Object[] args = values.toArray(new Object[0]);
+            logger.info("[insert args:{}]",args);
+            jdbcTemplate.update(sql.toString(),args);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -100,7 +102,9 @@ public class CommonDAO<T> {
             }
             sql.append(String.format(" WHERE %s=? ",idColumn));
             values.addLast(idValue);
-            return jdbcTemplate.update(sql.toString(),values.toArray(new Object[0]));
+            Object[] args = values.toArray(new Object[0]);
+            logger.info("[insert args:{}]",args);
+            return jdbcTemplate.update(sql.toString(),args);
         }catch (Exception e){
             e.printStackTrace();
         }

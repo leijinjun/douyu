@@ -1,6 +1,7 @@
 package com.lei2j.douyu.service.impl.es;
 
 import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.cluster.node.DiscoveryNode;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -55,7 +57,8 @@ public class ElasticSearchClient {
 //            TransportAddress address = new InetSocketTransportAddress(InetAddress.getByName(var1[0]),Integer.parseInt(var1[1]));
             client.addTransportAddress(address);
         }
-        LOGGER.info("elasticsearch init success......");
+        List<DiscoveryNode> nodeList = client.connectedNodes();
+        LOGGER.info("[Elasticsearch] Connected Nodes:{}",nodeList);
     }
 
     public TransportClient client(){

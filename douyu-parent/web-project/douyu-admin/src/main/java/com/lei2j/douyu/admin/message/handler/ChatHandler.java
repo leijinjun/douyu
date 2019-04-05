@@ -1,12 +1,12 @@
 package com.lei2j.douyu.admin.message.handler;
 
-import com.alibaba.druid.util.StringUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.lei2j.douyu.danmu.service.DouyuLogin;
 import com.lei2j.douyu.danmu.service.MessageType;
 import com.lei2j.douyu.service.impl.es.ChatMessageIndex;
 import com.lei2j.douyu.vo.ChatMessageVo;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;

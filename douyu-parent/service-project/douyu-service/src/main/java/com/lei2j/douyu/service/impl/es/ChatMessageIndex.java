@@ -46,9 +46,12 @@ public class ChatMessageIndex extends AbstractIndex {
     @Override
     protected boolean createDocumentWithMap(String id, Map<String, Object> document) {
         IndexResponse response = client.client().prepareIndex(INDEX_NAME, TYPE_NAME)
-                .setId(id).setSource(document)
-                .get();
-        return response.status()==RestStatus.OK;
+                .setId(id).setSource(document).execute().actionGet();
+		int status = response.status().getStatus();
+		if (status >= 300) {
+			logger.error("[chat]保存数据失败status:{},record:{}", response.status(), document);
+		}
+        return status < 300;
     }
 
     @Override
@@ -56,7 +59,11 @@ public class ChatMessageIndex extends AbstractIndex {
         IndexResponse response = client.client().prepareIndex(INDEX_NAME, TYPE_NAME)
                 .setId(id).setSource(json, XContentType.JSON)
                 .get();
-        return response.status()==RestStatus.OK;
+		int status = response.status().getStatus();
+		if (status >= 300) {
+			logger.error("[chat]保存数据失败status:{},record:{}", response.status(), json);
+		}
+		return status < 300;
     }
 
     @Override
@@ -68,7 +75,7 @@ public class ChatMessageIndex extends AbstractIndex {
 //        logger.info("index {} create document status:{}",response.status().getStatus());
     }
 
-    public void createBatchDocument(List<ChatMessageVo> list) throws IOException, InterruptedException, ExecutionException {
+    public void createBatchDocument(List<ChatMessageVo> list) throws IOException {
 		BulkRequestBuilder prepareBulk = client.client().prepareBulk();
 		if (list != null) {
 			for (ChatMessageVo item : list) {
