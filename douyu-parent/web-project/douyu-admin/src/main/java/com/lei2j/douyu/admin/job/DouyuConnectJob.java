@@ -71,9 +71,9 @@ public class DouyuConnectJob extends DouyuJob {
                     JSONObject dataObj = jsonObj.getJSONObject("data");
                     int roomStatus = dataObj.getIntValue("room_status");
                     if(roomStatus==1){
-                        int hn = dataObj.getInteger("hn");
-                        Integer hightHn = 1000000;
-                        DouyuLogin douyuLogin;
+                            int hn = dataObj.getInteger("hn");
+                            Integer hightHn = 1000000;
+                            DouyuLogin douyuLogin;
                         try {
                             if (hn >= hightHn) {
                                 douyuLogin = new DouyuNormalLogin(roomId);
@@ -116,7 +116,7 @@ public class DouyuConnectJob extends DouyuJob {
                       JSONObject dataObj = jsonObject.getJSONObject("data");
                       // 未开播
                       if (dataObj.getIntValue("room_status") == 2) {
-                    	  LOGGER.info("房间|{},关闭直播",String.valueOf(roomId));
+                    	  LOGGER.info("房间|{},关闭直播",roomId);
                           douyuLogin.logout();
                       }
                   }

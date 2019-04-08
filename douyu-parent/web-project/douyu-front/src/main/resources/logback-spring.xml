@@ -1,108 +1,38 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <configuration>
     <contextName>${project.name}</contextName>
-    <!-- 文件输出格式 -->
-    <property name="PATTERN" value="%-12(%d{yyyy-MM-dd HH:mm:ss.SSS}) |-%-5level [%thread] %c [%L] -| %msg%n" />
-    <!-- dev文件路径 -->
-    <property name="DEV_FILE_PATH" value="/douyu-log/front/dev.log" />
-    <!-- test文件路径 -->
-    <property name="TEST_FILE_PATH" value="/douyu-log/front/test.log" />
-    <!-- pro文件路径 -->
-    <property name="PRO_FILE_PATH" value="/douyu-log/front/prod.log" />
-    <!--显示日志-->
-
+    <!--<include resource="org/springframework/boot/logging/logback/base.xml"/>-->
+    <!-- 通用日志配置 -->
+    <include resource="org/springframework/boot/logging/logback/defaults.xml" />
+    <logger name="org.springframework.web" level="DEBUG"/>
+    <logger name="com.lei2j.douyu" level="INFO"/>
+    <logger name="org.springframework.jdbc.core" additivity="false" level="INFO"/>
+    <logger name="org.springframework.jdbc.core.JdbcTemplate" level="DEBUG"/>
+    <logger name="org.springframework.boot.autoconfigure.logging" level="INFO"/>
+    <property name="LOG_FILE" value="${LOG_FILE:-${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}}/spring.log}"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
+    <include resource="file-appender.xml" />
+    <!-- ============ -->
     <!-- 开发环境 -->
     <!--springProfile的name属性对应application.properties中的spring.profiles.active-->
     <springProfile name="dev">
-        <!--指定输出到控制台-->
-        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-            <!--格式化-->
-            <encoder>
-                <pattern>${PATTERN}</pattern>
-            </encoder>
-        </appender>
-        <!--指定输出到文件-->
-        <appender name="OUT_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-            <!--写入的文件名-->
-            <file>${DEV_FILE_PATH}</file>
-            <!--滚动策略-->
-            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-                <fileNamePattern>/douyu-log/front/%d{yyyy-MM-dd}/dev-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-                <MaxHistory>7</MaxHistory>
-                <TimeBasedFileNamingAndTriggeringPolicy
-                        class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                    <MaxFileSize>10MB</MaxFileSize>
-                </TimeBasedFileNamingAndTriggeringPolicy>
-            </rollingPolicy>
-            <!--日志文件最大的大小-->
-            <!--<triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-                <MaxFileSize>2MB</MaxFileSize>
-            </triggeringPolicy>-->
-            <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-                <!--格式化输出-->
-                <pattern>${PATTERN}</pattern>
-            </encoder>
-            <!--<layout class="ch.qos.logback.classic.PatternLayout">
-                <pattern>${PATTERN}</pattern>
-            </layout>-->
-        </appender>
-        <logger name="com.lei2j.douyu" level="info"/>
-        <logger name="org.springframework.jdbc.core" additivity="false" level="info">
-            <appender-ref ref="CONSOLE"/>
-        </logger>
         <root level="INFO">
-            <appender-ref ref="CONSOLE" />
-            <appender-ref ref="OUT_FILE"/>
+            <appender-ref ref="CONSOLE"/>
+            <!--<appender-ref ref="FILE" />-->
         </root>
     </springProfile>
 
     <!-- 测试环境 -->
     <springProfile name="test">
-        <!-- 每天产生一个文件 -->
-        <appender name="TEST_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-            <!-- 文件路径 -->
-            <file>${TEST_FILE_PATH}</file>
-            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-                <!-- 文件名称 -->
-                <fileNamePattern>/douyu-log/front/%d{yyyy-MM-dd}/test-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-                <!-- 文件最大保存历史数量 -->
-                <MaxHistory>100</MaxHistory>
-            </rollingPolicy>
-            <layout class="ch.qos.logback.classic.PatternLayout">
-                <pattern>${PATTERN}</pattern>
-            </layout>
-        </appender>
         <root level="INFO">
-            <appender-ref ref="TEST_FILE" />
+            <appender-ref ref="FILE"/>
         </root>
     </springProfile>
 
     <!-- 生产环境 -->
     <springProfile name="prod">
-        <!--指定输出到控制台-->
-        <appender name="PROD_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-            <!--格式化-->
-            <encoder>
-                <pattern>${PATTERN}</pattern>
-            </encoder>
-        </appender>
-        <appender name="PROD_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-            <file>${PRO_FILE_PATH}</file>
-            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-                <fileNamePattern>/douyu-log/front/prod-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
-                <MaxHistory>100</MaxHistory>
-            </rollingPolicy>
-            <layout class="ch.qos.logback.classic.PatternLayout">
-                <pattern>${PATTERN}</pattern>
-            </layout>
-        </appender>
-        <logger name="com.lei2j.douyu" level="INFO"/>
-        <logger name="org.springframework.jdbc.core" additivity="false" level="INFO">
-            <appender-ref ref="PROD_CONSOLE" />
-        </logger>
-        <root level="info">
-            <appender-ref ref="PROD_CONSOLE" />
-            <appender-ref ref="PROD_FILE" />
+        <root level="INFO">
+            <appender-ref ref="FILE" />
         </root>
     </springProfile>
 </configuration>

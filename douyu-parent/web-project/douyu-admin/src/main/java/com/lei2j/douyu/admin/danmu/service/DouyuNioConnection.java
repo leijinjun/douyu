@@ -84,7 +84,7 @@ public class DouyuNioConnection {
 							byte[] data = read1(channel);
 							DouyuMessage douyuMessage = MessageConvert.postConvert(data);
 							attachment.dispatch(douyuMessage);
-						} catch (IOException | DouyuMessageReadException e) {
+						} catch (Exception e) {
 							selectionKey.cancel();
 							//非正常退出
 							if(socketChannel.isConnected()||socketChannel.isOpen()){
