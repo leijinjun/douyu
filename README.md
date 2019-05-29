@@ -4,10 +4,6 @@
 1. douyu-front应用为展示斗鱼弹幕分析数据。
 2. douyu-admin应用为管理弹幕连接服务器。
 # 安装所需依赖
-1. 安装jdk,最低版本1.8
+1. jdk,最低版本1.8
 2. Elasticsearch组件，版本为6.2.4
-3. 安装mysql
-# 打包
-1. mvn install
-2. mvn package -Dmaven.test.skip=true
-# 运行
+3. mysql
