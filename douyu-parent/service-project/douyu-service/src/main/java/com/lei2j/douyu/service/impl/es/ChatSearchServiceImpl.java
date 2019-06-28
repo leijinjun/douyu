@@ -1,7 +1,7 @@
 package com.lei2j.douyu.service.impl.es;
 
 import com.lei2j.douyu.core.constant.DateFormatConstants;
-import com.lei2j.douyu.functions.IndexSearchConvert;
+import com.lei2j.douyu.function.IndexSearchConvert;
 import com.lei2j.douyu.qo.ChatQuery;
 import com.lei2j.douyu.qo.SearchPage;
 import com.lei2j.douyu.service.es.ChatSearchService;
@@ -41,7 +41,7 @@ public class ChatSearchServiceImpl extends CommonSearchService implements ChatSe
     @Override
     public Pagination<ChatMessageVo,SearchPage> query(Pagination<ChatMessageVo,SearchPage> pagination){
         pagination = super.search(pagination, ChatMessageIndex.INDEX_NAME,
-                ChatMessageIndex.TYPE_NAME,(it)->IndexSearchConvert.convertToChatMessageVo(it));
+                ChatMessageIndex.TYPE_NAME,(it)->IndexSearchConvert.convertToList(it,ChatMessageVo.class));
         return pagination;
     }
 
@@ -71,7 +71,7 @@ public class ChatSearchServiceImpl extends CommonSearchService implements ChatSe
     }
 
     @Override
-    public Integer getToDayUserCountsAggregationnByRoom(Integer room) {
+    public Integer getToDayUserCountsAggregationByRoom(Integer room) {
         LocalDateTime startTime = getTodayStart();
         LocalDateTime endTime = getTodayEnd();
         BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery()
@@ -89,7 +89,7 @@ public class ChatSearchServiceImpl extends CommonSearchService implements ChatSe
                 .addAggregation(aggregationBuilder);
         logger.info("查询参数:{}", searchRequestBuilder.toString());
         SearchResponse userCountsResponse = searchRequestBuilder.get();
-        Integer userCounts = 0;
+        int userCounts = 0;
         if (userCountsResponse.status() == RestStatus.OK) {
             Cardinality cardinality = userCountsResponse.getAggregations().get(key);
             Long value = cardinality.getValue();

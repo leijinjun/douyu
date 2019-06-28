@@ -7,17 +7,9 @@ import com.iflytek.cloud.speech.*;
 import javazoom.jl.player.Player;
 import org.json.JSONObject;
 import org.junit.Test;
-import org.springframework.core.io.FileSystemResource;
 
 import javax.sound.sampled.*;
 import java.io.*;
-import java.nio.Buffer;
-import java.nio.ByteBuffer;
-import java.nio.file.FileSystem;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.text.NumberFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

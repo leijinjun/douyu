@@ -14,7 +14,7 @@ public interface MessageType {
     /**
      * 维持心跳
      */
-    String KEEPLIVE = "mrkl";
+    String KEEPALIVE = "mrkl";
 
     /**
      * 房间分组

@@ -14,17 +14,11 @@ import com.lei2j.douyu.util.DouyuUtil;
 import com.lei2j.douyu.vo.*;
 import com.lei2j.douyu.web.response.Pagination;
 import com.lei2j.douyu.web.response.Response;
-import com.lei2j.douyu.web.view.DanmuRankingListView;
-import com.lei2j.douyu.web.view.GiftRankingListView;
-import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.RangeQueryBuilder;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -52,7 +46,7 @@ public class RoomController extends BaseController {
     /**
      * 根据房间Id获取直播间综合信息
      * @param roomId 房间Id
-     * @return
+     * @return Response
      */
     @GetMapping("/{roomId:\\d+}")
     public Response roomInfo(@PathVariable("roomId")Integer roomId) {
@@ -90,7 +84,7 @@ public class RoomController extends BaseController {
         DecimalFormat decimalFormat = new DecimalFormat("0.00");
         String sum = decimalFormat.format(giftSum);
         Integer giftUserCounts = giftSearchService.getToDayGiftUserCountsAggregationByRoom(roomId);
-        Integer userCounts = chatSearchService.getToDayUserCountsAggregationnByRoom(roomId);
+        Integer userCounts = chatSearchService.getToDayUserCountsAggregationByRoom(roomId);
         GiftQuery giftQO = new GiftQuery();
         giftQO.setRid(roomId);
     	giftQO.setStart(getStartToDay());
@@ -113,8 +107,8 @@ public class RoomController extends BaseController {
 
     /**
      * 获取单个房间详细信息
-     * @param roomId
-     * @return
+     * @param roomId roomId
+     * @return Response
      */
     @GetMapping("/detail/{roomId:\\d+}")
     public Response roomDetail(@PathVariable("roomId")Integer roomId){
@@ -175,8 +169,8 @@ public class RoomController extends BaseController {
 
     /**
      * 获取当天贵族视图数据
-     * @param room
-     * @return
+     * @param room roomId
+     * @return Response
      */
     @GetMapping("/viewNoble/{room}")
     public Response viewNobleData(@PathVariable("room") Integer room,
@@ -204,8 +198,8 @@ public class RoomController extends BaseController {
 
     /**
      * 统计粉丝人数
-     * @param frankQO
-     * @return
+     * @param frankQO frankQO
+     * @return Response
      */
     @RequestMapping("/view/fansPersonNum/{room}")
     public Response viewFansPersonNumData(@PathVariable("room")Integer rid, FrankQuery frankQO){
@@ -237,8 +231,8 @@ public class RoomController extends BaseController {
 
     /**
      * 统计礼物总数
-     * @param giftQO
-     * @return
+     * @param giftQO giftQO
+     * @return Response
      */
     @RequestMapping("/view/giftMoney/{room}")
     public Response viewGiftMoneyData(@PathVariable("room")Integer rid, GiftQuery giftQO){
@@ -249,8 +243,8 @@ public class RoomController extends BaseController {
 
     /**
      * 统计礼物人数
-     * @param giftQO
-     * @return
+     * @param giftQO giftQO
+     * @return Response
      */
     @RequestMapping("/view/giftPersonNum/{room}")
     public Response viewGiftPersonNum(@PathVariable("room")Integer rid, GiftQuery giftQO){
@@ -261,8 +255,8 @@ public class RoomController extends BaseController {
 
     /**
      * 统计弹幕条数
-     * @param chatQO
-     * @return
+     * @param chatQO chatQO
+     * @return Response
      */
     @RequestMapping("/view/chatSum/{room}")
     public Response viewChatSumData(@PathVariable("room")Integer rid, ChatQuery chatQO){
@@ -273,8 +267,8 @@ public class RoomController extends BaseController {
 
     /**
      * 统计弹幕人数
-     * @param chatQO
-     * @return
+     * @param chatQO chatQO
+     * @return Response
      */
     @RequestMapping("/view/chatPersonNum/{room}")
     public Response viewChatPersonNumData(ChatQuery chatQO){
@@ -284,8 +278,8 @@ public class RoomController extends BaseController {
     
     /**
      * 每日礼物土豪榜
-     * @param giftQO
-     * @return
+     * @param giftQO giftQO
+     * @return Response
      */
     @GetMapping("/view/giftTopSum/{room}")
     public Response viewGiftTopSumData(@PathVariable("room") Integer room, GiftQuery giftQO) {
@@ -368,7 +362,7 @@ public class RoomController extends BaseController {
 
     /**
      * 今日开始时间
-     * @return
+     * @return LocalDateTime
      */
     private LocalDateTime getStartToDay() {
     	LocalDateTime localDateTime = LocalDateTime.now();
@@ -379,7 +373,7 @@ public class RoomController extends BaseController {
     
     /**
      * 今日结束时间
-     * @return
+     * @return LocalDateTime
      */
     private LocalDateTime getEndToDay() {
     	LocalDateTime startToDay = getStartToDay();

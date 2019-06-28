@@ -1,8 +1,7 @@
 package com.lei2j.douyu.service.impl.es;
 
 import com.lei2j.douyu.core.constant.DateFormatConstants;
-import com.lei2j.douyu.functions.IndexSearchConvert;
-import com.lei2j.douyu.jwt.algorithm.Key;
+import com.lei2j.douyu.function.IndexSearchConvert;
 import com.lei2j.douyu.qo.GiftQuery;
 import com.lei2j.douyu.qo.SearchPage;
 import com.lei2j.douyu.service.es.GiftSearchService;
@@ -16,7 +15,6 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.script.Script;
 import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.*;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
 import org.elasticsearch.search.aggregations.bucket.histogram.ExtendedBounds;
@@ -44,9 +42,9 @@ import java.util.*;
 public class GiftSearchServiceImpl extends CommonSearchService implements GiftSearchService {
 
     @Override
-    public Pagination<GiftVo,SearchPage> query(Pagination<GiftVo,SearchPage> pagination) {
-        pagination = super.search(pagination,GiftIndex.INDEX_NAME, GiftIndex.TYPE_NAME,
-                (it)->IndexSearchConvert.convertToGiftVo(it));
+    public Pagination<GiftVo, SearchPage> query(Pagination<GiftVo, SearchPage> pagination) {
+        pagination = super.search(pagination, GiftIndex.INDEX_NAME, GiftIndex.TYPE_NAME,
+                (it) -> IndexSearchConvert.convertToList(it, GiftVo.class));
         return pagination;
     }
 
@@ -97,7 +95,7 @@ public class GiftSearchServiceImpl extends CommonSearchService implements GiftSe
                 .addAggregation(aggregationBuilder);
         logger.info("ElasticSearch查询参数:{}",searchRequestBuilder.toString());
         SearchResponse userCountsResponse = searchRequestBuilder.get();
-        Integer giftUserCounts = 0;
+        int giftUserCounts = 0;
         if (RestStatus.OK == userCountsResponse.status()) {
             Cardinality cardinality = userCountsResponse.getAggregations().get(key);
             Long value = cardinality.getValue();

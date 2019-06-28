@@ -26,8 +26,7 @@ public class FrankServiceImpl extends BaseServiceImpl implements FrankService {
 
     @Override
     public List<FrankVo> findByCondition(FrankQuery frankQO) {
-        List<FrankVo> frankViewQOS = frankDAO.findFrankByCondition(frankQO);
-        return frankViewQOS;
+        return frankDAO.findFrankByCondition(frankQO);
     }
 
     @Override

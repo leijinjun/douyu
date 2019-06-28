@@ -8,13 +8,11 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.BindException;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 
 import javax.servlet.http.HttpServletRequest;
@@ -34,10 +32,10 @@ public class ControllerExceptionHandler {
 
     /**
      * 处理Controller异常
-     * @param webRequest
-     * @param request
-     * @param ex
-     * @return
+     * @param webRequest webRequest
+     * @param request request
+     * @param ex ex
+     * @return Response
      */
     @ExceptionHandler({Exception.class})
     @ResponseBody

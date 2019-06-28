@@ -29,10 +29,7 @@ public class HttpResponseAdvice implements ResponseBodyAdvice<Object> {
 
 	@Override
 	public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
-		if (returnType.getParameterType() == Response.class) {
-			return true;
-		}
-		return false;
+		return returnType.getParameterType() == Response.class;
 	}
 
 	@Override

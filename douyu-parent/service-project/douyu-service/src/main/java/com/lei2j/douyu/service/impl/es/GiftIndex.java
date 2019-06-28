@@ -6,7 +6,6 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.common.xcontent.XContentType;
-import org.elasticsearch.rest.RestStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -24,7 +23,7 @@ public class GiftIndex extends AbstractIndex {
     public static final String INDEX_NAME = "gift_v1";
     public static final String TYPE_NAME = "gift";
 
-    public GiftIndex(@Autowired ElasticSearchClient client) throws IOException{
+    public GiftIndex(@Autowired ElasticSearchClient client) throws Exception{
         super(client);
         Settings.Builder settings = Settings.builder()
 //                .put("client.transport.sniff",true)
@@ -61,7 +60,7 @@ public class GiftIndex extends AbstractIndex {
     }
 
     @Override
-    protected boolean createDocumentWithBuilder(String id, Serializable giftVO) throws IOException {
+    protected boolean createDocumentWithBuilder(String id, Serializable giftVO) {
         return false;
 //        IndexResponse response = client.client().prepareIndex(INDEX_NAME, TYPE_NAME)
 //                .setId(id).setSource(super.builderDocument(giftVO))
@@ -92,7 +91,7 @@ public class GiftIndex extends AbstractIndex {
         return xContentBuilder;
     }
 
-    public XContentBuilder upsertMapping(String field,String type,boolean isIndex) throws IOException{
+    public XContentBuilder updateMapping(String field,String type,boolean isIndex) throws IOException{
         XContentBuilder xContentBuilder = XContentFactory.jsonBuilder();
         xContentBuilder.startObject()
                 .startObject("properties")

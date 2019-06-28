@@ -1,21 +1,26 @@
-package com.lei2j.douyu.admin.danmu.service;
+package com.lei2j.douyu.admin.danmu;
 
 import com.lei2j.douyu.admin.message.exception.DouyuMessageReadException;
+import com.lei2j.douyu.core.config.DouyuAddress;
 import com.lei2j.douyu.danmu.message.converter.MessageConvert;
 import com.lei2j.douyu.danmu.pojo.DouyuMessage;
 import com.lei2j.douyu.util.LHUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
+import java.nio.channels.spi.SelectorProvider;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author lei2j
@@ -33,6 +38,13 @@ public class DouyuNioConnection {
 
 	private ByteBuffer dst = ByteBuffer.allocate(12);
 
+	private AtomicBoolean isStart = new AtomicBoolean(false);
+
+	private DouyuNioConnection() throws IOException {
+		this.selector = Selector.open();
+//		start();
+	}
+
 	public static DouyuNioConnection initConnection() throws IOException{
 		if(douyuNIOConnection==null){
 			synchronized (DouyuNioConnection.class){
@@ -44,20 +56,14 @@ public class DouyuNioConnection {
 		return douyuNIOConnection;
 	}
 
-	private DouyuNioConnection() throws IOException {
-		this.selector = Selector.open();
-		start();
-    }
-
 	public void start() {
-		singleExecutorService.execute(()->read());
+		singleExecutorService.execute(this::read);
 	}
 
-	public void write(DouyuMessage douyuMessage, DouyuNioLogin douyuNIOLogin) throws IOException {
+	public void write(DouyuMessage douyuMessage, SocketChannel socketChannel) throws IOException {
     	byte[]  messages= MessageConvert.preConvert(douyuMessage);
-    	int messageLength = messages.length;
+		int messageLength = messages.length;
 		ByteBuffer sendBuf = ByteBuffer.allocate(messageLength);
-		SocketChannel socketChannel = douyuNIOLogin.getSocketChannel();
 		sendBuf.put(messages);
 		sendBuf.flip();
 		socketChannel.write(sendBuf);
@@ -66,22 +72,26 @@ public class DouyuNioConnection {
     public void read() {
     	while(true) {
 			try {
-				selector.select(3000);
+				Set<SelectionKey> keys = selector.keys();
+				if (CollectionUtils.isEmpty(keys)) {
+					isStart.compareAndSet(true,false);
+					break;
+				}
+				selector.select(1000);
 				Set<SelectionKey> selectedKeys = selector.selectedKeys();
 				Iterator<SelectionKey> iterator = selectedKeys.iterator();
 				while(iterator.hasNext()) {
 					SelectionKey selectionKey = iterator.next();
 					iterator.remove();
 					if(selectionKey.isReadable()) {
-						SocketChannel channel = (SocketChannel) selectionKey.channel();
+						SocketChannel socketChannel = (SocketChannel) selectionKey.channel();
 						DouyuNioLogin attachment = (DouyuNioLogin) selectionKey.attachment();
-						SocketChannel socketChannel = attachment.getSocketChannel();
 						if (!socketChannel.isConnected() || !socketChannel.isOpen()) {
 							selectionKey.cancel();
 							continue;
 						}
 						try {
-							byte[] data = read1(channel);
+							byte[] data = read1(socketChannel);
 							DouyuMessage douyuMessage = MessageConvert.postConvert(data);
 							attachment.dispatch(douyuMessage);
 						} catch (Exception e) {
@@ -101,58 +111,60 @@ public class DouyuNioConnection {
     	}
     }
 
-    private byte[] read1(SocketChannel channel) throws IOException{
+    private byte[] read1(SocketChannel channel) throws IOException {
 		int offset = 0;
 		dst.clear();
-		while (true){
+		while (offset < 12) {
 			int readSize = channel.read(dst);
-			if(readSize==-1){
-				throw new DouyuMessageReadException("server connect is closed");
+			if (readSize == -1) {
+				throw new DouyuMessageReadException("connect is closed");
 			}
 			offset += readSize;
-			if(offset>= 12 ){
-				break;
-			}
 		}
 		dst.flip();
 		byte[] var = new byte[4];
 		dst.get(var, 0, 4);
 		//获取本条消息总长度
 		int totalLength = LHUtil.lowerToInt(var);
-		dst.get(var,0,4);
+		dst.get(var, 0, 4);
 		int reTotalLength = LHUtil.lowerToInt(var);
-		dst.get(var,0,2);
+		dst.get(var, 0, 2);
 		int msgType = LHUtil.lowerToShort(var);
 		//校验消息头
-		if(totalLength!=reTotalLength||msgType!=690) {
+		if (totalLength != reTotalLength || msgType != 690) {
 			throw new DouyuMessageReadException("server connect is closed");
 		}
 //			获取数据长度
-		int messageLength = totalLength-8;
+		int messageLength = totalLength - 8;
 		byte[] data = new byte[messageLength];
 		offset = 0;
-		while (true){
+		while (offset < data.length) {
 			dst.clear();
-			int remainderCount = data.length-offset;
-			if(dst.remaining() >= remainderCount){
+			int remainderCount = data.length - offset;
+			if (dst.remaining() >= remainderCount) {
 				dst.limit(remainderCount);
 			}
 			int readSize = channel.read(dst);
-			if(readSize==-1){
+			if (readSize == -1) {
 				throw new DouyuMessageReadException("server connect is closed");
 			}
 			dst.flip();
-			dst.get(data,offset,readSize);
+			dst.get(data, offset, readSize);
 			offset += readSize;
-			if(offset >= data.length){
-				break;
-			}
 		}
 		return data;
 	}
 
-	public Selector getSelector(){
-		return selector;
+	public SocketChannel register(DouyuNioLogin attr) throws IOException {
+		Integer room = attr.room;
+		SocketChannel socketChannel = SelectorProvider.provider().openSocketChannel();
+		DouyuAddress douyuAddress = attr.getDouyuAddress();
+		socketChannel.connect(new InetSocketAddress(douyuAddress.getIp(), douyuAddress.getPort()));
+		socketChannel.configureBlocking(false);
+		socketChannel.register(selector, SelectionKey.OP_READ, attr);
+		if (isStart.compareAndSet(false, true)) {
+			start();
+		}
+		return socketChannel;
 	}
-
 }

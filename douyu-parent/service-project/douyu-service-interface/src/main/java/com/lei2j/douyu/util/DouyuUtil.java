@@ -22,8 +22,8 @@ public class DouyuUtil {
 
     /**
      * 获取直播间详细信息
-     * @param room
-     * @return
+     * @param room roomId
+     * @return RoomDetailVo
      */
     public static RoomDetailVo getRoomDetail(Integer room){
         String url = DouyuApi.ROOM_DETAIL_API.replace("{room}",String.valueOf(room));
@@ -37,12 +37,7 @@ public class DouyuUtil {
                 JSONObject dataObj = jsonObj.getJSONObject("data");
                 roomDetailVo = dataObj.toJavaObject(RoomDetailVo.class);
                 List<RoomGiftVo> roomGifts = roomDetailVo.getRoomGifts();
-                roomGifts = roomGifts.parallelStream().filter((var) -> {
-                    if (var.getType() == 1) {
-                        return false;
-                    }
-                    return true;
-                }).collect(Collectors.toList());
+                roomGifts = roomGifts.parallelStream().filter(var -> var.getType() != 1).collect(Collectors.toList());
                 roomDetailVo.setRoomGifts(roomGifts);
                 return roomDetailVo;
             }
@@ -54,8 +49,8 @@ public class DouyuUtil {
 
     /**
      * 获取所有直播分类
-     * @return
-     * @throws IOException
+     * @return List
+     * @throws IOException IOException
      */
     public static List<CateVo> getAllCates() throws IOException {
         Elements lis = Jsoup.connect(DouyuApi.LIVE_CATE_ALL).get().body().getElementById("allCate").getElementsByTag("ul").get(0)

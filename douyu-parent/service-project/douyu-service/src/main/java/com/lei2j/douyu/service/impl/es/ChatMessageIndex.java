@@ -12,7 +12,6 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.common.xcontent.XContentType;
-import org.elasticsearch.rest.RestStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +20,6 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Created by lei2j on 2018/6/4.
@@ -32,7 +30,7 @@ public class ChatMessageIndex extends AbstractIndex {
     public static final String INDEX_NAME = "chat";
     public static final String TYPE_NAME = "chat";
 
-    public ChatMessageIndex(@Autowired ElasticSearchClient client) throws IOException{
+    public ChatMessageIndex(@Autowired ElasticSearchClient client) throws Exception{
         super(client);
         Settings.Builder settings = Settings.builder()
 //                .put("client.transport.sniff",true)
@@ -67,7 +65,7 @@ public class ChatMessageIndex extends AbstractIndex {
     }
 
     @Override
-    protected boolean createDocumentWithBuilder(String id,Serializable document)throws IOException{
+    protected boolean createDocumentWithBuilder(String id,Serializable document) {
 		return false;
 //        IndexResponse response = client.client().prepareIndex(INDEX_NAME, TYPE_NAME)
 //                .setId(id).setSource(super.builderDocument(document))

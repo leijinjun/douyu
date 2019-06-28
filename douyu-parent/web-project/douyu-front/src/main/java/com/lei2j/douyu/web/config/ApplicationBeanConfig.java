@@ -1,12 +1,9 @@
 package com.lei2j.douyu.web.config;
 
 import org.hibernate.validator.HibernateValidator;
-import org.springframework.boot.autoconfigure.cache.CacheManagerCustomizer;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.client.RestTemplate;
 
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -19,7 +16,7 @@ public class ApplicationBeanConfig {
 
     /**
      * 设置Validator
-     * @return
+     * @return Validator
      */
     @Bean("validator")
     public Validator configValidator(){

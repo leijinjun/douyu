@@ -1,17 +1,18 @@
-package com.lei2j.douyu.admin.danmu.service;
+package com.lei2j.douyu.admin.danmu;
 
 import com.lei2j.douyu.admin.cache.CacheRoomService;
 import com.lei2j.douyu.admin.message.handler.MessageHandler;
 import com.lei2j.douyu.core.ApplicationContextUtil;
 import com.lei2j.douyu.core.config.DouyuAddress;
 import com.lei2j.douyu.danmu.pojo.DouyuMessage;
-import com.lei2j.douyu.danmu.service.DouyuKeeplive;
+import com.lei2j.douyu.danmu.service.DouyuKeepalive;
 import com.lei2j.douyu.danmu.service.DouyuLogin;
 import com.lei2j.douyu.danmu.service.MessageDispatcher;
 import com.lei2j.douyu.danmu.service.MessageType;
 import com.lei2j.douyu.thread.factory.DefaultThreadFactory;
 import com.lei2j.douyu.vo.RoomDetailVo;
 import com.lei2j.douyu.vo.RoomGiftVo;
+import org.apache.lucene.document.StringField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +26,7 @@ import java.util.concurrent.*;
  * @author lei2j
  * Created by lei2j on 2018/8/26.
  */
-public abstract class AbstractDouyuLogin implements DouyuLogin,MessageDispatcher {
+ abstract class AbstractDouyuLogin implements DouyuLogin,MessageDispatcher {
 
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -48,8 +49,8 @@ public abstract class AbstractDouyuLogin implements DouyuLogin,MessageDispatcher
     /**
      * 心跳检测线程池
      */
-    protected static ScheduledExecutorService keepliveScheduledExecutorService = new ScheduledThreadPoolExecutor(5,
-    		new DefaultThreadFactory("Thread-douyu-keeplive-%d", true, 10));
+    protected static ScheduledExecutorService keepaliveScheduledExecutorService = new ScheduledThreadPoolExecutor(5,
+    		new DefaultThreadFactory("Thread-douyu-keepalive-%d", true, 10));
 
     /**
      *房间信息
@@ -66,11 +67,11 @@ public abstract class AbstractDouyuLogin implements DouyuLogin,MessageDispatcher
     /**
      * 房间心跳检测
      */
-    protected KeepliveSchedule keepliveSchedule;
+    protected KeepaliveSchedule keepaliveSchedule;
 
     protected CacheRoomService cacheRoomService = ApplicationContextUtil.getBean(CacheRoomService.class);
 
-    public AbstractDouyuLogin() {
+    protected AbstractDouyuLogin() {
     }
 
     protected AbstractDouyuLogin(Integer room) throws IOException{
@@ -80,7 +81,7 @@ public abstract class AbstractDouyuLogin implements DouyuLogin,MessageDispatcher
 
     /**
      * 实现类自定义初始化
-     * @throws IOException
+     * @throws IOException IOException
      */
     protected abstract void init() throws IOException;
 
@@ -133,8 +134,8 @@ public abstract class AbstractDouyuLogin implements DouyuLogin,MessageDispatcher
      * 获取弹幕服务器信息
      * @param username 登录用户名
      * @param password 登录密码
-     * @return
-     * @throws IOException
+     * @return DouyuDanmuLoginAuth
+     * @throws IOException IOException
      */
     @SuppressWarnings("unchecked")
 	protected DouyuDanmuLoginAuth getChatServerAddress(String username, String password) throws IOException{
@@ -166,8 +167,8 @@ public abstract class AbstractDouyuLogin implements DouyuLogin,MessageDispatcher
 
     /**
      * 匿名登录弹幕服务器
-     * @return
-     * @throws IOException
+     * @return DouyuDanmuLoginAuth
+     * @throws IOException IOException
      */
     protected DouyuDanmuLoginAuth getChatServerAddress() throws IOException{
         return getChatServerAddress("","");
@@ -220,7 +221,7 @@ public abstract class AbstractDouyuLogin implements DouyuLogin,MessageDispatcher
 
         @Override
         public String toString() {
-            final StringBuffer sb = new StringBuffer("DouyuDanmuLoginAuth{");
+            final StringBuilder sb = new StringBuilder("DouyuDanmuLoginAuth{");
             sb.append("username='").append(username).append('\'');
             sb.append(", address=").append(address);
             sb.append('}');
@@ -228,15 +229,16 @@ public abstract class AbstractDouyuLogin implements DouyuLogin,MessageDispatcher
         }
     }
 
-    class KeepliveSchedule {
+    class KeepaliveSchedule {
 
         private ScheduledFuture<?> scheduledFuture;
 
-        public KeepliveSchedule(){
+        public KeepaliveSchedule(){
         }
 
-        public void schedule(DouyuKeeplive douyuKeeplive) {
-            scheduledFuture = keepliveScheduledExecutorService.scheduleWithFixedDelay(() -> douyuKeeplive.keeplive() , INTERVAL_SECONDS, INTERVAL_SECONDS, TimeUnit.SECONDS);
+        public void schedule(DouyuKeepalive douyuKeepalive) {
+            scheduledFuture = keepaliveScheduledExecutorService.scheduleWithFixedDelay(douyuKeepalive::keepalive,
+                    INTERVAL_SECONDS, INTERVAL_SECONDS, TimeUnit.SECONDS);
         }
 
         public void cancel(){

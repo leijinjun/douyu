@@ -8,11 +8,11 @@ import java.io.IOException;
  * @author lei2j
  * Created by lei2j on 2018/8/28.
  */
-public interface DouyuLogin {
+public interface  DouyuLogin {
 
     /**
      * 登录
-     * @throws IOException
+     * @throws IOException IOException
      * @return -1 is connect failed,1 is connect success
      */
     int login()throws IOException;
@@ -24,7 +24,6 @@ public interface DouyuLogin {
 
     /**
      * 获取房间号
-     * @return
      */
     Integer getRoom();
 

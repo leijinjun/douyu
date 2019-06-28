@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.lei2j.douyu.core.ApplicationContextUtil;
 import com.lei2j.douyu.service.impl.es.ChatMessageIndex;
 import com.lei2j.douyu.service.impl.es.GiftIndex;
-import lombok.extern.slf4j.Slf4j;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -31,7 +30,6 @@ import java.util.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@Slf4j
 public class DouyuApplicationTests {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DouyuApplicationTests.class);
