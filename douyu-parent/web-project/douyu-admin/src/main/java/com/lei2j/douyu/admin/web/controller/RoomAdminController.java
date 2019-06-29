@@ -87,7 +87,7 @@ public class RoomAdminController extends BaseController {
         for (Map.Entry<Integer, DouyuLogin> entry :
                 entrySet) {
             DouyuLogin value = entry.getValue();
-            RoomDetailVo roomDetail = value.getRoomDetail();
+            RoomDetailVo roomDetail = DouyuUtil.getRoomDetail(entry.getKey());
             RoomVo roomVO = BeanUtils.copyProperties(roomDetail,RoomVo.class);
             roomVO.setConnected(true);
             roomVO.setNickname(roomDetail.getOwnerName());

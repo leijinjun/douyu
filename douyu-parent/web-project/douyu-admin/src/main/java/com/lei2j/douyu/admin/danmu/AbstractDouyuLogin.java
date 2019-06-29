@@ -8,19 +8,19 @@ import com.lei2j.douyu.danmu.pojo.DouyuMessage;
 import com.lei2j.douyu.danmu.service.DouyuKeepalive;
 import com.lei2j.douyu.danmu.service.DouyuLogin;
 import com.lei2j.douyu.danmu.service.MessageDispatcher;
-import com.lei2j.douyu.danmu.service.MessageType;
 import com.lei2j.douyu.thread.factory.DefaultThreadFactory;
+import com.lei2j.douyu.util.DouyuUtil;
 import com.lei2j.douyu.vo.RoomDetailVo;
 import com.lei2j.douyu.vo.RoomGiftVo;
-import org.apache.lucene.document.StringField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author lei2j
@@ -53,9 +53,9 @@ import java.util.concurrent.*;
     		new DefaultThreadFactory("Thread-douyu-keepalive-%d", true, 10));
 
     /**
-     *房间信息
+     *房间礼物信息
      */
-    protected RoomDetailVo roomDetail;
+    protected Map<Integer, RoomGiftVo> roomGiftMap;
 
     /**
      * 房间ID
@@ -74,39 +74,19 @@ import java.util.concurrent.*;
     protected AbstractDouyuLogin() {
     }
 
-    protected AbstractDouyuLogin(Integer room) throws IOException{
+    protected AbstractDouyuLogin(Integer room) {
         this.room = room;
-        init();
+        RoomDetailVo roomDetailVo = DouyuUtil.getRoomDetail(room);
+        this.roomGiftMap = roomDetailVo.getRoomGifts().stream().collect(Collectors.toMap(RoomGiftVo::getId,
+                Function.identity()));
     }
-
-    /**
-     * 实现类自定义初始化
-     * @throws IOException IOException
-     */
-    protected abstract void init() throws IOException;
 
     @Override
     public void dispatch(DouyuMessage douyuMessage) {
         Map<String, Object> messageMap = MessageParse.parse(douyuMessage);
         logger.debug("接收消息:{}",messageMap);
         String type = String.valueOf(messageMap.get("type"));
-        //礼物类型
-        if (MessageType.GIVE_GIFT.equals(type)) {
-            String gfid = String.valueOf(messageMap.get("gfid"));
-            //收费礼物列表
-            Map<Integer, RoomGiftVo> roomGift = getRoomGift();
-            Integer var3 = Integer.valueOf(gfid);
-            //过滤免费礼物
-            if (!roomGift.containsKey(var3)) {
-                return;
-            }
-            messageMap.put("pc", roomGift.get(var3).getPc());
-            MessageHandler messageHandler = MessageHandler.HANDLER_MAP.get(type);
-            if (messageHandler != null) {
-                messageHandler.handler(messageMap,this);
-            }
-            return;
-        }
+
         DouyuLogin douyuLogin = this;
         douyuMessageExecutor.execute(() -> {
             try {
@@ -121,13 +101,9 @@ import java.util.concurrent.*;
         });
     }
 
-    public Map<Integer,RoomGiftVo> getRoomGift(){
-        Map<Integer,RoomGiftVo> dataMap = new HashMap<>(8);
-        if (roomDetail != null) {
-            List<RoomGiftVo> roomGifts = roomDetail.getRoomGifts();
-            roomGifts.forEach((var) -> dataMap.put(var.getId(), var));
-        }
-        return dataMap;
+    @Override
+    public Map<Integer, RoomGiftVo> getRoomGift() {
+        return roomGiftMap;
     }
 
     /**
@@ -177,11 +153,6 @@ import java.util.concurrent.*;
     @Override
     public Integer getRoom() {
         return room;
-    }
-
-    @Override
-    public RoomDetailVo getRoomDetail() {
-        return roomDetail;
     }
 
     public DouyuAddress getDouyuAddress() {
