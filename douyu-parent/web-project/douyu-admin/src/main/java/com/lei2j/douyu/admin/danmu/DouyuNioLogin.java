@@ -1,7 +1,5 @@
 package com.lei2j.douyu.admin.danmu;
 
-import com.lei2j.douyu.util.DouyuUtil;
-
 import java.io.IOException;
 import java.nio.channels.SocketChannel;
 import java.time.LocalDateTime;
@@ -18,11 +16,6 @@ public class DouyuNioLogin extends AbstractDouyuLogin {
 	public DouyuNioLogin(Integer room) throws IOException {
 		super(room);
 		this.douyuNioConnection = DouyuNioConnection.initConnection();
-	}
-
-	@Override
-	public void init() {
-		super.roomDetail = DouyuUtil.getRoomDetail(room);
 	}
 
 	/**
@@ -91,7 +84,6 @@ public class DouyuNioLogin extends AbstractDouyuLogin {
 				socketChannel.close();
 			}
 			logger.info("重新连接房间:{}",room);
-			init();
 			login();
 		} catch (IOException e) {
 			e.printStackTrace();

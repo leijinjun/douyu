@@ -1,7 +1,6 @@
 package com.lei2j.douyu.admin.danmu;
 
 import com.lei2j.douyu.danmu.pojo.DouyuMessage;
-import com.lei2j.douyu.util.DouyuUtil;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -24,11 +23,6 @@ public class DouyuNormalLogin extends AbstractDouyuLogin {
 
     public DouyuNormalLogin(Integer room) throws IOException {
         super(room);
-    }
-
-    @Override
-    public void init() {
-        super.roomDetail = DouyuUtil.getRoomDetail(room);
     }
 
     /**
@@ -157,7 +151,6 @@ public class DouyuNormalLogin extends AbstractDouyuLogin {
 			if (!douyuConnection.isClosed()) {
 				douyuConnection.close();
 			}
-            this.init();
             this.login();
         } catch (Exception e1) {
             e1.printStackTrace();

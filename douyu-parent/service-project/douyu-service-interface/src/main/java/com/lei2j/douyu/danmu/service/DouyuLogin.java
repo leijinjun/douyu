@@ -1,8 +1,9 @@
 package com.lei2j.douyu.danmu.service;
 
-import com.lei2j.douyu.vo.RoomDetailVo;
+import com.lei2j.douyu.vo.RoomGiftVo;
 
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * @author lei2j
@@ -32,6 +33,6 @@ public interface  DouyuLogin {
      */
     void retry();
 
-    RoomDetailVo getRoomDetail();
+    Map<Integer, RoomGiftVo> getRoomGift();
     
 }
