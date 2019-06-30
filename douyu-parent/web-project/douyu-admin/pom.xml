@@ -70,7 +70,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>com.googlecode.soundlibs</groupId>
             <artifactId>vorbisspi</artifactId>
             <version>1.0.3.3</version>
@@ -99,7 +99,7 @@
                         <artifactId>slf4j-simple</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
+        </dependency>-->
     </dependencies>
 
     <build>

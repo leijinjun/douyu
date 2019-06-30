@@ -1,3 +1,4 @@
+/*
 package com.lei2j.douyu;
 
 import com.baidu.aip.speech.AipSpeech;
@@ -7,15 +8,9 @@ import com.iflytek.cloud.speech.*;
 import javazoom.jl.player.Player;
 import org.json.JSONObject;
 import org.junit.Test;
-import org.springframework.util.StringUtils;
 
 import javax.sound.sampled.*;
 import java.io.*;
-
-/**
- * author: 98611
- * date: 2019/6/30
- */
 
 public class TestAudio {
 
@@ -173,3 +168,4 @@ public class TestAudio {
     }
 
 }
+*/
