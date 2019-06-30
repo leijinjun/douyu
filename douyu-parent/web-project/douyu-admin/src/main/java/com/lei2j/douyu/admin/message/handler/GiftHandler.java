@@ -46,7 +46,7 @@ public class GiftHandler extends AbstractMessageHandler{
     }
     @Override
     protected void afterSetHandler() {
-        if(!HANDLER_MAP.containsKey(MessageType.GIVE_GIFT)){
+        if (!HANDLER_MAP.containsKey(MessageType.GIVE_GIFT)) {
             HANDLER_MAP.put(MessageType.GIVE_GIFT, this);
         }
     }
