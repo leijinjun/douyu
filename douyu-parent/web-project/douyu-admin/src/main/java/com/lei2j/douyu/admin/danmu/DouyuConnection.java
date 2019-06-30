@@ -1,4 +1,4 @@
-package com.lei2j.douyu.admin.danmu.service;
+package com.lei2j.douyu.admin.danmu;
 
 import com.lei2j.douyu.admin.message.exception.DouyuMessageReadException;
 import com.lei2j.douyu.core.config.DouyuAddress;
@@ -20,7 +20,7 @@ import java.util.Arrays;
  * @author lei2j
  * Created by lei2j on 2018/5/28.
  */
-public class DouyuConnection {
+class DouyuConnection {
 
     private static final Logger LOGGER  = LoggerFactory.getLogger(DouyuConnection.class);
 
@@ -30,7 +30,7 @@ public class DouyuConnection {
 
     private DouyuConnection(){}
 
-    public static DouyuConnection initConnection(DouyuAddress douyuAddress) throws IOException {
+    static DouyuConnection initConnection(DouyuAddress douyuAddress) throws IOException {
         DouyuConnection douyuConnection = new DouyuConnection();
         SocketAddress socketAddress = new InetSocketAddress(douyuAddress.getIp(), douyuAddress.getPort());
         Socket socket = new Socket();
@@ -44,7 +44,7 @@ public class DouyuConnection {
         return douyuConnection;
     }
 
-    public void write(DouyuMessage douyuMessage){
+    void write(DouyuMessage douyuMessage){
         //处理header
         byte[]  messages= MessageConvert.preConvert(douyuMessage);
         try {
@@ -61,15 +61,10 @@ public class DouyuConnection {
 
     /**
      *
-     * @return
-     * @throws IOException
+     * @throws IOException IOException
      */
-    public DouyuMessage read() throws IOException{
-        byte[] header = new byte[12];
-        header = read1(header);
-        if(header==null){
-        	throw new DouyuMessageReadException("connection is closed");
-        }
+    DouyuMessage read() throws IOException{
+        byte[] header = read1(12);
         //获取本条消息总长度
         int totalLength = LHUtil.lowerToInt(Arrays.copyOfRange(header,0,4));
         //重复本次消息长度
@@ -77,38 +72,30 @@ public class DouyuConnection {
         short msgType = LHUtil.lowerToShort(Arrays.copyOfRange(header, 8, 10));
         //消息校验
         short MSG_TYPE = 690;
-        if(totalLength!=reTotalLength||msgType!=MSG_TYPE) {
-        	LOGGER.error("获取消息错误,{}",totalLength);
-        	throw new DouyuMessageReadException("connection is closed");
+        if (totalLength != reTotalLength || msgType != MSG_TYPE) {
+            LOGGER.error("获取消息错误,{}", totalLength);
+            throw new DouyuMessageReadException("读取消息错误");
         }
         int messageLength = totalLength-8;
-        byte[] msg = new byte[messageLength];
-        msg = read1(msg);
-        if(msg==null){
-        	throw new DouyuMessageReadException("connection is closed");
-        }
-        DouyuMessage resultMessage = MessageConvert.postConvert(msg);
-        return resultMessage;
+        byte[] msg = read1(messageLength);
+        return MessageConvert.postConvert(msg);
     }
 
-    private byte[] read1(byte[] dst) throws IOException{
-    	int offset = 0;
-    	int len = dst.length;
-    	while(true){
-            int size = in.read(dst,offset,len-offset);
-            if(size==-1){
-            	throw new DouyuMessageReadException("server connection is closed");
+    private byte[] read1(int len) throws IOException {
+        int offset = 0;
+        byte[] dst = new byte[len];
+        while (offset < len) {
+            int size = in.read(dst, offset, len - offset);
+            if (size == -1) {
+                throw new DouyuMessageReadException("connect is closed");
             }
             offset += size;
-            if(offset > len-1){
-                break;
-            }
         }
-    	return dst;
+        return dst;
     }
 
-    public void close() {
-        if (!isClosed()){
+    void close() {
+        if (!isClosed()) {
             try {
                 socket.close();
             } catch (IOException e) {
@@ -117,7 +104,7 @@ public class DouyuConnection {
         }
     }
 
-    public boolean isClosed(){
+    boolean isClosed(){
         return socket.isClosed();
     }
 

@@ -6,30 +6,17 @@ import com.lei2j.douyu.admin.cache.CacheRoomService;
 import com.lei2j.douyu.core.constant.DouyuApi;
 import com.lei2j.douyu.core.controller.BaseController;
 import com.lei2j.douyu.danmu.service.DouyuLogin;
-import com.lei2j.douyu.qo.*;
-import com.lei2j.douyu.service.FrankService;
-import com.lei2j.douyu.service.NobleService;
-import com.lei2j.douyu.service.es.ChatSearchService;
-import com.lei2j.douyu.service.es.GiftSearchService;
 import com.lei2j.douyu.util.BeanUtils;
-import com.lei2j.douyu.util.DateUtil;
 import com.lei2j.douyu.util.DouyuUtil;
 import com.lei2j.douyu.util.HttpUtil;
-import com.lei2j.douyu.vo.ChatMessageVo;
-import com.lei2j.douyu.vo.GiftVo;
 import com.lei2j.douyu.vo.RoomDetailVo;
 import com.lei2j.douyu.vo.RoomVo;
-import com.lei2j.douyu.web.response.Pagination;
 import com.lei2j.douyu.web.response.Response;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.text.DecimalFormat;
-import java.time.LocalDateTime;
 import java.util.*;
 
 /**
@@ -46,8 +33,8 @@ public class RoomAdminController extends BaseController {
     /**
      * 获取直播列表
      * @param cateId 分类标识
-     * @param limit
-     * @return
+     * @param limit limit
+     * @return Response
      */
     @GetMapping("/list")
     public Response getRoomList(@RequestParam(value = "cate",required = false)String cateId,
@@ -80,8 +67,8 @@ public class RoomAdminController extends BaseController {
 
     /**
      * 获取所有直播分类列表
-     * @return
-     * @throws IOException
+     * @return Response
+     * @throws IOException IOException
      */
     @GetMapping("/cates")
     public Response getAllCate()throws IOException {
@@ -90,7 +77,7 @@ public class RoomAdminController extends BaseController {
 
     /**
      * 获取已连接房间列表
-     * @return
+     * @return Response
      */
     @GetMapping("/logged")
     public Response getLoggedRooms(){

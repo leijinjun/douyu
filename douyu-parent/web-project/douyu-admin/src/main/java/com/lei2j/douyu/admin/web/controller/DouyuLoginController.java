@@ -1,8 +1,8 @@
 package com.lei2j.douyu.admin.web.controller;
 
 import com.lei2j.douyu.admin.cache.CacheRoomService;
-import com.lei2j.douyu.admin.danmu.service.DouyuNioLogin;
-import com.lei2j.douyu.admin.danmu.service.DouyuNormalLogin;
+import com.lei2j.douyu.admin.danmu.DouyuNioLogin;
+import com.lei2j.douyu.admin.danmu.DouyuNormalLogin;
 import com.lei2j.douyu.core.controller.BaseController;
 import com.lei2j.douyu.danmu.service.DouyuLogin;
 import com.lei2j.douyu.util.DouyuUtil;
@@ -25,7 +25,7 @@ public class DouyuLoginController extends BaseController{
     /**
      * 热度界限
      */
-    public static final int MIN_HN = 700000;
+    private static final int MIN_HN = 700000000;
 
     @Resource
     private CacheRoomService cacheRoomService;

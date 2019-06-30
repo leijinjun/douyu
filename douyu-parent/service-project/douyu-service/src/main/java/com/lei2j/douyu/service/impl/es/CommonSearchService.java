@@ -1,6 +1,6 @@
 package com.lei2j.douyu.service.impl.es;
 
-import com.lei2j.douyu.functions.IndexSearchConvert;
+import com.lei2j.douyu.function.IndexSearchConvert;
 import com.lei2j.douyu.qo.SearchPage;
 import com.lei2j.douyu.web.response.Pagination;
 import org.elasticsearch.action.search.ClearScrollRequest;
@@ -76,10 +76,10 @@ public class CommonSearchService {
 
     /**
      * 普通分页(from-size)
-     * @param pagination
-     * @param indexName
-     * @param typeName
-     * @return
+     * @param pagination pagination
+     * @param indexName indexName
+     * @param typeName typeName
+     * @return SearchResponse
      */
 	private <T,P extends SearchPage> SearchResponse shallowPage(Pagination<T,P> pagination,String indexName,String typeName){
         SearchPage searchPage = pagination.getParams();
@@ -93,18 +93,17 @@ public class CommonSearchService {
         searchBuilder = searchBuilder.setFrom(pagination.getOffset()).setSize(pagination.getLimit());
         searchBuilder.setExplain(true);
         String sort = searchPage.getSort();
-        searchBuilder = sortBuilder(searchBuilder, sort);
+        sortBuilder(searchBuilder, sort);
         logger.info("查询参数:{}",searchBuilder.toString());
-        SearchResponse response = searchBuilder.get();
-        return response;
+        return searchBuilder.get();
     }
 
     /**
      * 深分页，使用scroll进行分页
-     * @param searchPage
-     * @param indexName
-     * @param typeName
-     * @return
+     * @param searchPage searchPage
+     * @param indexName indexName
+     * @param typeName typeName
+     * @return SearchResponse
      */
 	private SearchResponse deepPage(SearchPage searchPage,String indexName,String typeName){
         String scrollId = searchPage.getScrollId();
@@ -131,7 +130,7 @@ public class CommonSearchService {
         return  response;
     }
 
-    private SearchRequestBuilder sortBuilder(SearchRequestBuilder searchBuilder,String sort){
+    private void sortBuilder(SearchRequestBuilder searchBuilder,String sort){
         //排序
         if(!StringUtils.isEmpty(sort)){
             String[] sp = sort.split(",");
@@ -145,7 +144,6 @@ public class CommonSearchService {
                 }
             }
         }
-        return searchBuilder;
     }
 
     protected LocalDateTime getTodayStart(){

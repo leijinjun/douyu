@@ -1,16 +1,9 @@
 package com.lei2j.douyu.web.controller;
 
-import com.github.benmanes.caffeine.cache.Caffeine;
 import com.lei2j.douyu.core.constant.ValidatorConstants;
 import com.lei2j.douyu.core.controller.BaseController;
 import com.lei2j.douyu.service.UserService;
 import com.lei2j.douyu.web.response.Response;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.cache.CacheManagerCustomizer;
-import org.springframework.boot.autoconfigure.cache.CacheProperties;
-import org.springframework.cache.CacheManager;
-import org.springframework.cache.caffeine.CaffeineCache;
-import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 

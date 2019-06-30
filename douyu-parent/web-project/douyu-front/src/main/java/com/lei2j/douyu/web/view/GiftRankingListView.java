@@ -61,7 +61,7 @@ public class GiftRankingListView {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("GiftRankingListView{");
+        final StringBuilder sb = new StringBuilder("GiftRankingListView{");
         sb.append("roomId='").append(roomId).append('\'');
         sb.append(", giftMoney=").append(giftMoney);
         sb.append(", nickName='").append(nickName).append('\'');

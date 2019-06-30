@@ -16,7 +16,7 @@ public class ApplicationBeanConfig {
 
     /**
      * 设置Validator
-     * @return
+     * @return Validator
      */
     @Bean("validator")
     public Validator configValidator(){

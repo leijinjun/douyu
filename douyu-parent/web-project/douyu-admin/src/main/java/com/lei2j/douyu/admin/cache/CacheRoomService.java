@@ -12,21 +12,21 @@ public interface CacheRoomService {
 
      /**
       * 获取房间
-      * @param room
-      * @return
+      * @param room room
+      * @return DouyuLogin
       */
      DouyuLogin get(Integer room);
 
      /**
       * 缓存房间
-      * @param room
-      * @param value
+      * @param room room
+      * @param value value
       */
      void cache(Integer room, DouyuLogin value);
 
      /**
       * 移除房间
-      * @param room
+      * @param room room
       */
      void remove(Integer room);
 
@@ -34,7 +34,7 @@ public interface CacheRoomService {
 
      /**
       * 获取所有房间
-      * @return
+      * @return Map
       */
      Map<Integer,DouyuLogin> getAll();
 }

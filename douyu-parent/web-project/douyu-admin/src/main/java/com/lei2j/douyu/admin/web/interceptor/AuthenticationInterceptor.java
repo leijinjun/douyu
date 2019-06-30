@@ -25,13 +25,12 @@ public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationInterceptor.class);
 
-	private static String JWT_TOKEN_NAME = "X-Token";
+	private final static String JWT_TOKEN_NAME = "X-Token";
 
-	private final String SECRET_KEY = "";
+	private final static String SECRET_KEY = "";
 
 	@Override
-	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
-			throws Exception {
+	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
 		String jwtToken = request.getParameter(JWT_TOKEN_NAME);
 		if (jwtToken == null) {
 			jwtToken = request.getHeader(JWT_TOKEN_NAME);
@@ -48,6 +47,7 @@ public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
 		if (!verify) {
 			request.setAttribute(WebConstants.USER_LOGIN_STATUS,Boolean.FALSE);
 //			setUnAuthResponse(response);
+//			return false;
 		}
 		return true;
 	}

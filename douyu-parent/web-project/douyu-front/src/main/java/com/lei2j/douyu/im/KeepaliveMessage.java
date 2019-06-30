@@ -5,7 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 /**
  * @author lei2j
  */
-public class KeepliveMessage implements Message{
+public class KeepaliveMessage implements Message{
 
     /**
      * 当前unix时间戳
@@ -14,7 +14,7 @@ public class KeepliveMessage implements Message{
     
     private static final ChatType CHAT_TYPE = ChatType.KEEPLIVE;
 
-    public KeepliveMessage() {
+    public KeepaliveMessage() {
     }
 
     public long getTick() {

@@ -16,35 +16,35 @@ public interface ChatSearchService {
 
     /**
      * 根据条件查询弹幕数据
-     * @param pagination
-     * @return
+     * @param pagination pagination
+     * @return Pagination
      */
     Pagination<ChatMessageVo,SearchPage> query(Pagination<ChatMessageVo, SearchPage> pagination);
 
     /**
      * 统计今日房间弹幕人数
-     * @param room
-     * @return
+     * @param room room
+     * @return Integer
      */
-    Integer getToDayUserCountsAggregationnByRoom(Integer room);
+    Integer getToDayUserCountsAggregationByRoom(Integer room);
 
     /**
      * 根据时间段统计每天弹幕数
-     * @param chatQO
-     * @return
+     * @param chatQO chatQO
+     * @return Map
      */
     Map<String,Integer> getIntervalDayChatSumByRoom(ChatQuery chatQO);
 
     /**
      * 根据时间段统计每天弹幕人数
-     * @param chatQO
-     * @return
+     * @param chatQO chatQO
+     * @return Map
      */
     Map<String,Integer> getIntervalDayChatPersonCountsByRoom(ChatQuery chatQO);
 
     /**
      * 当天主播弹幕排行榜
-     * @return
+     * @return Map
      */
     Map<String, Long> getTodayDanmuSumByRoomId(Integer topSize);
 

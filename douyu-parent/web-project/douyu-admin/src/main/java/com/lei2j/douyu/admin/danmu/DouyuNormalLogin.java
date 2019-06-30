@@ -1,6 +1,5 @@
-package com.lei2j.douyu.admin.danmu.service;
+package com.lei2j.douyu.admin.danmu;
 
-import com.lei2j.douyu.admin.message.exception.DouyuMessageReadException;
 import com.lei2j.douyu.danmu.pojo.DouyuMessage;
 import com.lei2j.douyu.util.DouyuUtil;
 
@@ -35,7 +34,7 @@ public class DouyuNormalLogin extends AbstractDouyuLogin {
     /**
      * 登录
      *
-     * @throws IOException
+     * @throws IOException IOException
      */
     @Override
     public int login() throws IOException {
@@ -50,12 +49,28 @@ public class DouyuNormalLogin extends AbstractDouyuLogin {
         douyuConnection.write(DouyuMessageConfig.getLoginMessage(room, username, "1234567890123456"));
         logger.info("房间|{},连接弹幕服务器成功", room);
         join();
-        if (keepliveSchedule != null) {
-            keepliveSchedule.cancel();
+        if (keepaliveSchedule != null) {
+            keepaliveSchedule.cancel();
         }
         //启动心跳检测
-        keepliveSchedule = new KeepliveSchedule();
-        keepliveSchedule.schedule(()->keeplive());
+        keepaliveSchedule = new KeepaliveSchedule();
+        keepaliveSchedule.schedule(()->{
+            if(douyuConnection.isClosed()){
+                logger.info("房间{}|心跳检测停止",room);
+                keepaliveSchedule.cancel();
+            }
+            DouyuMessage keepaliveMessage = DouyuMessageConfig.getKeepaliveMessage();
+            try {
+                douyuConnection.write(keepaliveMessage);
+                logger.info("房间|{}发送心跳检测,时间:{}", this.room, LocalDateTime.now().toString());
+            } catch (Exception e) {
+                keepaliveSchedule.cancel();
+                logger.info("房间{}|心跳检测停止", room);
+                if(!douyuConnection.isClosed()) {
+                    e.printStackTrace();
+                }
+            }
+        });
         //开始执行弹幕读取
         executorService.execute(() ->{
             int f = 1;
@@ -78,7 +93,7 @@ public class DouyuNormalLogin extends AbstractDouyuLogin {
     /**
      * 加入房间分组
      *
-     * @throws IOException
+     * @throws IOException IOException
      */
     private void join() throws IOException {
         //加入房间分组
@@ -116,7 +131,6 @@ public class DouyuNormalLogin extends AbstractDouyuLogin {
     /**
      * 退出房间
      *
-     * @throws IOException
      */
     @Override
     public void logout() {
@@ -127,7 +141,7 @@ public class DouyuNormalLogin extends AbstractDouyuLogin {
             e.printStackTrace();
         } finally {
             executorService.shutdown();
-            keepliveSchedule.cancel();
+            keepaliveSchedule.cancel();
             cacheRoomService.remove(room);
             logger.info("房间{}|成功退出",room);
         }
@@ -147,28 +161,6 @@ public class DouyuNormalLogin extends AbstractDouyuLogin {
             this.login();
         } catch (Exception e1) {
             e1.printStackTrace();
-        }
-    }
-
-
-    /**
-     * 发送心跳
-     */
-    protected void keeplive() {
-        if(douyuConnection.isClosed()){
-            logger.info("房间{}|心跳检测停止",room);
-            keepliveSchedule.cancel();
-        }
-        DouyuMessage keepliveMessage = DouyuMessageConfig.getKeepliveMessage();
-        try {
-            douyuConnection.write(keepliveMessage);
-            logger.info("房间|{}发送心跳检测,时间:{}", this.room, LocalDateTime.now().toString());
-        } catch (Exception e) {
-            keepliveSchedule.cancel();
-            logger.info("房间{}|心跳检测停止", room);
-            if(!douyuConnection.isClosed()) {
-            	e.printStackTrace();
-            }
         }
     }
 }

@@ -15,8 +15,8 @@ public interface MessageHandler {
 
     /**
      * 消息处理
-     * @param messageMap
-     * @param attachment
+     * @param messageMap messageMap
+     * @param attachment attachment
      */
     void handler(Map<String, Object> messageMap, DouyuLogin attachment);
 }

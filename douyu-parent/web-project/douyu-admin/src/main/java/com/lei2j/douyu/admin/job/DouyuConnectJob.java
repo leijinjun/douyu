@@ -2,8 +2,8 @@ package com.lei2j.douyu.admin.job;
 
 import com.alibaba.fastjson.JSONObject;
 import com.lei2j.douyu.admin.cache.CacheRoomService;
-import com.lei2j.douyu.admin.danmu.service.DouyuNioLogin;
-import com.lei2j.douyu.admin.danmu.service.DouyuNormalLogin;
+import com.lei2j.douyu.admin.danmu.DouyuNioLogin;
+import com.lei2j.douyu.admin.danmu.DouyuNormalLogin;
 import com.lei2j.douyu.core.constant.DouyuApi;
 import com.lei2j.douyu.danmu.service.DouyuLogin;
 import com.lei2j.douyu.pojo.RoomConnectEntity;
@@ -72,10 +72,10 @@ public class DouyuConnectJob extends DouyuJob {
                     int roomStatus = dataObj.getIntValue("room_status");
                     if(roomStatus==1){
                             int hn = dataObj.getInteger("hn");
-                            Integer hightHn = 1000000;
+                            int highHn = 1000000;
                             DouyuLogin douyuLogin;
                         try {
-                            if (hn >= hightHn) {
+                            if (hn >= highHn) {
                                 douyuLogin = new DouyuNormalLogin(roomId);
                             } else {
                                 douyuLogin = new DouyuNioLogin(roomId);

@@ -12,21 +12,21 @@ public interface FrankService {
 
     /**
      * add frank
-     * @param frank
+     * @param frank frank
      */
     void addFrank(FrankEntity frank);
 
     /**
      * 获取某房间数据
-     * @param frankQO
-     * @return
+     * @param frankQO frankQO
+     * @return List
      */
     List<FrankVo> findByCondition(FrankQuery frankQO);
 
     /**
      * 查询某时间段粉丝人数
-     * @param frankQO
-     * @return
+     * @param frankQO frankQO
+     * @return List
      */
     List<Object[]> findStatisticByTimes(FrankQuery frankQO);
 }

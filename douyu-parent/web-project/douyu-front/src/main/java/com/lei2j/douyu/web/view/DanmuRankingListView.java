@@ -59,7 +59,7 @@ public class DanmuRankingListView {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("DanmuRankingListView{");
+        final StringBuilder sb = new StringBuilder("DanmuRankingListView{");
         sb.append("roomId='").append(roomId).append('\'');
         sb.append(", count=").append(count);
         sb.append(", nickName='").append(nickName).append('\'');

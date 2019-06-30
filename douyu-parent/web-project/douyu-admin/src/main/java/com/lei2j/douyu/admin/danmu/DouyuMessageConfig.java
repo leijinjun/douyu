@@ -1,4 +1,4 @@
-package com.lei2j.douyu.admin.danmu.service;
+package com.lei2j.douyu.admin.danmu;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -10,7 +10,6 @@ import com.lei2j.douyu.util.HttpUtil;
 import com.lei2j.douyu.util.RandomUtil;
 import org.apache.commons.codec.digest.DigestUtils;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.List;
@@ -42,14 +41,14 @@ class DouyuMessageConfig {
         return douyuJoin;
     }
 
-    public static DouyuMessage getKeepliveMessage() {
+    public static DouyuMessage getKeepaliveMessage() {
         DouyuMessage douyuMessage = new DouyuMessage();
-        douyuMessage.add("type", MessageType.KEEPLIVE);
+        douyuMessage.add("type", MessageType.KEEPALIVE);
         return douyuMessage;
     }
 
     /**
-     * @return
+     * @return DouyuMessage
      */
     public static DouyuMessage getLogoutMessage(){
         DouyuMessage douyuMessage = new DouyuMessage();
@@ -59,25 +58,28 @@ class DouyuMessageConfig {
 
     /**
      * 获取房间弹幕登录服务器列表
-     * @return
-     * @throws UnsupportedEncodingException
+     * @return List
      */
     @SuppressWarnings("rawtypes")
-    private static List<Map> getServerConfig(Integer room) throws UnsupportedEncodingException{
+    private static List<Map> getServerConfig(Integer room){
         String s = HttpUtil.get(DouyuApi.ROOM_SERVER_CONFIG.replace("{room}",String.valueOf(room)), null);
         JSONObject jsonObject = JSONObject.parseObject(s);
-        String serverConfig = URLDecoder.decode(jsonObject.getJSONObject("room_args").getString("server_config"), "utf-8");
+        String serverConfig = null;
+        try {
+            serverConfig = URLDecoder.decode(jsonObject.getJSONObject("room_args").getString("server_config"), "utf-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
         List<Map> mapList = JSONArray.parseArray(serverConfig, Map.class);
         return mapList;
     }
 
     /**
      * 从房间弹幕登录服务器组中随机获取一个登录服务器地址
-     * @return
-     * @throws IOException
+     * @return DouyuAddress
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public static DouyuAddress getLoginServerAddress(Integer room) throws IOException{
+    public static DouyuAddress getLoginServerAddress(Integer room) {
         List<Map> serverConfig = getServerConfig(room);
         int i = RandomUtil.getInt(serverConfig.size());
         Map<String,String> server = (Map<String,String>)serverConfig.get(i);

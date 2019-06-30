@@ -13,25 +13,25 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class CacheRoomServiceImpl implements CacheRoomService {
 
-    private static Map<Integer,DouyuLogin> cache = new ConcurrentHashMap<>();
+    private final static Map<Integer,DouyuLogin> CACHE = new ConcurrentHashMap<>();
 
     public CacheRoomServiceImpl(){
     }
 
     @Override
     public DouyuLogin get(Integer room) {
-        if(cache.containsKey(room)){
-            DouyuLogin douyuLogin = cache.get(room);
+        if(CACHE.containsKey(room)){
+            DouyuLogin douyuLogin = CACHE.get(room);
             return douyuLogin;
         }
         return null;
     }
     @Override
     public void cache(Integer room,DouyuLogin value) {
-        if(!cache.containsKey(room)){
-            synchronized (cache){
-                if(!cache.containsKey(room)){
-                    cache.put(room,value);
+        if(!CACHE.containsKey(room)){
+            synchronized (CACHE){
+                if(!CACHE.containsKey(room)){
+                    CACHE.put(room,value);
                 }
             }
         }
@@ -39,18 +39,18 @@ public class CacheRoomServiceImpl implements CacheRoomService {
 
     @Override
     public void remove(Integer room) {
-        if(cache.containsKey(room)){
-            cache.remove(room);
+        if(CACHE.containsKey(room)){
+            CACHE.remove(room);
         }
     }
 
     @Override
     public boolean containsKey(Integer room) {
-        return cache.containsKey(room);
+        return CACHE.containsKey(room);
     }
 
     @Override
     public Map<Integer, DouyuLogin> getAll() {
-        return cache;
+        return CACHE;
     }
 }

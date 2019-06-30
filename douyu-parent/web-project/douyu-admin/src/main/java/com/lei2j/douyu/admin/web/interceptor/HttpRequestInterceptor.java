@@ -18,8 +18,7 @@ public class HttpRequestInterceptor implements HandlerInterceptor {
 	private static final Logger LOGGER = LoggerFactory.getLogger(HttpRequestInterceptor.class);
 
 	@Override
-	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
-			throws Exception {
+	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
 		Long st = System.currentTimeMillis();
 		String uri = request.getRequestURI();
 		String originIP = IPUtil.getOriginRequestIP(request);
@@ -31,7 +30,7 @@ public class HttpRequestInterceptor implements HandlerInterceptor {
 
 	@Override
 	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
-			ModelAndView modelAndView) throws Exception {
+			ModelAndView modelAndView) {
 		long ed = System.currentTimeMillis();
 		Long st = (Long) request.getAttribute("st");
 		LOGGER.info("Response time:{}ms",ed-st);

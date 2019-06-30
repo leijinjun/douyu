@@ -26,21 +26,19 @@ public abstract class AbstractIndex {
         this.client = client;
     }
 
-    protected boolean createIndex(String indexName,String type,Settings.Builder settings) throws IOException{
-        CreateIndexResponse indexResponse = null;
-        if(!existsIndex(indexName)){
-            indexResponse = client.client().admin().indices().prepareCreate(indexName)
+    protected void createIndex(String indexName,String type,Settings.Builder settings) throws Exception{
+        if (!existsIndex(indexName)) {
+            CreateIndexResponse indexResponse = client.client().admin().indices().prepareCreate(indexName)
                     .setSettings(
                             settings
-                    ).addMapping(type,this.buildMapping()).get();
-        }
-        boolean isCreated = indexResponse != null ? indexResponse.isAcknowledged() : false;
-        if(isCreated){
+                    ).addMapping(type, this.buildMapping()).get();
+            boolean isCreated = indexResponse.isAcknowledged();
+            if (!isCreated) {
+                logger.error("create index [{}] error", indexName);
+                throw new Exception("create index [" + indexName + "] error");
+            }
             logger.info("created index [{}]",indexName);
-        }else {
-            logger.info("exist index [{}]",indexName);
         }
-        return isCreated;
     }
 
     public void createDocument(String id,Serializable document){
