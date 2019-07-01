@@ -9,25 +9,33 @@ import com.lei2j.douyu.danmu.service.DouyuLogin;
 import com.lei2j.douyu.pojo.RoomConnectEntity;
 import com.lei2j.douyu.qo.RoomConnectQuery;
 import com.lei2j.douyu.service.RoomConnectService;
+import com.lei2j.douyu.thread.factory.DefaultThreadFactory;
 import com.lei2j.douyu.util.HttpUtil;
 import com.lei2j.douyu.web.response.Pagination;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.core.Ordered;
+import org.springframework.core.task.TaskExecutor;
+import org.springframework.scheduling.annotation.*;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author lei2j
  */
 @Configuration
 @EnableScheduling
+@EnableAsync(order = Ordered.HIGHEST_PRECEDENCE)
 public class DouyuConnectJob extends DouyuJob {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DouyuConnectJob.class);
@@ -45,7 +53,8 @@ public class DouyuConnectJob extends DouyuJob {
      * 定时任务，连接指定房间弹幕服务器
      * cron表达式参数：秒 分 时 日 月 周几
      */
-    @Scheduled(cron = "* 0/10 * * * ?")
+    @Scheduled(cron = "${douyu.room.job.schedule.connect}")
+    @Async
     public void connectRooms() {
         long st = System.currentTimeMillis();
         LOGGER.info(">>>>>>>>>>>>>>start connect room job");
@@ -68,18 +77,18 @@ public class DouyuConnectJob extends DouyuJob {
                     LOGGER.info("房间已存在：{}", roomId);
                     return;
                 }
-                String url = DouyuApi.ROOM_DETAIL_API.replace("{room}", String.valueOf(roomId));
-                String jsonStr = HttpUtil.get(url);
-                JSONObject jsonObj = JSONObject.parseObject(jsonStr);
-                String errorKey = "error";
-                if (jsonObj.getIntValue(errorKey) == 0) {
-                    JSONObject dataObj = jsonObj.getJSONObject("data");
-                    int roomStatus = dataObj.getIntValue("room_status");
-                    if (roomStatus == 1) {
-                        int hn = dataObj.getInteger("hn");
-                        int highHn = 1000000;
-                        DouyuLogin douyuLogin;
-                        try {
+                try {
+                    String url = DouyuApi.ROOM_DETAIL_API.replace("{room}", String.valueOf(roomId));
+                    String jsonStr = HttpUtil.get(url);
+                    JSONObject jsonObj = JSONObject.parseObject(jsonStr);
+                    String errorKey = "error";
+                    if (jsonObj.getIntValue(errorKey) == 0) {
+                        JSONObject dataObj = jsonObj.getJSONObject("data");
+                        int roomStatus = dataObj.getIntValue("room_status");
+                        if (roomStatus == 1) {
+                            int hn = dataObj.getInteger("hn");
+                            int highHn = 1000000;
+                            DouyuLogin douyuLogin;
                             if (hn >= highHn) {
                                 douyuLogin = new DouyuNormalLogin(roomId);
                             } else {
@@ -88,14 +97,14 @@ public class DouyuConnectJob extends DouyuJob {
                             LOGGER.info("开始连接房间:{}", roomId);
                             douyuLogin.login();
                             cacheRoomService.cache(roomId, douyuLogin);
-                        } catch (IOException e) {
-                            e.printStackTrace();
+                        } else {
+                            LOGGER.info("该房间未开播：{}", roomId);
                         }
-                    }else {
-                        LOGGER.info("该房间未开播：{}", roomId);
+                    } else {
+                        LOGGER.error("获取房间|{}信息错误", roomId);
                     }
-                } else {
-                    LOGGER.error("获取房间|{}信息错误", roomId);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
             pageNum++;
@@ -110,7 +119,8 @@ public class DouyuConnectJob extends DouyuJob {
   /**
    * 定时任务，检查已连接房间
    * */
-  @Scheduled(cron = "* 0/30 * * * ?")
+  @Scheduled(cron = "${douyu.room.job.schedule.check}")
+  @Async
   public void checkConnectedRooms() {
       long st = System.currentTimeMillis();
       LOGGER.info(">>>>>>>>>>>>start check connected room job");
@@ -132,4 +142,32 @@ public class DouyuConnectJob extends DouyuJob {
       long ed = System.currentTimeMillis();
       LOGGER.info(">>>>>>>>>>>>end check connected room job,run time:{}ms",ed-st);
   }
+
+  @Bean
+  public TaskExecutor taskExecutor(){
+      ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+      executor.setAllowCoreThreadTimeOut(false);
+      executor.setCorePoolSize(3);
+      executor.setMaxPoolSize(4);
+      executor.setQueueCapacity(10);
+      executor.setKeepAliveSeconds(60 * 60);
+      executor.setDaemon(false);
+      executor.setRejectedExecutionHandler((r, t) -> LOGGER.warn("定时任务线程池溢出"));
+      executor.setThreadFactory(new DefaultThreadFactory("thd-douyu-job-%s", false, 5));
+      return executor;
+  }
+
+    /**
+     * 定时任务自定义线程池
+     */
+    //  @Configuration
+    public class ScheduleConfig implements SchedulingConfigurer {
+
+        @Override
+        public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
+            taskRegistrar.setScheduler(new ThreadPoolExecutor(3, 4, 30, TimeUnit.MINUTES, new ArrayBlockingQueue<>(10),
+                    (r, t) -> LOGGER.warn("定时任务线程池溢出"))
+            );
+        }
+    }
 }

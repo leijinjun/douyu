@@ -25,7 +25,7 @@ public class DouyuLoginController extends BaseController{
     /**
      * 热度界限
      */
-    private static final int MIN_HN = 700000000;
+    private static final int MIN_HN = 1000000;
 
     @Resource
     private CacheRoomService cacheRoomService;
