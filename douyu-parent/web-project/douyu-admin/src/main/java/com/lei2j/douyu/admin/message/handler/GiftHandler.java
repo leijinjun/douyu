@@ -39,6 +39,7 @@ public class GiftHandler extends AbstractMessageHandler{
         GiftVo giftVO = new GiftVo();
         BeanUtils.populate(giftVO, messageMap);
         giftVO.setPc(roomGiftVo.getPc().doubleValue());
+        giftVO.setGiftName(roomGiftVo.getName());
         LocalDateTime now = LocalDateTime.now(ZoneId.of("+8"));
         giftVO.setCreateAt(now);
         giftVO.setId(UUID.randomUUID().toString().replaceAll("-","")+now.toInstant(ZoneOffset.of("+8")).toEpochMilli());

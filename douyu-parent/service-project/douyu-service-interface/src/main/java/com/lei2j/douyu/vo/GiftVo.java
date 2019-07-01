@@ -33,6 +33,8 @@ public class GiftVo implements Serializable{
      */
     private Integer gfcnt;
 
+    private String giftName;
+
     /**
      * 礼物价值
      */
@@ -78,12 +80,13 @@ public class GiftVo implements Serializable{
     public GiftVo() {
     }
 
-    public GiftVo(String id, Integer rid, Integer gfid, Integer gs, Long uid,
-                  String nn, String ic, Integer level, Double pc,
-                  Integer hits, Integer bg) {
+    public GiftVo(String id, Integer rid, Integer gfid, Integer gfcnt, String giftName, Double pc, Integer gs, Long uid, String nn, String ic, Integer level, Integer hits, Integer bg, LocalDateTime createAt) {
         this.id = id;
         this.rid = rid;
         this.gfid = gfid;
+        this.gfcnt = gfcnt;
+        this.giftName = giftName;
+        this.pc = pc;
         this.gs = gs;
         this.uid = uid;
         this.nn = nn;
@@ -91,7 +94,7 @@ public class GiftVo implements Serializable{
         this.level = level;
         this.hits = hits;
         this.bg = bg;
-        this.pc = pc;
+        this.createAt = createAt;
     }
 
     public String getId() {
@@ -196,5 +199,13 @@ public class GiftVo implements Serializable{
 
     public void setCreateAt(LocalDateTime createAt) {
         this.createAt = createAt;
+    }
+
+    public String getGiftName() {
+        return giftName;
+    }
+
+    public void setGiftName(String giftName) {
+        this.giftName = giftName;
     }
 }

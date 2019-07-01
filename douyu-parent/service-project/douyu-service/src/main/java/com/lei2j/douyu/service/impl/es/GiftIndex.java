@@ -75,6 +75,7 @@ public class GiftIndex extends AbstractIndex {
                 .startObject("id").field("type","keyword").field("index",true).field("store",true).endObject()
                 .startObject("rid").field("type","integer").field("index",true).field("store",true).endObject()
                 .startObject("gfid").field("type","integer").field("index",true).field("store",true).endObject()
+                .startObject("giftName").field("type","keyword").field("index",true).field("store",true).endObject()
                 .startObject("gs").field("type","integer").field("index",true).field("store",true).endObject()
                 .startObject("uid").field("type","long").field("index",true).field("store",true).endObject()
                 .startObject("nn").field("type","keyword").field("index",true).field("store",true).endObject()
