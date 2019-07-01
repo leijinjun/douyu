@@ -53,10 +53,10 @@ public class DouyuUtil {
      * @throws IOException IOException
      */
     public static List<CateVo> getAllCates() throws IOException {
-        Elements lis = Jsoup.connect(DouyuApi.LIVE_CATE_ALL).get().body().getElementById("allCate").getElementsByTag("ul").get(0)
-                .getElementsByTag("li");
+        Elements lis = Jsoup.connect(DouyuApi.LIVE_CATE_ALL).get().body().getElementById("allCate").child(0)
+                .select("[class*=categoryBox]:gt(1)")
+                .select("ul[class='layout-Classify-list'] > li");
         List<CateVo> cateVos = new LinkedList<>();
-        System.out.println(lis.size());
         for (Element ele:
              lis) {
             CateVo cateVo = new CateVo();
