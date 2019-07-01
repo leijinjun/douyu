@@ -74,7 +74,7 @@ public class DouyuNioConnection {
 			try {
 				Set<SelectionKey> keys = selector.keys();
 				if (CollectionUtils.isEmpty(keys)) {
-					isStart.compareAndSet(true,false);
+					isStart.compareAndSet(true, false);
 					break;
 				}
 				selector.select(1000);
@@ -134,7 +134,7 @@ public class DouyuNioConnection {
 		if (totalLength != reTotalLength || msgType != 690) {
 			throw new DouyuMessageReadException("server connect is closed");
 		}
-//			获取数据长度
+//		获取数据长度
 		int messageLength = totalLength - 8;
 		byte[] data = new byte[messageLength];
 		offset = 0;
@@ -156,7 +156,6 @@ public class DouyuNioConnection {
 	}
 
 	public SocketChannel register(DouyuNioLogin attr) throws IOException {
-		Integer room = attr.room;
 		SocketChannel socketChannel = SelectorProvider.provider().openSocketChannel();
 		DouyuAddress douyuAddress = attr.getDouyuAddress();
 		socketChannel.connect(new InetSocketAddress(douyuAddress.getIp(), douyuAddress.getPort()));
