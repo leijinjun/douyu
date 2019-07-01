@@ -2,12 +2,12 @@ package com.lei2j.douyu.admin.web.interceptor;
 
 import com.alibaba.fastjson.JSONObject;
 import com.lei2j.douyu.core.constant.WebConstants;
-import com.lei2j.douyu.jwt.DefaultJwtClaimsValidator;
-import com.lei2j.douyu.jwt.JwtDecoder;
-import com.lei2j.douyu.jwt.JwtVerify;
-import com.lei2j.douyu.jwt.algorithm.Algorithm;
 import com.lei2j.douyu.util.CookieUtil;
 import com.lei2j.douyu.web.response.Response;
+import com.lei2j.jwt.algorithm.Algorithm;
+import com.lei2j.jwt.coder.JwtDecoder;
+import com.lei2j.jwt.validator.DefaultJwtClaimsValidator;
+import com.lei2j.jwt.validator.JwtVerify;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
