@@ -75,7 +75,7 @@ public class DouyuConnectJob extends DouyuJob {
                 Integer roomId = item.getRoomId();
                 if (cacheRoomService.containsKey(roomId)) {
                     LOGGER.info("房间已存在：{}", roomId);
-                    return;
+                    continue;
                 }
                 try {
                     String url = DouyuApi.ROOM_DETAIL_API.replace("{room}", String.valueOf(roomId));
