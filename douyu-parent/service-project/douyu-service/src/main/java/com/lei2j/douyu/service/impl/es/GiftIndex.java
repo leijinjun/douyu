@@ -54,7 +54,7 @@ public class GiftIndex extends AbstractIndex {
                 .get();
         int status = response.status().getStatus();
         if(status >= 300){
-            logger.info("[gift]保存数据失败status:{},record:{}",response.status(),json);
+            logger.warn("[gift]保存数据失败status:{},record:{}",response.status(),json);
         }
         return status < 300;
     }
