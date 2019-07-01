@@ -31,17 +31,10 @@ public class AESUtil {
 		try {
 			Cipher aes = Cipher.getInstance("AES");
 			SecretKeySpec secretKeySpec = new SecretKeySpec(Base64Util.base64Decode(key), "AES");
-			aes.init(Cipher.ENCRYPT_MODE,secretKeySpec);
+			aes.init(Cipher.ENCRYPT_MODE, secretKeySpec);
 			return aes.doFinal(input.getBytes(Charset.forName("utf-8")));
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		} catch (NoSuchPaddingException e) {
-			e.printStackTrace();
-		} catch (InvalidKeyException e) {
-			e.printStackTrace();
-		} catch (BadPaddingException e) {
-			e.printStackTrace();
-		} catch (IllegalBlockSizeException e) {
+		} catch (NoSuchAlgorithmException | NoSuchPaddingException
+				| InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
 			e.printStackTrace();
 		}
 		return null;
@@ -53,15 +46,8 @@ public class AESUtil {
 			SecretKeySpec secretKeySpec = new SecretKeySpec(Base64Util.base64Decode(key), "AES");
 			aes.init(Cipher.DECRYPT_MODE,secretKeySpec);
 			return aes.doFinal(input);
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		} catch (NoSuchPaddingException e) {
-			e.printStackTrace();
-		} catch (InvalidKeyException e) {
-			e.printStackTrace();
-		} catch (BadPaddingException e) {
-			e.printStackTrace();
-		} catch (IllegalBlockSizeException e) {
+		} catch (NoSuchAlgorithmException|NoSuchPaddingException
+				|InvalidKeyException|BadPaddingException|IllegalBlockSizeException e) {
 			e.printStackTrace();
 		}
 		return null;

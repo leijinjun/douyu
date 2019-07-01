@@ -71,13 +71,7 @@ public class ECDSAUtil {
 			byte[] bs = input.getBytes(Charset.forName("utf-8"));
 			signature.update(bs);
 			return signature.sign();
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		} catch (InvalidKeySpecException e) {
-			e.printStackTrace();
-		} catch (InvalidKeyException e) {
-			e.printStackTrace();
-		} catch (SignatureException e) {
+		} catch (NoSuchAlgorithmException|InvalidKeySpecException|InvalidKeyException|SignatureException e) {
 			e.printStackTrace();
 		}
 		return null;
@@ -92,13 +86,7 @@ public class ECDSAUtil {
 			instance.initVerify(generatePublic);
 			instance.update(data.getBytes(Charset.forName("utf-8")));
 			return instance.verify(signature);
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		} catch (InvalidKeySpecException e) {
-			e.printStackTrace();
-		} catch (InvalidKeyException e) {
-			e.printStackTrace();
-		} catch (SignatureException e) {
+		} catch (NoSuchAlgorithmException|InvalidKeySpecException|InvalidKeyException|SignatureException e) {
 			e.printStackTrace();
 		}
 		return false;

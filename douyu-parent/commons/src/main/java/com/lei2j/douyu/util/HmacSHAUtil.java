@@ -17,9 +17,7 @@ public class HmacSHAUtil {
             SecretKey secretKey = new SecretKeySpec(privateKey.getBytes(Charset.forName("utf-8")),algorithm);
             mac.init(secretKey);
             return mac.doFinal(origin.getBytes(Charset.forName("utf-8")));
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }catch (InvalidKeyException e){
+        } catch (NoSuchAlgorithmException|InvalidKeyException e) {
             e.printStackTrace();
         }
         return null;

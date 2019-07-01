@@ -18,7 +18,6 @@ public class RSASHAUtil {
 
     /**
      * 生成密钥对
-     * @return
      */
     public static String[] getKeys(){
         try {
@@ -67,13 +66,7 @@ public class RSASHAUtil {
             signature.initSign(generatePrivate);
             signature.update(input.getBytes(Charset.forName("utf-8")));
             return signature.sign();
-        }catch (NoSuchAlgorithmException e){
-            e.printStackTrace();
-        }catch (InvalidKeySpecException e){
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        } catch (SignatureException e) {
+        }catch (NoSuchAlgorithmException|InvalidKeySpecException|InvalidKeyException|SignatureException e){
             e.printStackTrace();
         }
         return null;
@@ -87,24 +80,9 @@ public class RSASHAUtil {
             instance.initVerify(generatePublic);
             instance.update(data.getBytes(Charset.forName("utf-8")));
             return instance.verify(signature);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (InvalidKeySpecException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        } catch (SignatureException e) {
+        } catch (NoSuchAlgorithmException|InvalidKeySpecException|InvalidKeyException|SignatureException e) {
             e.printStackTrace();
         }
-
         return false;
-    }
-
-    public static void main(String[] args) throws NoSuchAlgorithmException {
-        String input = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJsZWkiLCJpYXQiOjE1NDM5Mjk3ODUzODd9";
-        String[] keys = getKeys();
-        byte[] sign = signForSHA512(keys[1], input);
-        System.out.println("签名结果:"+Base64Util.base64UrlEncode(sign));
-        System.out.println("验证:"+verifySHA512(keys[0],input,sign));
     }
 }

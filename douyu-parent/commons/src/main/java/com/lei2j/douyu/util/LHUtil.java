@@ -9,8 +9,6 @@ public class LHUtil {
 
     /**
      * 整数转换为小端字节数
-     * @param i
-     * @return
      */
     public static byte[] toLowerInt(int i){
         byte b1 = (byte)i;
@@ -22,8 +20,6 @@ public class LHUtil {
 
     /**
      * 整数转换为大端字节数
-     * @param i
-     * @return
      */
     public static byte[] toHeightInt(int i){
         byte b1 = (byte)(i>>24);
@@ -35,8 +31,6 @@ public class LHUtil {
 
     /**
      * 整数转换为小端字节数
-     * @param i
-     * @return
      */
     public static byte[] toLowerShort(short i){
         byte b1 = (byte)i;
@@ -46,8 +40,6 @@ public class LHUtil {
 
     /**
      * 整数转换为大端字节数
-     * @param i
-     * @return
      */
     public static byte[] toHeightShort(short i){
         byte b2 = (byte)i;
@@ -57,8 +49,6 @@ public class LHUtil {
 
     /**
      * 字节数转换为小端整数
-     * @param b
-     * @return
      */
     public static int lowerToInt(byte[] b){
         return lowerToInt(b,0);
@@ -80,8 +70,6 @@ public class LHUtil {
 
     /**
      * 字节数转换为小端整数
-     * @param b
-     * @return
      */
     public static short lowerToShort(byte[] b){
         return lowerToShort(b,0);

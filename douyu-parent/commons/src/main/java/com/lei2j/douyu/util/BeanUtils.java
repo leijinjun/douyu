@@ -32,17 +32,15 @@ public class BeanUtils {
 		try {
 			t = clazz.newInstance();
 			copyProperties(org,t);
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
+		} catch (InstantiationException|IllegalAccessException e) {
 			e.printStackTrace();
 		}
 		return t;
 	}
 	
 	private static void copyProperties(Object org,Object dest){
-		Class<? extends Object> orgClazz = org.getClass();
-		Class<? extends Object> destClazz = dest.getClass();
+		Class<?> orgClazz = org.getClass();
+		Class<?> destClazz = dest.getClass();
 		try {
 			BeanInfo orgBeanInfo = Introspector.getBeanInfo(orgClazz);
 			BeanInfo destBeanInfo = Introspector.getBeanInfo(destClazz);
@@ -69,7 +67,7 @@ public class BeanUtils {
 		if(orgList==null){
 			return null;
 		}
-		List<T> list = new ArrayList<T>();
+		List<T> list = new ArrayList<>();
 		for (Object org : orgList) {
 			list.add(copyProperties(org, clazz));
 		}
