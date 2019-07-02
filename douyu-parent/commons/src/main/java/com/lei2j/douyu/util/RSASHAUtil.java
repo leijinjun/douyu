@@ -27,7 +27,7 @@ public class RSASHAUtil {
             RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
             RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
             String[] keys = {Base64Util.encodeToString(publicKey.getEncoded()),
-                    Base64Util.encodeToString(privateKey.getEncoded())};
+            Base64Util.encodeToString(privateKey.getEncoded())};
             return keys;
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();

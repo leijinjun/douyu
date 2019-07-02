@@ -1,6 +1,7 @@
 package com.lei2j.douyu.util;
 
 import javax.crypto.Cipher;
+import java.io.ByteArrayOutputStream;
 import java.nio.charset.Charset;
 import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
@@ -15,11 +16,9 @@ import java.util.Objects;
  */
 public class RSAUtil {
 
-    private static final String ALGORITHM = "RSA";
+    private static final String ALGORITHM = "RSA/ECB/PKCS1Padding";
 
     private static final int KEY_SIZE = 2048;
-
-    private static final int MAX_LENGTH = 245;
 
     private RSAUtil(){}
 
@@ -28,7 +27,7 @@ public class RSAUtil {
      */
     public static String[] getKeys(){
         try {
-            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(ALGORITHM);
+            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
             keyPairGenerator.initialize(KEY_SIZE,new SecureRandom());
             KeyPair keyPair = keyPairGenerator.generateKeyPair();
             RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
@@ -42,36 +41,55 @@ public class RSAUtil {
         return null;
     }
 
-    /**
-     * 暂未采取分段加密
-     */
     public static byte[] encrypt(String privateKey,String input){
         try {
-            Objects.requireNonNull(input,"input is null");
-            byte[] origin = input.getBytes(Charset.forName("utf-8"));
-            if (origin.length > MAX_LENGTH) {
-                throw new IllegalArgumentException("input length is too long,the maximum length is "+MAX_LENGTH);
-            }
+            Objects.requireNonNull(input, "input is null");
             Cipher rsaCipher = Cipher.getInstance(ALGORITHM);
-            KeyFactory keyFactory = KeyFactory.getInstance(ALGORITHM);
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
             PrivateKey generatePrivate =
                     keyFactory.generatePrivate(new PKCS8EncodedKeySpec(Base64Util.decode(privateKey)));
-            rsaCipher.init(Cipher.ENCRYPT_MODE,generatePrivate);
-            byte[] bs = rsaCipher.doFinal(origin);
-            return bs;
+            rsaCipher.init(Cipher.ENCRYPT_MODE, generatePrivate);
+            byte[] origin = input.getBytes(Charset.forName("utf-8"));
+            int length = origin.length;
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            for (int offset = 0; offset < length; ) {
+                int inputLen = 128;
+                if ((offset + inputLen) > length) {
+                    inputLen = length - offset;
+                }
+                byte[] b = rsaCipher.doFinal(origin, offset, inputLen);
+                offset += inputLen;
+                outputStream.write(b);
+            }
+            byte[] rb = outputStream.toByteArray();
+            outputStream.close();
+            return rb;
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    public static byte[] decrypt(String publicKey,byte[] origin){
+    public static byte[] decrypt(String publicKey,byte[] input){
         try {
             Cipher rsaCipher = Cipher.getInstance(ALGORITHM);
-            KeyFactory keyFactory = KeyFactory.getInstance(ALGORITHM);
+            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
             PublicKey generatePublic = keyFactory.generatePublic(new X509EncodedKeySpec(Base64Util.decode(publicKey)));
-            rsaCipher.init(Cipher.DECRYPT_MODE,generatePublic);
-            return rsaCipher.doFinal(origin);
+            rsaCipher.init(Cipher.DECRYPT_MODE, generatePublic);
+            int length = input.length;
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            for (int offset = 0; offset < length; ) {
+                int inputLen = 256;
+                if ((offset + inputLen) > length) {
+                    inputLen = length - offset;
+                }
+                byte[] b = rsaCipher.doFinal(input, offset, inputLen);
+                offset += inputLen;
+                outputStream.write(b);
+            }
+            byte[] rb = outputStream.toByteArray();
+            outputStream.close();
+            return rb;
         } catch (Exception e) {
             e.printStackTrace();
         }
