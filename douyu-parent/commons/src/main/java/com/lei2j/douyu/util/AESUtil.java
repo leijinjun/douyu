@@ -20,7 +20,7 @@ public class AESUtil {
 			KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
 			keyGenerator.init(128,new SecureRandom());
 			SecretKey generateKey = keyGenerator.generateKey();
-			return Base64Util.base64EncodeToString(generateKey.getEncoded());
+			return Base64Util.encodeToString(generateKey.getEncoded());
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		}
@@ -30,7 +30,7 @@ public class AESUtil {
 	public static byte[] encrypt(String key,String input) {
 		try {
 			Cipher aes = Cipher.getInstance("AES");
-			SecretKeySpec secretKeySpec = new SecretKeySpec(Base64Util.base64Decode(key), "AES");
+			SecretKeySpec secretKeySpec = new SecretKeySpec(Base64Util.decode(key), "AES");
 			aes.init(Cipher.ENCRYPT_MODE, secretKeySpec);
 			return aes.doFinal(input.getBytes(Charset.forName("utf-8")));
 		} catch (NoSuchAlgorithmException | NoSuchPaddingException
@@ -43,7 +43,7 @@ public class AESUtil {
 	public static byte[] decrypt(String key,byte[] input){
 		try {
 			Cipher aes = Cipher.getInstance("AES");
-			SecretKeySpec secretKeySpec = new SecretKeySpec(Base64Util.base64Decode(key), "AES");
+			SecretKeySpec secretKeySpec = new SecretKeySpec(Base64Util.decode(key), "AES");
 			aes.init(Cipher.DECRYPT_MODE,secretKeySpec);
 			return aes.doFinal(input);
 		} catch (NoSuchAlgorithmException|NoSuchPaddingException

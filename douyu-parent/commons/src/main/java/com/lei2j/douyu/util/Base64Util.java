@@ -10,50 +10,50 @@ public class Base64Util {
 
     private Base64Util(){}
 
-    public static byte[] base64Encode(String origin){
-        return base64Encode(origin.getBytes(Charset.forName("utf-8")));
+    public static byte[] encode(String origin){
+        return encode(origin.getBytes(Charset.forName("utf-8")));
     }
 
-    public static byte[] base64Encode(byte[] origin){
+    public static byte[] encode(byte[] origin){
         Base64.Encoder encoder = Base64.getEncoder();
         return encoder.encode(origin);
     }
 
-    public static String base64EncodeToString(byte[] origin){
+    public static String encodeToString(byte[] origin){
         Base64.Encoder encoder = Base64.getEncoder();
         return encoder.encodeToString(origin);
     }
 
-    public static String base64EncodeToString(String origin){
-        return base64EncodeToString(origin.getBytes(Charset.forName("utf-8")));
+    public static String encodeToString(String origin){
+        return encodeToString(origin.getBytes(Charset.forName("utf-8")));
     }
 
-    public static byte[] base64Decode(String origin){
+    public static byte[] decode(String origin){
         Base64.Decoder decoder = Base64.getDecoder();
         return decoder.decode(origin);
     }
 
-    public static byte[] base64Decode(byte[] origin){
+    public static byte[] decode(byte[] origin){
         Base64.Decoder decoder = Base64.getDecoder();
         return decoder.decode(origin);
     }
 
-    public static String base64UrlEncode(String origin){
-        return base64UrlEncode(origin.getBytes(Charset.forName("utf-8")));
+    public static String encodeUrl(String origin){
+        return encodeUrl(origin.getBytes(Charset.forName("utf-8")));
     }
 
-    public static String base64UrlEncode(byte[] origin){
+    public static String encodeUrl(byte[] origin){
         Base64.Encoder encoder = Base64.getUrlEncoder();
         String base64Str = encoder.encodeToString(origin);
         return replace(base64Str);
     }
 
-    public static byte[] base64UrlDecode(String origin){
+    public static byte[] decodeUrl(String origin){
         Base64.Decoder urlDecoder = Base64.getUrlDecoder();
         return urlDecoder.decode(origin);
     }
 
-    public static byte[] base64UrlDecode(byte[] origin){
+    public static byte[] decodeUrl(byte[] origin){
         Base64.Decoder urlDecoder = Base64.getUrlDecoder();
         return urlDecoder.decode(origin);
     }

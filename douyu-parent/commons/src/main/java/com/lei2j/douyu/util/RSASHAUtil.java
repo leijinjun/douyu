@@ -26,7 +26,8 @@ public class RSASHAUtil {
             KeyPair keyPair = keyPairGenerator.generateKeyPair();
             RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
             RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
-            String[] keys = {Base64Util.base64EncodeToString(publicKey.getEncoded()),Base64Util.base64EncodeToString(privateKey.getEncoded())};
+            String[] keys = {Base64Util.encodeToString(publicKey.getEncoded()),
+                    Base64Util.encodeToString(privateKey.getEncoded())};
             return keys;
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
@@ -62,7 +63,8 @@ public class RSASHAUtil {
         try {
             Signature signature = Signature.getInstance(algorithm);
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-            PrivateKey generatePrivate = keyFactory.generatePrivate(new PKCS8EncodedKeySpec(Base64Util.base64Decode(privateKey)));
+            PrivateKey generatePrivate =
+                    keyFactory.generatePrivate(new PKCS8EncodedKeySpec(Base64Util.decode(privateKey)));
             signature.initSign(generatePrivate);
             signature.update(input.getBytes(Charset.forName("utf-8")));
             return signature.sign();
@@ -76,7 +78,7 @@ public class RSASHAUtil {
         try {
             Signature instance = Signature.getInstance(algorithm);
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-            PublicKey generatePublic = keyFactory.generatePublic(new X509EncodedKeySpec(Base64Util.base64Decode(publicKey)));
+            PublicKey generatePublic = keyFactory.generatePublic(new X509EncodedKeySpec(Base64Util.decode(publicKey)));
             instance.initVerify(generatePublic);
             instance.update(data.getBytes(Charset.forName("utf-8")));
             return instance.verify(signature);

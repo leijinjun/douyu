@@ -33,7 +33,8 @@ public class RSAUtil {
             KeyPair keyPair = keyPairGenerator.generateKeyPair();
             RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
             RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
-            String[] keys = {Base64Util.base64EncodeToString(publicKey.getEncoded()),Base64Util.base64EncodeToString(privateKey.getEncoded())};
+            String[] keys = {Base64Util.encodeToString(publicKey.getEncoded()),
+                    Base64Util.encodeToString(privateKey.getEncoded())};
             return keys;
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
@@ -53,7 +54,8 @@ public class RSAUtil {
             }
             Cipher rsaCipher = Cipher.getInstance(ALGORITHM);
             KeyFactory keyFactory = KeyFactory.getInstance(ALGORITHM);
-            PrivateKey generatePrivate = keyFactory.generatePrivate(new PKCS8EncodedKeySpec(Base64Util.base64Decode(privateKey)));
+            PrivateKey generatePrivate =
+                    keyFactory.generatePrivate(new PKCS8EncodedKeySpec(Base64Util.decode(privateKey)));
             rsaCipher.init(Cipher.ENCRYPT_MODE,generatePrivate);
             byte[] bs = rsaCipher.doFinal(origin);
             return bs;
@@ -67,7 +69,7 @@ public class RSAUtil {
         try {
             Cipher rsaCipher = Cipher.getInstance(ALGORITHM);
             KeyFactory keyFactory = KeyFactory.getInstance(ALGORITHM);
-            PublicKey generatePublic = keyFactory.generatePublic(new X509EncodedKeySpec(Base64Util.base64Decode(publicKey)));
+            PublicKey generatePublic = keyFactory.generatePublic(new X509EncodedKeySpec(Base64Util.decode(publicKey)));
             rsaCipher.init(Cipher.DECRYPT_MODE,generatePublic);
             return rsaCipher.doFinal(origin);
         } catch (Exception e) {

@@ -11,6 +11,10 @@ public class PageHelper {
     private PageHelper(){
     }
 
+    public static void startPage(){
+        startPage(0, 20);
+    }
+
     public static void startPage(Integer offset,Integer limit){
         Page page = new Page(offset, limit);
         tThreadLocal.set(page);
@@ -29,8 +33,8 @@ public class PageHelper {
 
     public static class Page{
         private Integer pageNum = 1;
-        private Integer limit = 20;
-        private Integer offset = 0;
+        private Integer limit;
+        private Integer offset;
 
         public Page(Integer offset, Integer limit) {
             this.offset = offset;

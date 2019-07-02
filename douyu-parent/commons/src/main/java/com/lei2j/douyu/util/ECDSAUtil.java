@@ -31,7 +31,7 @@ public class ECDSAUtil {
 			KeyPair keyPair = keyPairGenerator.generateKeyPair();
 			byte[] privateKey = keyPair.getPrivate().getEncoded();
 			byte[] publicKey = keyPair.getPublic().getEncoded();
-			return new String[]{Base64Util.base64EncodeToString(publicKey),Base64Util.base64EncodeToString(privateKey)};
+			return new String[]{Base64Util.encodeToString(publicKey),Base64Util.encodeToString(privateKey)};
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		}
@@ -65,7 +65,8 @@ public class ECDSAUtil {
 	private static byte[] sign(String algorithm,String privateKey,String input) {
 		try {
 			KeyFactory keyFactory = KeyFactory.getInstance("EC");
-			PrivateKey generatePrivate = keyFactory.generatePrivate(new PKCS8EncodedKeySpec(Base64Util.base64Decode(privateKey)));
+			PrivateKey generatePrivate =
+					keyFactory.generatePrivate(new PKCS8EncodedKeySpec(Base64Util.decode(privateKey)));
 			Signature signature = Signature.getInstance(algorithm);
 			signature.initSign(generatePrivate);
 			byte[] bs = input.getBytes(Charset.forName("utf-8"));
@@ -81,7 +82,7 @@ public class ECDSAUtil {
 		try {
 			KeyFactory keyFactory = KeyFactory.getInstance("EC");
 			PublicKey generatePublic = keyFactory
-					.generatePublic(new X509EncodedKeySpec(Base64Util.base64Decode(publicKey)));
+					.generatePublic(new X509EncodedKeySpec(Base64Util.decode(publicKey)));
 			Signature instance = Signature.getInstance(algorithm);
 			instance.initVerify(generatePublic);
 			instance.update(data.getBytes(Charset.forName("utf-8")));
