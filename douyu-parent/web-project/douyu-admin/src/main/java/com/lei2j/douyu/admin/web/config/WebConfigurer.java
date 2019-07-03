@@ -3,6 +3,7 @@ package com.lei2j.douyu.admin.web.config;
 import com.lei2j.douyu.admin.web.interceptor.AuthenticationInterceptor;
 import com.lei2j.douyu.admin.web.interceptor.HttpRequestInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -11,6 +12,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class WebConfigurer implements WebMvcConfigurer {
+
+    @Value("#{'${cors.doamin.list}'.split(',')}")
+    private String[] origins;
 
     @Autowired
     private AuthenticationInterceptor authenticationInterceptor;
@@ -35,8 +39,7 @@ public class WebConfigurer implements WebMvcConfigurer {
                 .allowCredentials(true)
                 .allowedHeaders("*")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                .allowedOrigins("http://127.0.0.1:8080", "http://localhost:8080","https://admin.opendanmu.com",
-                        "http://admin.opendanmu.com" ,"https://admin.lei2j.com","http://admin.lei2j.com")
+                .allowedOrigins(origins)
                 .maxAge(10000);
     }
 }
