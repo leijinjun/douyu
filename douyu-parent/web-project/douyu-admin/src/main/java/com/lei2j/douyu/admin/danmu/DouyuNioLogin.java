@@ -59,7 +59,7 @@ public class DouyuNioLogin extends AbstractDouyuLogin {
 
 	private void join()throws IOException{
         //加入房间分组
-		DouyuNioConnection.initConnection().write(DouyuMessageConfig.getJoinMessage(room),socketChannel);
+		douyuNioConnection.write(DouyuMessageConfig.getJoinMessage(room),socketChannel);
 		logger.info("房间{}|连接成功",room);
     }
 	
