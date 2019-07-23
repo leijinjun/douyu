@@ -54,12 +54,15 @@ public class ChatMessageIndex extends AbstractIndex {
 
     @Override
     protected boolean createDocumentWithString(String id, String json) {
-        IndexResponse response = client.client().prepareIndex(INDEX_NAME, TYPE_NAME)
-                .setId(id).setSource(json, XContentType.JSON)
-                .get();
+        IndexResponse response = client.client()
+				.prepareIndex(INDEX_NAME, TYPE_NAME)
+                .setId(id)
+				.setSource(json, XContentType.JSON)
+				.execute()
+				.actionGet();
 		int status = response.status().getStatus();
 		if (status >= 300) {
-			logger.info("[chat]保存数据失败status:{},record:{}", response.status(), json);
+			logger.error("[chat]保存数据失败status:{},record:{}", response.status(), json);
 		}
 		return status < 300;
     }
