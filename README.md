@@ -5,5 +5,7 @@
 2. douyu-admin应用为管理弹幕连接服务器。
 # 安装所需依赖
 1. jdk,最低版本1.8
-2. Elasticsearch组件，版本为6.2.4
+2. Elasticsearch组件，版本为6.2.4。需要安装IK分词器，下载地址：https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v6.2.4/elasticsearch-analysis-ik-6.2.4.zip
 3. mysql
+# 连接指定房间
+uri:/admin/room/client/login/{room}
