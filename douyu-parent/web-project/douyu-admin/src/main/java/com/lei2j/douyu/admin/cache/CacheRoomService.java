@@ -30,6 +30,11 @@ public interface CacheRoomService {
       */
      void remove(Integer room);
 
+     /**
+      * 判断是否存在
+      * @param room room
+      * @return boolean
+      */
      boolean containsKey(Integer room);
 
      /**
