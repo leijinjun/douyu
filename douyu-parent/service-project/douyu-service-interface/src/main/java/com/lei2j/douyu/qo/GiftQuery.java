@@ -12,9 +12,9 @@ public class GiftQuery {
 
     private Integer rid;
 
-    @DateTimeFormat(pattern = DateFormatConstants.DATETIME_FORMAT)
+    @DateTimeFormat(pattern = DateFormatConstants.DATE_FORMAT)
     private LocalDateTime start;
-    @DateTimeFormat(pattern = DateFormatConstants.DATETIME_FORMAT)
+    @DateTimeFormat(pattern = DateFormatConstants.DATE_FORMAT)
     private LocalDateTime end;
 
     public Integer getRid() {

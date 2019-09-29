@@ -2,6 +2,7 @@ package com.lei2j.douyu.web.config;
 
 import com.lei2j.douyu.web.response.Response;
 import com.lei2j.douyu.web.response.ResponseCode;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
@@ -27,26 +28,25 @@ public class HttpResponseAdvice implements ResponseBodyAdvice<Object> {
 	@Resource
 	private MessageSource messageSource;
 
-	@Override
-	public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
-		return returnType.getParameterType() == Response.class;
-	}
 
 	@Override
-	public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType,
+	public Object beforeBodyWrite(Object body,MethodParameter returnType, MediaType selectedContentType,
 			Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request,
 			ServerHttpResponse response) {
 		List<Locale> localeList = request.getHeaders().getAcceptLanguageAsLocales();
-		Locale locale = Locale.getDefault();
-		if (localeList != null && !localeList.isEmpty()) {
-			locale = localeList.get(0);
-		}
+		Locale locale = CollectionUtils.isEmpty(localeList)?Locale.getDefault():localeList.get(0);
 		Response responseBody = (Response) body;
 		if (responseBody.getErrCode() != ResponseCode.OK.getCode() && responseBody.getErrMsg() == null) {
 			responseBody.text(messageSource.getMessage(String.valueOf(responseBody.getErrCode()), null, locale));
 		}
 		LOGGER.info("Response message:{}", responseBody);
 		return responseBody;
+	}
+
+	@Override
+	public boolean supports(MethodParameter returnType,
+							Class<? extends HttpMessageConverter<?>> converterType) {
+		return returnType.getParameterType() == Response.class;
 	}
 
 }
