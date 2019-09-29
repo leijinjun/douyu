@@ -20,15 +20,11 @@ import org.springframework.core.Ordered;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.*;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author lei2j
@@ -130,10 +126,13 @@ public class DouyuConnectJob extends DouyuJob {
                   String roomUrl = DouyuApi.ROOM_DETAIL_API.replace("{room}", String.valueOf(roomId));
                   String str = HttpUtil.get(roomUrl);
                   JSONObject jsonObject = JSONObject.parseObject(str);
-                  if (jsonObject.getIntValue("error") == 0) {
+                  String errorKey = "error";
+                  if (jsonObject.getIntValue(errorKey) == 0) {
                       JSONObject dataObj = jsonObject.getJSONObject("data");
                       // 未开播
-                      if (dataObj.getIntValue("room_status") == 2) {
+                      String closedRoomKey = "room_status";
+                      int closedRoomStatus = 2;
+                      if (dataObj.getIntValue(closedRoomKey) == closedRoomStatus) {
                     	  LOGGER.info("房间|{},关闭直播",roomId);
                           douyuLogin.logout();
                       }
@@ -160,14 +159,14 @@ public class DouyuConnectJob extends DouyuJob {
     /**
      * 定时任务自定义线程池
      */
-    //  @Configuration
-    public class ScheduleConfig implements SchedulingConfigurer {
-
-        @Override
-        public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
-            taskRegistrar.setScheduler(new ThreadPoolExecutor(3, 4, 30, TimeUnit.MINUTES, new ArrayBlockingQueue<>(10),
-                    (r, t) -> LOGGER.warn("定时任务线程池溢出"))
-            );
-        }
-    }
+//    @Configuration
+//    public class ScheduleConfig implements SchedulingConfigurer {
+//
+//        @Override
+//        public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
+//            taskRegistrar.setScheduler(new ThreadPoolExecutor(3, 4, 30, TimeUnit.MINUTES, new ArrayBlockingQueue<>(10),
+//                    (r, t) -> LOGGER.warn("定时任务线程池溢出"))
+//            );
+//        }
+//    }
 }

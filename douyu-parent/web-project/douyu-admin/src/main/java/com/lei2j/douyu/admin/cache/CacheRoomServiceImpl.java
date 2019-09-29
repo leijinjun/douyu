@@ -39,9 +39,7 @@ public class CacheRoomServiceImpl implements CacheRoomService {
 
     @Override
     public void remove(Integer room) {
-        if(CACHE.containsKey(room)){
-            CACHE.remove(room);
-        }
+        CACHE.remove(room);
     }
 
     @Override

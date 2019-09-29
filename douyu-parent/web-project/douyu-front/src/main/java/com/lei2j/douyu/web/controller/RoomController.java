@@ -205,7 +205,11 @@ public class RoomController extends BaseController {
     public Response viewFansPersonNumData(@PathVariable("room")Integer rid, FrankQuery frankQO){
         frankQO.setRid(rid);
         LocalDateTime start = frankQO.getStart();
+        start = start.withHour(0).withMinute(0).withSecond(0);
+        frankQO.setStart(start);
         LocalDateTime end = frankQO.getEnd();
+        end = end.withHour(23).withMinute(59).withSecond(59);
+        frankQO.setEnd(end);
         List<Object[]> mapList = frankService.findStatisticByTimes(frankQO);
         Set<String> set = new HashSet<>(30);
         mapList.forEach((obj)->set.add((String)obj[0]));
@@ -237,6 +241,16 @@ public class RoomController extends BaseController {
     @RequestMapping("/view/giftMoney/{room}")
     public Response viewGiftMoneyData(@PathVariable("room")Integer rid, GiftQuery giftQO){
         giftQO.setRid(rid);
+        if (giftQO.getStart() != null) {
+            LocalDateTime start = giftQO.getStart();
+            start = start.withHour(0).withMinute(0).withSecond(0);
+            giftQO.setStart(start);
+        }
+        if (giftQO.getEnd() != null) {
+            LocalDateTime end = giftQO.getEnd();
+            end = end.withHour(23).withMinute(59).withSecond(59);
+            giftQO.setEnd(end);
+        }
         Map<String,Object> giftDataMap = giftSearchService.getGiftSumIntervalDayByRoom(giftQO);
         return Response.ok().entity(giftDataMap);
     }
@@ -249,6 +263,16 @@ public class RoomController extends BaseController {
     @RequestMapping("/view/giftPersonNum/{room}")
     public Response viewGiftPersonNum(@PathVariable("room")Integer rid, GiftQuery giftQO){
         giftQO.setRid(rid);
+        if (giftQO.getStart() != null) {
+            LocalDateTime start = giftQO.getStart();
+            start = start.withHour(0).withMinute(0).withSecond(0);
+            giftQO.setStart(start);
+        }
+        if (giftQO.getEnd() != null) {
+            LocalDateTime end = giftQO.getEnd();
+            end = end.withHour(23).withMinute(59).withSecond(59);
+            giftQO.setEnd(end);
+        }
         Map<String,Integer> giftCountsMap = giftSearchService.getIntervalDayPersonCountsByRoom(giftQO);
         return Response.ok().entity(giftCountsMap);
     }
@@ -261,6 +285,16 @@ public class RoomController extends BaseController {
     @RequestMapping("/view/chatSum/{room}")
     public Response viewChatSumData(@PathVariable("room")Integer rid, ChatQuery chatQO){
         chatQO.setRid(rid);
+        if (chatQO.getStart() != null) {
+            LocalDateTime start = chatQO.getStart();
+            start = start.withHour(0).withMinute(0).withSecond(0);
+            chatQO.setStart(start);
+        }
+        if (chatQO.getEnd() != null) {
+            LocalDateTime end = chatQO.getEnd();
+            end = end.withHour(23).withMinute(59).withSecond(59);
+            chatQO.setEnd(end);
+        }
         Map<String,Integer> dataMap = chatSearchService.getIntervalDayChatSumByRoom(chatQO);
         return Response.ok().entity(dataMap);
     }
@@ -271,8 +305,19 @@ public class RoomController extends BaseController {
      * @return Response
      */
     @RequestMapping("/view/chatPersonNum/{room}")
-    public Response viewChatPersonNumData(ChatQuery chatQO){
-        Map<String,Integer> dataMap = chatSearchService.getIntervalDayChatPersonCountsByRoom(chatQO);
+    public Response viewChatPersonNumData(@PathVariable("room")Integer room, ChatQuery chatQO){
+        chatQO.setRid(room);
+        if (chatQO.getStart() != null) {
+            LocalDateTime start = chatQO.getStart();
+            start = start.withHour(0).withMinute(0).withSecond(0);
+            chatQO.setStart(start);
+        }
+        if (chatQO.getEnd() != null) {
+            LocalDateTime end = chatQO.getEnd();
+            end = end.withHour(23).withMinute(59).withSecond(59);
+            chatQO.setEnd(end);
+        }
+        Map<String, Integer> dataMap = chatSearchService.getIntervalDayChatPersonCountsByRoom(chatQO);
         return Response.ok().entity(dataMap);
     }
     
