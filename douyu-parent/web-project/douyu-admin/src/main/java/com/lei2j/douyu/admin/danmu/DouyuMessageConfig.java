@@ -7,19 +7,25 @@ import com.lei2j.douyu.core.constant.DouyuApi;
 import com.lei2j.douyu.danmu.pojo.DouyuMessage;
 import com.lei2j.douyu.danmu.service.MessageType;
 import com.lei2j.douyu.util.HttpUtil;
-import com.lei2j.douyu.util.RandomUtil;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
  * Created by lei2j on 2018/11/25.
  */
 class DouyuMessageConfig {
+
+    private static DouyuMessage keepaliveMessage = new DouyuMessage();
+    private static DouyuMessage logoutMessage = new DouyuMessage();
+    static {
+        keepaliveMessage.add("type", MessageType.KEEPALIVE);
+        logoutMessage.add("type", MessageType.LOGOUT);
+    }
 
     public static DouyuMessage getLoginMessage(Integer room, String username, String password){
         DouyuMessage douyuMessage = new DouyuMessage();
@@ -42,27 +48,45 @@ class DouyuMessageConfig {
     }
 
     public static DouyuMessage getKeepaliveMessage() {
-        DouyuMessage douyuMessage = new DouyuMessage();
-        douyuMessage.add("type", MessageType.KEEPALIVE);
-        return douyuMessage;
+        return keepaliveMessage;
     }
 
     /**
      * @return DouyuMessage
      */
-    public static DouyuMessage getLogoutMessage(){
-        DouyuMessage douyuMessage = new DouyuMessage();
-        douyuMessage.add("type", MessageType.LOGOUT);
-        return douyuMessage;
+    public static DouyuMessage getLogoutMessage() {
+        return logoutMessage;
+    }
+
+    public static class LoginServer {
+        private String ip;
+
+        private int port;
+
+        public String getIp() {
+            return ip;
+        }
+
+        public void setIp(String ip) {
+            this.ip = ip;
+        }
+
+        public int getPort() {
+            return port;
+        }
+
+        public void setPort(int port) {
+            this.port = port;
+        }
+
     }
 
     /**
      * 获取房间弹幕登录服务器列表
      * @return List
      */
-    @SuppressWarnings("rawtypes")
-    private static List<Map> getServerConfig(Integer room){
-        String s = HttpUtil.get(DouyuApi.ROOM_SERVER_CONFIG.replace("{room}",String.valueOf(room)), null);
+    private static List<LoginServer> getServerConfig(Integer room) {
+        String s = HttpUtil.get(DouyuApi.ROOM_SERVER_CONFIG.replace("{room}", String.valueOf(room)), null);
         JSONObject jsonObject = JSONObject.parseObject(s);
         String serverConfig = null;
         try {
@@ -70,22 +94,22 @@ class DouyuMessageConfig {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        List<Map> mapList = JSONArray.parseArray(serverConfig, Map.class);
-        return mapList;
+        List<LoginServer> loginServerList = JSONArray.parseArray(serverConfig, LoginServer.class);
+        return loginServerList;
     }
 
     /**
      * 从房间弹幕登录服务器组中随机获取一个登录服务器地址
      * @return DouyuAddress
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     public static DouyuAddress getLoginServerAddress(Integer room) {
-        List<Map> serverConfig = getServerConfig(room);
-        int i = RandomUtil.getInt(serverConfig.size());
-        Map<String,String> server = (Map<String,String>)serverConfig.get(i);
-        String ip = server.get("ip");
-        int port = Integer.parseInt(server.get("port"));
-        DouyuAddress douyuAddress = new DouyuAddress(ip, port);
+        List<LoginServer> serverConfig = getServerConfig(room);
+        Optional<LoginServer> optional = serverConfig.stream().findAny();
+        if (!optional.isPresent()) {
+            throw new RuntimeException("No Server Found");
+        }
+        LoginServer loginServer = optional.get();
+        DouyuAddress douyuAddress = new DouyuAddress(loginServer.getIp(), loginServer.getPort());
         return douyuAddress;
     }
 }
