@@ -28,7 +28,9 @@ import org.elasticsearch.search.aggregations.metrics.cardinality.CardinalityAggr
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 
 /**
@@ -101,32 +103,34 @@ public class ChatSearchServiceImpl extends CommonSearchService implements ChatSe
 
     @Override
     public Map<String, Integer> getIntervalDayChatSumByRoom(ChatQuery chatQO) {
-        LocalDateTime startTime = chatQO.getStart();
-        LocalDateTime endTime = chatQO.getEnd();
+        LocalDate start = chatQO.getStart();
+        LocalDate end = chatQO.getEnd();
         BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery()
                 .must(QueryBuilders.termQuery("rid", chatQO.getRid()))
                 .must(QueryBuilders.rangeQuery("createAt")
-                        .from(DateUtil.localDateTimeFormat(startTime),true)
-                        .to(DateUtil.localDateTimeFormat(endTime),true)
+                        .from(DateUtil.localDateTimeFormat(LocalDateTime.of(start, LocalTime.of(0, 0, 0))), true)
+                        .to(DateUtil.localDateTimeFormat(LocalDateTime.of(end, LocalTime.of(23, 59, 59))), true)
                 );
         String key = "INTERVAL_DAY_CHAT_SUM";
         DateHistogramAggregationBuilder aggregationBuilder = AggregationBuilders.dateHistogram(key).field("createAt")
                 .dateHistogramInterval(DateHistogramInterval.DAY)
                 .minDocCount(0L)
-                .format(DateFormatConstants.DATE_FORMAT)
-                .extendedBounds(new ExtendedBounds(DateUtil.localDateTimeFormat(startTime, DateFormatConstants.DATE_FORMAT), DateUtil.localDateTimeFormat(endTime, DateFormatConstants.DATE_FORMAT)));
+                .format(DateFormatConstants.DATETIME_FORMAT)
+                .extendedBounds(new ExtendedBounds(
+                        DateUtil.localDateTimeFormat(LocalDateTime.of(start, LocalTime.of(0, 0, 0))),
+                        DateUtil.localDateTimeFormat(LocalDateTime.of(end, LocalTime.of(23, 59, 59)))));
         SearchRequestBuilder searchRequestBuilder = searchClient.client().prepareSearch(ChatMessageIndex.INDEX_NAME).setTypes(ChatMessageIndex.TYPE_NAME)
                 .setSize(0)
                 .setQuery(queryBuilder)
                 .addAggregation(aggregationBuilder);
-        logger.info("ElasticSearch查询参数：{}",searchRequestBuilder);
+        logger.info("ElasticSearch查询参数：{}", searchRequestBuilder);
         SearchResponse searchResponse = searchRequestBuilder.get();
-        Map<String,Integer> map = new HashMap<>(7);
+        Map<String, Integer> map = new HashMap<>(7);
         if (RestStatus.OK == searchResponse.status()) {
             InternalDateHistogram dateHistogramInterval = searchResponse.getAggregations().get(key);
             List<InternalDateHistogram.Bucket> buckets = dateHistogramInterval.getBuckets();
-            for (InternalDateHistogram.Bucket item:
-                 buckets) {
+            for (InternalDateHistogram.Bucket item :
+                    buckets) {
                 Long docCount = item.getDocCount();
                 DateTime dateTime = (DateTime) item.getKey();
                 map.put(dateTime.toLocalDate().toString(DateFormatConstants.DATE_FORMAT), docCount.intValue());
@@ -137,39 +141,40 @@ public class ChatSearchServiceImpl extends CommonSearchService implements ChatSe
 
     @Override
     public Map<String, Integer> getIntervalDayChatPersonCountsByRoom(ChatQuery chatQO) {
-        LocalDateTime startTime = chatQO.getStart();
-        LocalDateTime endTime = chatQO.getEnd();
+        LocalDate start = chatQO.getStart();
+        LocalDate end = chatQO.getEnd();
         BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery()
                 .must(QueryBuilders.termQuery("rid", chatQO.getRid()))
                 .must(QueryBuilders.rangeQuery("createAt")
-                        .from(DateUtil.localDateTimeFormat(startTime),true)
-                        .to(DateUtil.localDateTimeFormat(endTime),true)
+                        .from(DateUtil.localDateTimeFormat(LocalDateTime.of(start, LocalTime.of(0, 0, 0))), true)
+                        .to(DateUtil.localDateTimeFormat(LocalDateTime.of(start, LocalTime.of(23, 59, 59))), true)
                 );
         String key = "INTERVAL_DAY_CHAT_PERSON_COUNTS";
         String subKey = "SUB_INTERVAL_DAY_CHAT_PERSON_COUNTS";
         DateHistogramAggregationBuilder aggregationBuilder = AggregationBuilders.dateHistogram(key).field("createAt")
                 .dateHistogramInterval(DateHistogramInterval.DAY)
                 .minDocCount(0L)
-                .format(DateFormatConstants.DATE_FORMAT)
-                .extendedBounds(new ExtendedBounds(DateUtil.localDateTimeFormat(startTime, DateFormatConstants.DATE_FORMAT), DateUtil.localDateTimeFormat(endTime, DateFormatConstants.DATE_FORMAT)))
-                .subAggregation(AggregationBuilders.cardinality(subKey).field("uid").precisionThreshold(100))
-                ;
+                .format(DateFormatConstants.DATETIME_FORMAT)
+                .extendedBounds(new ExtendedBounds(
+                        DateUtil.localDateTimeFormat(LocalDateTime.of(start, LocalTime.of(0, 0, 0))),
+                        DateUtil.localDateTimeFormat(LocalDateTime.of(end, LocalTime.of(23, 59, 59)))))
+                .subAggregation(AggregationBuilders.cardinality(subKey).field("uid").precisionThreshold(100));
         SearchRequestBuilder searchRequestBuilder = searchClient.client().prepareSearch(ChatMessageIndex.INDEX_NAME).setTypes(ChatMessageIndex.TYPE_NAME)
                 .setSize(0)
                 .setQuery(queryBuilder)
                 .addAggregation(aggregationBuilder);
-        logger.info("ElasticSearch查询参数：{}",searchRequestBuilder);
+        logger.info("ElasticSearch查询参数：{}", searchRequestBuilder);
         SearchResponse searchResponse = searchRequestBuilder.get();
-        Map<String,Integer> map = new HashMap<>(7);
-        if(RestStatus.OK==searchResponse.status()){
+        Map<String, Integer> map = new HashMap<>(7);
+        if (RestStatus.OK == searchResponse.status()) {
             InternalDateHistogram dateHistogramInterval = searchResponse.getAggregations().get(key);
             List<InternalDateHistogram.Bucket> buckets = dateHistogramInterval.getBuckets();
-            for (InternalDateHistogram.Bucket item:
+            for (InternalDateHistogram.Bucket item :
                     buckets) {
                 Cardinality cardinality = item.getAggregations().get(subKey);
                 Long value = cardinality.getValue();
-                DateTime dateTime = (DateTime)item.getKey();
-                map.put(dateTime.toLocalDate().toString(DateFormatConstants.DATE_FORMAT),value.intValue());
+                DateTime dateTime = (DateTime) item.getKey();
+                map.put(dateTime.toLocalDate().toString(DateFormatConstants.DATE_FORMAT), value.intValue());
             }
         }
         return map;
