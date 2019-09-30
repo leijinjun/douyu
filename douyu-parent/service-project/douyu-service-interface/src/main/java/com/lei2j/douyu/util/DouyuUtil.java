@@ -1,5 +1,6 @@
 package com.lei2j.douyu.util;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.lei2j.douyu.core.constant.DouyuApi;
 import com.lei2j.douyu.vo.CateVo;
@@ -74,20 +75,17 @@ public class DouyuUtil {
     public static Optional<SearchRoomInfo> search(String keyword){
         SearchRoomInfo searchRoomInfo = null;
         try {
-            searchRoomInfo  = new SearchRoomInfo();
-            Element body =
-                    Jsoup.connect("https://www.douyu.com/search/").data("kw", keyword).header("user-agent","Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36").get().body();
-            Element select = body.selectFirst("ul[class='anchor-list-box']");
-            Element li = select.selectFirst("li");
-            Element a = li.getElementsByTag("a").first();
-            String rid = a.attr("data-rid");
-            String img = a.getElementsByClass("anchor-avatar").first().getElementsByTag("img").first().attr("data-original");
-            String ownerName = a.getElementsByClass("anchor-name").text();
-            String fansNum = a.getElementsByClass("anchor-info").first().ownText().trim();
-            searchRoomInfo.setRoomId(Integer.parseInt(rid));
-            searchRoomInfo.setRoomThumb(img);
-            searchRoomInfo.setOwnerName(ownerName);
-            searchRoomInfo.setFansNum(Integer.parseInt(fansNum));
+            String str = HttpUtil.get("https://www.douyu.com/japi/search/api/getSearchRec?kw=" + keyword);
+            JSONObject jsonObject = JSONObject.parseObject(str);
+            int success = 0;
+            int errorValue = jsonObject.getIntValue("error");
+            if (errorValue == success) {
+                JSONArray roomResult = jsonObject.getJSONObject("data").getJSONArray("roomResult");
+                if (roomResult != null && !roomResult.isEmpty()) {
+                    JSONObject result = roomResult.getJSONObject(0);
+                    searchRoomInfo = JSONObject.toJavaObject(result, SearchRoomInfo.class);
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -96,53 +94,103 @@ public class DouyuUtil {
 
     public static class SearchRoomInfo {
 
-        private Integer roomId;
+        /**
+         * 房间图片
+         */
+        private String avatar;
 
-        private String roomThumb;
+        private String cateName;
 
-        private String ownerName;
+        private Integer cid;
 
-        private Integer fansNum;
+        /**
+         * 是否开播，2=未开播
+         */
+        private Integer isLive;
 
-        public Integer getRoomId() {
-            return roomId;
+        private String kw;
+
+        private String nickName;
+
+        private Integer rId;
+
+        private Integer vipId;
+
+        public String getAvatar() {
+            return avatar;
         }
 
-        public void setRoomId(Integer roomId) {
-            this.roomId = roomId;
+        public void setAvatar(String avatar) {
+            this.avatar = avatar;
         }
 
-        public String getRoomThumb() {
-            return roomThumb;
+        public String getCateName() {
+            return cateName;
         }
 
-        public void setRoomThumb(String roomThumb) {
-            this.roomThumb = roomThumb;
+        public void setCateName(String cateName) {
+            this.cateName = cateName;
         }
 
-        public String getOwnerName() {
-            return ownerName;
+        public Integer getCid() {
+            return cid;
         }
 
-        public void setOwnerName(String ownerName) {
-            this.ownerName = ownerName;
+        public void setCid(Integer cid) {
+            this.cid = cid;
         }
 
-        public Integer getFansNum() {
-            return fansNum;
+        public Integer getIsLive() {
+            return isLive;
         }
 
-        public void setFansNum(Integer fansNum) {
-            this.fansNum = fansNum;
+        public void setIsLive(Integer isLive) {
+            this.isLive = isLive;
+        }
+
+        public String getKw() {
+            return kw;
+        }
+
+        public void setKw(String kw) {
+            this.kw = kw;
+        }
+
+        public String getNickName() {
+            return nickName;
+        }
+
+        public void setNickName(String nickName) {
+            this.nickName = nickName;
+        }
+
+        public Integer getRId() {
+            return rId;
+        }
+
+        public void setRId(Integer rId) {
+            this.rId = rId;
+        }
+
+        public Integer getVipId() {
+            return vipId;
+        }
+
+        public void setVipId(Integer vipId) {
+            this.vipId = vipId;
         }
 
         @Override
         public String toString() {
             final StringBuffer sb = new StringBuffer("SearchRoomInfo{");
-            sb.append("roomId=").append(roomId);
-            sb.append(", roomThumb='").append(roomThumb).append('\'');
-            sb.append(", ownerName='").append(ownerName).append('\'');
-            sb.append(", fansNum=").append(fansNum);
+            sb.append("avatar='").append(avatar).append('\'');
+            sb.append(", cateName='").append(cateName).append('\'');
+            sb.append(", cid=").append(cid);
+            sb.append(", isLive=").append(isLive);
+            sb.append(", kw='").append(kw).append('\'');
+            sb.append(", nickName='").append(nickName).append('\'');
+            sb.append(", rId=").append(rId);
+            sb.append(", vipId=").append(vipId);
             sb.append('}');
             return sb.toString();
         }

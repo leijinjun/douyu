@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -40,17 +41,17 @@ import java.util.stream.Collectors;
     /**
      * 斗鱼消息处理线程池
      */
-    protected static ThreadPoolExecutor douyuMessageExecutor = new ThreadPoolExecutor(Runtime.getRuntime()
-            .availableProcessors()
-            +1,Runtime.getRuntime().availableProcessors()*2, 30, TimeUnit.MINUTES, new ArrayBlockingQueue<>(100000),
-            new DefaultThreadFactory("Thread-douyu-message-%d", true, 10),(runnable,threadPoolExecutor)->LOGGER.warn("警告！！！，队列已满")
+    protected static ThreadPoolExecutor douyuMessageExecutor = new ThreadPoolExecutor(
+            Runtime.getRuntime().availableProcessors() + 1,Runtime.getRuntime().availableProcessors()*2, 30,
+            TimeUnit.MINUTES, new ArrayBlockingQueue<>(50000),
+            new DefaultThreadFactory("thd-douyu-message-%d", true, 10),(runnable,threadPoolExecutor)->LOGGER.warn("警告！！！，队列已满")
     );
 
     /**
      * 心跳检测线程池
      */
     protected static ScheduledExecutorService keepaliveScheduledExecutorService = new ScheduledThreadPoolExecutor(5,
-    		new DefaultThreadFactory("Thread-douyu-keepalive-%d", true, 10));
+    		new DefaultThreadFactory("thd-douyu-keepalive-%d", true, 10));
 
     /**
      *房间礼物信息
@@ -133,7 +134,12 @@ import java.util.stream.Collectors;
         if(ipList==null) {
         	ipList = (List<Map<String,String>>)msgIpList.get("list");
         }
-        Map<String, String> ipMap = ipList.get(0);
+        Optional<Map<String, String>> optional = ipList.stream().findAny();
+        if (!optional.isPresent()) {
+            logger.info("房间|{}，获取弹幕服务器列表失败", room);
+            return null;
+        }
+        Map<String, String> ipMap = optional.get();
         String ip = String.valueOf(ipMap.get("ip"));
         int port = Integer.parseInt(ipMap.get("port"));
         DouyuAddress address = new DouyuAddress(ip, port);

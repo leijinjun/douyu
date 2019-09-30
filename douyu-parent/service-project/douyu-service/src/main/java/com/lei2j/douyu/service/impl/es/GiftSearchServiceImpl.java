@@ -31,7 +31,9 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 
 /**
@@ -106,21 +108,23 @@ public class GiftSearchServiceImpl extends CommonSearchService implements GiftSe
 
     @Override
     public Map<String,Object> getGiftSumIntervalDayByRoom(GiftQuery giftQO) {
-        LocalDateTime start = giftQO.getStart();
-        LocalDateTime end = giftQO.getEnd();
+        LocalDate start = giftQO.getStart();
+        LocalDate end = giftQO.getEnd();
         BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery()
                 .must(QueryBuilders.termQuery("rid", giftQO.getRid()))
                 .must(QueryBuilders.rangeQuery("pc").from(0, false))
                 .must(QueryBuilders.rangeQuery("createAt")
-                        .from(DateUtil.localDateTimeFormat(start), true)
-                        .to(DateUtil.localDateTimeFormat(end), true));
+                        .from(DateUtil.localDateTimeFormat(LocalDateTime.of(start, LocalTime.of(0, 0, 0))), true)
+                        .to(DateUtil.localDateTimeFormat(LocalDateTime.of(end, LocalTime.of(23, 59, 59))), true));
         String key = "INTERVAL_DAY_GIFT_SUM";
         AggregationBuilder aggregationBuilder = AggregationBuilders.dateHistogram(key).field("createAt")
                 .dateHistogramInterval(DateHistogramInterval.DAY)
                 .minDocCount(0L)
-                .format(DateFormatConstants.DATE_FORMAT)
+                .format(DateFormatConstants.DATETIME_FORMAT)
                 .order(BucketOrder.key(true))
-                .extendedBounds(new ExtendedBounds(DateUtil.localDateTimeFormat(start, DateFormatConstants.DATE_FORMAT), DateUtil.localDateTimeFormat(end, DateFormatConstants.DATE_FORMAT)))
+                .extendedBounds(new ExtendedBounds(
+                        DateUtil.localDateTimeFormat(LocalDateTime.of(start, LocalTime.of(0, 0, 0))),
+                        DateUtil.localDateTimeFormat(LocalDateTime.of(end, LocalTime.of(23, 59, 59)))))
                 .subAggregation(AggregationBuilders.sum("SUB_INTERVAL_DAY_GIFT_SUM").script(new Script("doc['pc'].value*doc['gfcnt'].value")));
         SearchRequestBuilder searchRequestBuilder = searchClient.client().prepareSearch(GiftIndex.INDEX_NAME).setTypes(GiftIndex.TYPE_NAME)
                 .setSize(0)
@@ -145,22 +149,24 @@ public class GiftSearchServiceImpl extends CommonSearchService implements GiftSe
 
     @Override
     public Map<String, Integer> getIntervalDayPersonCountsByRoom(GiftQuery giftQO) {
-        LocalDateTime start = giftQO.getStart();
-        LocalDateTime end = giftQO.getEnd();
+        LocalDate start = giftQO.getStart();
+        LocalDate end = giftQO.getEnd();
         BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery()
                 .must(QueryBuilders.termQuery("rid", giftQO.getRid()))
                 .must(QueryBuilders.rangeQuery("pc").from(0, false))
                 .must(QueryBuilders.rangeQuery("createAt")
-                        .from(DateUtil.localDateTimeFormat(start), true)
-                        .to(DateUtil.localDateTimeFormat(end), true));
+                        .from(DateUtil.localDateTimeFormat(LocalDateTime.of(start, LocalTime.of(0, 0, 0))), true)
+                        .to(DateUtil.localDateTimeFormat(LocalDateTime.of(end, LocalTime.of(23, 59, 59))), true));
         String key = "INTERVAL_DAY_GIFT_PERSONS_COUNTS";
         String subKey = "SUB_INTERVAL_DAY_GIFT_PERSONS_COUNTS";
         AggregationBuilder aggregationBuilder = AggregationBuilders.dateHistogram(key).field("createAt")
                 .dateHistogramInterval(DateHistogramInterval.DAY)
                 .minDocCount(0L)
-                .format(DateFormatConstants.DATE_FORMAT)
+                .format(DateFormatConstants.DATETIME_FORMAT)
                 .order(BucketOrder.key(true))
-                .extendedBounds(new ExtendedBounds(DateUtil.localDateTimeFormat(start, DateFormatConstants.DATE_FORMAT), DateUtil.localDateTimeFormat(end, DateFormatConstants.DATE_FORMAT)))
+                .extendedBounds(new ExtendedBounds(
+                        DateUtil.localDateTimeFormat(LocalDateTime.of(start, LocalTime.of(0, 0, 0))),
+                        DateUtil.localDateTimeFormat(LocalDateTime.of(end, LocalTime.of(23, 59, 59)))))
                 .subAggregation(AggregationBuilders.cardinality(subKey).field("uid").precisionThreshold(100));
         SearchRequestBuilder searchRequestBuilder = searchClient.client().prepareSearch(GiftIndex.INDEX_NAME).setTypes(GiftIndex.TYPE_NAME)
                 .setSize(0)
@@ -185,14 +191,14 @@ public class GiftSearchServiceImpl extends CommonSearchService implements GiftSe
 
 	@Override
 	public List<Map<String, Object>> getToDayGiftTopSum(GiftQuery giftQO) {
-		LocalDateTime start = giftQO.getStart();
-        LocalDateTime end = giftQO.getEnd();
+		LocalDate start = giftQO.getStart();
+        LocalDate end = giftQO.getEnd();
         BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery()
                 .must(QueryBuilders.termQuery("rid", giftQO.getRid()))
                 .must(QueryBuilders.rangeQuery("pc").from(0, false))
                 .must(QueryBuilders.rangeQuery("createAt")
-                        .from(DateUtil.localDateTimeFormat(start), true)
-                        .to(DateUtil.localDateTimeFormat(end), true));
+                        .from(DateUtil.localDateTimeFormat(LocalDateTime.of(start, LocalTime.of(0, 0, 0))), true)
+                        .to(DateUtil.localDateTimeFormat(LocalDateTime.of(end, LocalTime.of(23, 59, 59))), true));
         String key = "TODAY_GIFT_TOP_SUM";
         String subKey = "SUB_TODAY_GIFT_TOP_SUM";
         String topHitKey = "TOP_HIT";

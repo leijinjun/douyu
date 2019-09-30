@@ -4,6 +4,7 @@ import com.lei2j.douyu.core.constant.DateFormatConstants;
 import com.lei2j.douyu.pojo.FrankEntity;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -13,24 +14,24 @@ public class FrankQuery extends FrankEntity {
 
 	private static final long serialVersionUID = -1185213236452170315L;
 	
-	@DateTimeFormat(pattern = DateFormatConstants.DATETIME_FORMAT)
-    private LocalDateTime start;
-    @DateTimeFormat(pattern = DateFormatConstants.DATETIME_FORMAT)
-    private LocalDateTime end;
+	@DateTimeFormat(pattern = DateFormatConstants.DATE_FORMAT)
+    private LocalDate start;
+    @DateTimeFormat(pattern = DateFormatConstants.DATE_FORMAT)
+    private LocalDate end;
 
-    public LocalDateTime getStart() {
+    public LocalDate getStart() {
         return start;
     }
 
-    public void setStart(LocalDateTime start) {
+    public void setStart(LocalDate start) {
         this.start = start;
     }
 
-    public LocalDateTime getEnd() {
+    public LocalDate getEnd() {
         return end;
     }
 
-    public void setEnd(LocalDateTime end) {
+    public void setEnd(LocalDate end) {
         this.end = end;
     }
 }

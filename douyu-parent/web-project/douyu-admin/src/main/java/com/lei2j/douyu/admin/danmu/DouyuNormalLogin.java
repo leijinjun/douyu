@@ -21,7 +21,7 @@ public class DouyuNormalLogin extends AbstractDouyuLogin {
      */
     private ExecutorService executorService = Executors.newScheduledThreadPool(1,Executors.defaultThreadFactory());
 
-    public DouyuNormalLogin(Integer room) throws IOException {
+    public DouyuNormalLogin(Integer room) {
         super(room);
     }
 
@@ -42,7 +42,9 @@ public class DouyuNormalLogin extends AbstractDouyuLogin {
         this.douyuConnection = DouyuConnection.initConnection(douyuAddress);
         douyuConnection.write(DouyuMessageConfig.getLoginMessage(room, username, "1234567890123456"));
         logger.info("房间|{},连接弹幕服务器成功", room);
-        join();
+        if (!join()) {
+            return -1;
+        }
         if (keepaliveSchedule != null) {
             keepaliveSchedule.cancel();
         }
@@ -68,8 +70,7 @@ public class DouyuNormalLogin extends AbstractDouyuLogin {
         //开始执行弹幕读取
         executorService.execute(() ->{
             int f = 1;
-            while (f == 1) {
-                f = read();
+            for (; f == 1; f = read()) {
             }
             //logout,do nothing
             if(f == 0) {
@@ -89,7 +90,7 @@ public class DouyuNormalLogin extends AbstractDouyuLogin {
      *
      * @throws IOException IOException
      */
-    private void join() throws IOException {
+    private boolean join() throws IOException {
         //加入房间分组
         douyuConnection.write(DouyuMessageConfig.getJoinMessage(room));
         logger.info("房间|{},开始加入房间分组", room);
@@ -98,9 +99,10 @@ public class DouyuNormalLogin extends AbstractDouyuLogin {
         String error = "error";
         if (error.equals(messageMap.get(type))) {
             logger.error("房间|{},加入分组失败,错误信息:{}", messageMap);
-            return;
+            return false;
         }
         logger.info("房间{}|加入分组成功", room);
+        return true;
     }
     
     private int read() {

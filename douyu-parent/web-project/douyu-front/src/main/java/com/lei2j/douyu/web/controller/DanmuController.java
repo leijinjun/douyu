@@ -49,11 +49,11 @@ public class DanmuController extends BaseController {
         Integer roomId = danmuQuery.getRoomId();
         if (!StringUtils.isEmpty(ownerName)) {
             Optional<DouyuUtil.SearchRoomInfo> roomInfoOptional = DouyuUtil.search(ownerName);
-            if(!roomInfoOptional.isPresent()){
-                return Response.ok();
+            if (!roomInfoOptional.isPresent()) {
+                return Response.ok().entity(new Pagination<>(10, 1));
             }
             DouyuUtil.SearchRoomInfo searchRoomInfo = roomInfoOptional.get();
-            roomId = searchRoomInfo.getRoomId();
+            roomId = searchRoomInfo.getRId();
         }else if(!StringUtils.isEmpty(roomId)){
             RoomDetailVo roomDetail = DouyuUtil.getRoomDetail(roomId);
             if(roomDetail==null){

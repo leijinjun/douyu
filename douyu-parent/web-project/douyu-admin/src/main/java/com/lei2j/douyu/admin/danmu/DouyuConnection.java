@@ -44,19 +44,15 @@ class DouyuConnection {
         return douyuConnection;
     }
 
-    void write(DouyuMessage douyuMessage){
+    void write(DouyuMessage douyuMessage) throws IOException {
         //处理header
-        byte[]  messages= MessageConvert.preConvert(douyuMessage);
-        try {
-            if(isClosed()||socket.isOutputShutdown()){
-                LOGGER.warn("connect is closed");
-                return;
-            }
-            out.write(messages);
-            out.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
+        byte[] messages = MessageConvert.preConvert(douyuMessage);
+        if (isClosed() || socket.isOutputShutdown()) {
+            LOGGER.warn("connect is closed");
+            return;
         }
+        out.write(messages);
+        out.flush();
     }
 
     /**

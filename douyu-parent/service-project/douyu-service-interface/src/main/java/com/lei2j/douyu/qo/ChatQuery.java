@@ -4,7 +4,7 @@ import com.lei2j.douyu.core.constant.DateFormatConstants;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 /**
  * @author lei2j
@@ -17,12 +17,12 @@ public class ChatQuery {
 
     private Integer rid;
 
-    @DateTimeFormat(pattern = DateFormatConstants.DATETIME_FORMAT)
+    @DateTimeFormat(pattern = DateFormatConstants.DATE_FORMAT)
 	@NotNull
-    private LocalDateTime start;
-	@DateTimeFormat(pattern = DateFormatConstants.DATETIME_FORMAT)
+    private LocalDate start;
+	@DateTimeFormat(pattern = DateFormatConstants.DATE_FORMAT)
 	@NotNull
-    private LocalDateTime end;
+    private LocalDate end;
     
     public String getNn() {
         return nn;
@@ -48,19 +48,19 @@ public class ChatQuery {
 		this.rid = rid;
 	}
 
-	public LocalDateTime getStart() {
+	public LocalDate getStart() {
 		return start;
 	}
 
-	public void setStart(LocalDateTime start) {
+	public void setStart(LocalDate start) {
 		this.start = start;
 	}
 
-	public LocalDateTime getEnd() {
+	public LocalDate getEnd() {
 		return end;
 	}
 
-	public void setEnd(LocalDateTime end) {
+	public void setEnd(LocalDate end) {
 		this.end = end;
 	}
 }

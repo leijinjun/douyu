@@ -27,7 +27,7 @@ public class MessageParse {
      * @return Map
      */
     private static Map<String,Object> parse1(String kv) {
-        Map<String, Object> messageMap = new HashMap<>();
+        Map<String, Object> messageMap = new HashMap<>(16);
         String[] split1 = kv.split("/");
         for (String s :
                 split1) {

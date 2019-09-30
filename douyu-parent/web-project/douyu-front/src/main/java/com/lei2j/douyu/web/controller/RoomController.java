@@ -1,7 +1,6 @@
 package com.lei2j.douyu.web.controller;
 
 import com.lei2j.douyu.cache.CacheRoomService;
-import com.lei2j.douyu.core.constant.DateFormatConstants;
 import com.lei2j.douyu.core.controller.BaseController;
 import com.lei2j.douyu.pojo.NobleEntity;
 import com.lei2j.douyu.qo.*;
@@ -87,8 +86,8 @@ public class RoomController extends BaseController {
         Integer userCounts = chatSearchService.getToDayUserCountsAggregationByRoom(roomId);
         GiftQuery giftQO = new GiftQuery();
         giftQO.setRid(roomId);
-    	giftQO.setStart(getStartToDay());
-    	giftQO.setEnd(getEndToDay());
+    	giftQO.setStart(LocalDate.now());
+    	giftQO.setEnd(LocalDate.now());
 		List<Map<String, Object>> giftTopList = giftSearchService.getToDayGiftTopSum(giftQO);
         Map<String,Object> aggregateMap = new HashMap<>(3);
         aggregateMap.put("giftSum",sum);
@@ -204,17 +203,13 @@ public class RoomController extends BaseController {
     @RequestMapping("/view/fansPersonNum/{room}")
     public Response viewFansPersonNumData(@PathVariable("room")Integer rid, FrankQuery frankQO){
         frankQO.setRid(rid);
-        LocalDateTime start = frankQO.getStart();
-        start = start.withHour(0).withMinute(0).withSecond(0);
-        frankQO.setStart(start);
-        LocalDateTime end = frankQO.getEnd();
-        end = end.withHour(23).withMinute(59).withSecond(59);
-        frankQO.setEnd(end);
+        LocalDate start = frankQO.getStart();
+        LocalDate end = frankQO.getEnd();
         List<Object[]> mapList = frankService.findStatisticByTimes(frankQO);
         Set<String> set = new HashSet<>(30);
         mapList.forEach((obj)->set.add((String)obj[0]));
-        for (LocalDateTime i=start;i.isBefore(end);){
-            String format = DateUtil.localDateTimeFormat(i, DateFormatConstants.DATE_FORMAT);
+        for (LocalDate i=start;i.isBefore(end);){
+            String format = DateUtil.localDateFormat(i);
             if(!set.contains(format)){
                 Object[] obj = new Object[2];
                 obj[0] = format;
@@ -241,97 +236,55 @@ public class RoomController extends BaseController {
     @RequestMapping("/view/giftMoney/{room}")
     public Response viewGiftMoneyData(@PathVariable("room")Integer rid, GiftQuery giftQO){
         giftQO.setRid(rid);
-        if (giftQO.getStart() != null) {
-            LocalDateTime start = giftQO.getStart();
-            start = start.withHour(0).withMinute(0).withSecond(0);
-            giftQO.setStart(start);
-        }
-        if (giftQO.getEnd() != null) {
-            LocalDateTime end = giftQO.getEnd();
-            end = end.withHour(23).withMinute(59).withSecond(59);
-            giftQO.setEnd(end);
-        }
         Map<String,Object> giftDataMap = giftSearchService.getGiftSumIntervalDayByRoom(giftQO);
         return Response.ok().entity(giftDataMap);
     }
 
     /**
      * 统计礼物人数
-     * @param giftQO giftQO
+     * @param gift giftQO
      * @return Response
      */
     @RequestMapping("/view/giftPersonNum/{room}")
-    public Response viewGiftPersonNum(@PathVariable("room")Integer rid, GiftQuery giftQO){
-        giftQO.setRid(rid);
-        if (giftQO.getStart() != null) {
-            LocalDateTime start = giftQO.getStart();
-            start = start.withHour(0).withMinute(0).withSecond(0);
-            giftQO.setStart(start);
-        }
-        if (giftQO.getEnd() != null) {
-            LocalDateTime end = giftQO.getEnd();
-            end = end.withHour(23).withMinute(59).withSecond(59);
-            giftQO.setEnd(end);
-        }
-        Map<String,Integer> giftCountsMap = giftSearchService.getIntervalDayPersonCountsByRoom(giftQO);
+    public Response viewGiftPersonNum(@PathVariable("room")Integer rid, GiftQuery gift){
+        gift.setRid(rid);
+        Map<String,Integer> giftCountsMap = giftSearchService.getIntervalDayPersonCountsByRoom(gift);
         return Response.ok().entity(giftCountsMap);
     }
 
     /**
      * 统计弹幕条数
-     * @param chatQO chatQO
+     * @param chat chatQO
      * @return Response
      */
     @RequestMapping("/view/chatSum/{room}")
-    public Response viewChatSumData(@PathVariable("room")Integer rid, ChatQuery chatQO){
-        chatQO.setRid(rid);
-        if (chatQO.getStart() != null) {
-            LocalDateTime start = chatQO.getStart();
-            start = start.withHour(0).withMinute(0).withSecond(0);
-            chatQO.setStart(start);
-        }
-        if (chatQO.getEnd() != null) {
-            LocalDateTime end = chatQO.getEnd();
-            end = end.withHour(23).withMinute(59).withSecond(59);
-            chatQO.setEnd(end);
-        }
-        Map<String,Integer> dataMap = chatSearchService.getIntervalDayChatSumByRoom(chatQO);
+    public Response viewChatSumData(@PathVariable("room")Integer rid, ChatQuery chat){
+        chat.setRid(rid);
+        Map<String,Integer> dataMap = chatSearchService.getIntervalDayChatSumByRoom(chat);
         return Response.ok().entity(dataMap);
     }
 
     /**
      * 统计弹幕人数
-     * @param chatQO chatQO
+     * @param chat chatQO
      * @return Response
      */
     @RequestMapping("/view/chatPersonNum/{room}")
-    public Response viewChatPersonNumData(@PathVariable("room")Integer room, ChatQuery chatQO){
-        chatQO.setRid(room);
-        if (chatQO.getStart() != null) {
-            LocalDateTime start = chatQO.getStart();
-            start = start.withHour(0).withMinute(0).withSecond(0);
-            chatQO.setStart(start);
-        }
-        if (chatQO.getEnd() != null) {
-            LocalDateTime end = chatQO.getEnd();
-            end = end.withHour(23).withMinute(59).withSecond(59);
-            chatQO.setEnd(end);
-        }
-        Map<String, Integer> dataMap = chatSearchService.getIntervalDayChatPersonCountsByRoom(chatQO);
+    public Response viewChatPersonNumData(@PathVariable("room")Integer room, ChatQuery chat){
+        chat.setRid(room);
+        Map<String, Integer> dataMap = chatSearchService.getIntervalDayChatPersonCountsByRoom(chat);
         return Response.ok().entity(dataMap);
     }
     
     /**
      * 每日礼物土豪榜
-     * @param giftQO giftQO
+     * @param gift giftQO
      * @return Response
      */
     @GetMapping("/view/giftTopSum/{room}")
-    public Response viewGiftTopSumData(@PathVariable("room") Integer room, GiftQuery giftQO) {
-    	giftQO.setRid(room);
-    	giftQO.setStart(getStartToDay());
-    	giftQO.setEnd(getEndToDay());
-    	List<Map<String, Object>> list = giftSearchService.getToDayGiftTopSum(giftQO);
+    public Response viewGiftTopSumData(@PathVariable("room") Integer room, GiftQuery gift) {
+        gift.setRid(room);
+    	List<Map<String, Object>> list = giftSearchService.getToDayGiftTopSum(gift);
     	return Response.ok().entity(list);
     }
 
