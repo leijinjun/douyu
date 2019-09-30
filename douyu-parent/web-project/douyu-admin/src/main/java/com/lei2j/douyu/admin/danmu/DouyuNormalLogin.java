@@ -21,7 +21,7 @@ public class DouyuNormalLogin extends AbstractDouyuLogin {
      */
     private ExecutorService executorService = Executors.newScheduledThreadPool(1,Executors.defaultThreadFactory());
 
-    public DouyuNormalLogin(Integer room) throws IOException {
+    public DouyuNormalLogin(Integer room) {
         super(room);
     }
 
