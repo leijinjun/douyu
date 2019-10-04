@@ -12,7 +12,7 @@ public class KeepaliveMessage implements Message{
      */
     private long tick;
     
-    private static final ChatType CHAT_TYPE = ChatType.KEEPLIVE;
+    private static final ChatType CHAT_TYPE = ChatType.KEEPALIVE;
 
     public KeepaliveMessage() {
     }

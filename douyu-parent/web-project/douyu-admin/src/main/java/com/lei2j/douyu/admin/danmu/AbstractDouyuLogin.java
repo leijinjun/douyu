@@ -42,16 +42,20 @@ import java.util.stream.Collectors;
      * 斗鱼消息处理线程池
      */
     protected static ThreadPoolExecutor douyuMessageExecutor = new ThreadPoolExecutor(
-            Runtime.getRuntime().availableProcessors() + 1,Runtime.getRuntime().availableProcessors()*2, 30,
-            TimeUnit.MINUTES, new ArrayBlockingQueue<>(50000),
-            new DefaultThreadFactory("thd-douyu-message-%d", true, 10),(runnable,threadPoolExecutor)->LOGGER.warn("警告！！！，队列已满")
+            Runtime.getRuntime().availableProcessors() + 1,
+            Runtime.getRuntime().availableProcessors() * 2,
+            30,
+            TimeUnit.MINUTES,
+            new ArrayBlockingQueue<>(50000),
+            new DefaultThreadFactory("thd-douyu-message-handler-%d", true, 10),
+            (runnable, threadPoolExecutor) -> LOGGER.warn("警告！！！，队列已满")
     );
 
     /**
      * 心跳检测线程池
      */
-    protected static ScheduledExecutorService keepaliveScheduledExecutorService = new ScheduledThreadPoolExecutor(5,
-    		new DefaultThreadFactory("thd-douyu-keepalive-%d", true, 10));
+    protected static ScheduledExecutorService keepaliveScheduledExecutorService =
+            new ScheduledThreadPoolExecutor(5, new DefaultThreadFactory("thd-douyu-keepalive-%d", true, 10));
 
     /**
      *房间礼物信息
@@ -78,22 +82,19 @@ import java.util.stream.Collectors;
     protected AbstractDouyuLogin(Integer room) {
         this.room = room;
         RoomDetailVo roomDetailVo = DouyuUtil.getRoomDetail(room);
-        this.roomGiftMap = roomDetailVo.getRoomGifts().stream().collect(Collectors.toMap(RoomGiftVo::getId,
-                Function.identity()));
+        this.roomGiftMap = roomDetailVo.getRoomGifts().stream().collect(Collectors.toMap(RoomGiftVo::getId, Function.identity()));
     }
 
     @Override
     public void dispatch(DouyuMessage douyuMessage) {
         Map<String, Object> messageMap = MessageParse.parse(douyuMessage);
-        logger.debug("接收消息:{}",messageMap);
+        logger.debug("接收消息:{}", messageMap);
         String type = String.valueOf(messageMap.get("type"));
-
-        DouyuLogin douyuLogin = this;
         douyuMessageExecutor.execute(() -> {
             try {
                 MessageHandler messageHandler = MessageHandler.HANDLER_MAP.get(type);
                 if (messageHandler != null) {
-                    messageHandler.handler(messageMap, douyuLogin);
+                    messageHandler.handler(messageMap, this);
                 }
             }catch (Exception e){
                 e.printStackTrace();
@@ -214,8 +215,11 @@ import java.util.stream.Collectors;
         }
 
         public void schedule(DouyuKeepalive douyuKeepalive) {
-            scheduledFuture = keepaliveScheduledExecutorService.scheduleWithFixedDelay(douyuKeepalive::keepalive,
-                    INTERVAL_SECONDS, INTERVAL_SECONDS, TimeUnit.SECONDS);
+            scheduledFuture = keepaliveScheduledExecutorService.scheduleWithFixedDelay(
+                    douyuKeepalive::keepalive,
+                    INTERVAL_SECONDS,
+                    INTERVAL_SECONDS,
+                    TimeUnit.SECONDS);
         }
 
         public void cancel(){

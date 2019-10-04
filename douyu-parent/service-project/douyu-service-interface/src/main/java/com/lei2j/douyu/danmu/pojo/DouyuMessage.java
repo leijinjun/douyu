@@ -1,6 +1,7 @@
 package com.lei2j.douyu.danmu.pojo;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author lei2j
@@ -8,62 +9,53 @@ import java.util.List;
  */
 public class DouyuMessage {
 
-    private StringBuilder data = new StringBuilder();
+    private StringBuilder sb = new StringBuilder();
 
     public DouyuMessage() {
     }
 
-    public DouyuMessage(String data) {
-        this.data.append(data);
-    }
-
     public DouyuMessage add(String key, String value){
-        if(key==null||value==null){
-            return this;
+        if (key == null || value == null) {
+            throw new NullPointerException();
         }
         key = replaceAll(key);
         value = replaceAll(value);
-        data.append(key).append("@=").append(value).append("/");
+        sb.append(key).append("@=").append(value).append("/");
         return this;
     }
 
-    public DouyuMessage addArray(String key,List<String> dataArray){
-        if(dataArray==null){
-            return this;
+    public DouyuMessage addArray(String key,List<String> valueArray){
+        if (key == null || valueArray == null) {
+            throw new NullPointerException();
         }
         key = replaceAll(key);
-        data.append(key).append("@=");
-        for (String s:
-             dataArray) {
-            s = replaceAll(s);
-            data.append(s).append("/");
-        }
+        sb.append(key).append("@=");
+        Optional<String> optional =
+                valueArray.stream().reduce((var1, var2) -> replaceAll(var1).concat("/").concat(replaceAll(var2)));
+        sb.append(replaceAll(optional.orElse("")+"/"));
+        sb.append("/");
         return this;
     }
 
-    public void append(String data){
-        this.data.append(data);
+    public void setResult(String message) {
+        sb.append(message);
     }
 
-    public StringBuilder getData(){
-        return data;
+    public String getData() {
+        return sb.toString();
     }
 
-    private String replaceAll(String data){
-        if(data.contains("/")){
-            data = data.replaceAll("/","@S");
-        }
-        if(data.contains("@")){
-            data = data.replaceAll("@","@A");
-        }
+    private String replaceAll(String data) {
+        data = data.replaceAll("@", "@A");
+        data = data.replaceAll("/", "@S");
         return data;
     }
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("DouyuMessage{");
-        sb.append("data=").append(data);
-        sb.append('}');
-        return sb.toString();
+        final StringBuilder result = new StringBuilder("DouyuMessage{");
+        result.append(sb);
+        result.append('}');
+        return result.toString();
     }
 }

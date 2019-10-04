@@ -2,10 +2,7 @@ package com.lei2j.douyu.admin.danmu;
 
 import com.lei2j.douyu.danmu.pojo.DouyuMessage;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by lei2j on 2018/5/28.
@@ -16,7 +13,7 @@ public class MessageParse {
      * @return Map
      */
     public static Map<String,Object> parse(DouyuMessage douyuMessage){
-    	String message = douyuMessage.getData().toString();
+    	String message = douyuMessage.getData();
         Map<String, Object> messageMap = parse1(message);
         return messageMap;
     }
@@ -26,57 +23,46 @@ public class MessageParse {
      * @param kv kv
      * @return Map
      */
-    private static Map<String,Object> parse1(String kv) {
+    private static Map<String, Object> parse1(String kv) {
         Map<String, Object> messageMap = new HashMap<>(16);
         String[] split1 = kv.split("/");
-        for (String s :
-                split1) {
-            String[] map = s.split("@=");
+        for (String var1 : split1) {
+            if (var1.equals("\u0000") || var1.equals("")) continue;
+            String[] map = var1.split("@=");
             String key = map[0];
-            String value = "";
-            if (map.length == 2) {
-                value = map[1];
-            }
+            String value = map.length == 2 ? map[1] : "";
             key = replaceAll(key);
             value = replaceAll(value);
-            //对象或数组对象类型
-            if (value.contains("/")) {
+            //非对象或数组类型
+            if (!value.endsWith("/")) {
+                messageMap.put(key, value);
+            } else {
                 //对象类型
                 if (value.contains("@=")) {
                     messageMap.put(key, parse1(value));
                 } else {
-                    List<Map<String, Object>> var1 = new ArrayList<>();
-                    boolean flag = true;
-                    for (String s1 :
-                            value.split("/")) {
-                        s1 = replaceAll(s1);
-                        //修正
-                        if (!s1.contains("/")) {
-                            flag = false;
-                            messageMap.put(key, value);
-                            break;
+                    //数组类型
+                    List<Object> list = new ArrayList<>(16);
+                    String[] sp1 = value.split("/");
+                    for (String var2 : sp1) {
+                        if (var2.equals("\u0000") || var2.equals("")) continue;
+                        //数组元素为对象类型
+                        if (var2.endsWith("@S")) {
+                            var2 = replaceAll(var2);
+                            list.add(parse1(var2));
+                        } else {
+                            //普通值
+                            list.add(var2);
                         }
-                        var1.add(parse1(s1));
                     }
-                    if (flag) {
-                        messageMap.put(key, var1);
-                    }
+                    messageMap.put(key, list);
                 }
-            } else {
-                messageMap.put(key, value);
             }
         }
         return messageMap;
     }
 
-    public static String replaceAll(String str){
-        if(str.contains("@S")){
-            str = str.replaceAll("@S","/");
-        }
-        if(str.contains("@A")){
-            str = str.replaceAll("@A","@");
-        }
-        return str;
+    private static String replaceAll(String s){
+        return s.replaceAll("@S","/").replaceAll("@A","@");
     }
-
 }

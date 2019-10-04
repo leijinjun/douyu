@@ -4,6 +4,7 @@ import com.lei2j.douyu.admin.message.exception.DouyuMessageReadException;
 import com.lei2j.douyu.core.config.DouyuAddress;
 import com.lei2j.douyu.danmu.message.converter.MessageConvert;
 import com.lei2j.douyu.danmu.pojo.DouyuMessage;
+import com.lei2j.douyu.thread.factory.DefaultThreadFactory;
 import com.lei2j.douyu.util.LHUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,8 +19,7 @@ import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -30,19 +30,26 @@ public class DouyuNioConnection {
 	
 	private static final Logger LOGGER  = LoggerFactory.getLogger(DouyuNioConnection.class);
 
-	private static DouyuNioConnection douyuNIOConnection;
+	private static volatile DouyuNioConnection douyuNIOConnection;
 
 	private Selector selector;
 
-	private ExecutorService singleExecutorService = Executors.newSingleThreadExecutor();
+	private ExecutorService readExecutor = new ThreadPoolExecutor(
+			1,
+			1,
+			30,
+			TimeUnit.MINUTES,
+			new ArrayBlockingQueue<>(1),
+			new DefaultThreadFactory("thd-nio-message-read-%d", true, 5));
 
-	private ByteBuffer dst = ByteBuffer.allocate(12);
+	private final ByteBuffer readBuf = ByteBuffer.allocateDirect(4096);
+
+    private final ByteBuffer writeBuf = ByteBuffer.allocateDirect(1024);
 
 	private AtomicBoolean isStart = new AtomicBoolean(false);
 
 	private DouyuNioConnection() throws IOException {
 		this.selector = Selector.open();
-//		start();
 	}
 
 	public static DouyuNioConnection initConnection() throws IOException{
@@ -57,33 +64,43 @@ public class DouyuNioConnection {
 	}
 
 	public void start() {
-		singleExecutorService.execute(this::read);
+		readExecutor.execute(this::read);
 	}
 
 	public void write(DouyuMessage douyuMessage, SocketChannel socketChannel) throws IOException {
-    	byte[]  messages= MessageConvert.preConvert(douyuMessage);
+		byte[] messages = MessageConvert.preConvert(douyuMessage);
 		int messageLength = messages.length;
-		ByteBuffer sendBuf = ByteBuffer.allocate(messageLength);
-		sendBuf.put(messages);
-		sendBuf.flip();
-		socketChannel.write(sendBuf);
+		synchronized (writeBuf) {
+			writeBuf.clear();
+			for (int offset = 0; offset < messageLength; ) {
+				int remaining = writeBuf.remaining();
+				int len = messageLength - offset;
+				len = len > remaining ? remaining : len;
+				writeBuf.put(messages, offset, len);
+				offset += len;
+				//转换为读模式
+				writeBuf.flip();
+				socketChannel.write(writeBuf);
+				writeBuf.clear();
+			}
+		}
 	}
-    
-    public void read() {
-    	while(true) {
+
+	public void read() {
+		while (true) {
 			try {
 				Set<SelectionKey> keys = selector.keys();
 				if (CollectionUtils.isEmpty(keys)) {
 					isStart.compareAndSet(true, false);
-					break;
+					return;
 				}
-				selector.select(1000);
+				selector.select(200);
 				Set<SelectionKey> selectedKeys = selector.selectedKeys();
 				Iterator<SelectionKey> iterator = selectedKeys.iterator();
-				while(iterator.hasNext()) {
+				while (iterator.hasNext()) {
 					SelectionKey selectionKey = iterator.next();
 					iterator.remove();
-					if(selectionKey.isReadable()) {
+					if (selectionKey.isReadable()) {
 						SocketChannel socketChannel = (SocketChannel) selectionKey.channel();
 						DouyuNioLogin attachment = (DouyuNioLogin) selectionKey.attachment();
 						if (!socketChannel.isConnected() || !socketChannel.isOpen()) {
@@ -97,8 +114,8 @@ public class DouyuNioConnection {
 						} catch (Exception e) {
 							selectionKey.cancel();
 							//非正常退出
-							if(socketChannel.isConnected()||socketChannel.isOpen()){
-								LOGGER.error("房间{}读取消息出错",attachment.getRoom());
+							if (socketChannel.isConnected() || socketChannel.isOpen()) {
+								LOGGER.error("房间{}读取消息出错", attachment.getRoom());
 								e.printStackTrace();
 								attachment.retry();
 							}
@@ -108,27 +125,29 @@ public class DouyuNioConnection {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-    	}
-    }
+		}
+	}
 
-    private byte[] read1(SocketChannel channel) throws IOException {
+	private byte[] read1(SocketChannel channel) throws IOException {
 		int offset = 0;
-		dst.clear();
+		readBuf.clear();
+		readBuf.limit(12);
 		while (offset < 12) {
-			int readSize = channel.read(dst);
-			if (readSize == -1) {
+			int len = channel.read(readBuf);
+			if (len == -1) {
 				throw new DouyuMessageReadException("connect is closed");
 			}
-			offset += readSize;
+			offset += len;
 		}
-		dst.flip();
+		//转换为读模式
+		readBuf.flip();
 		byte[] var = new byte[4];
-		dst.get(var, 0, 4);
+		readBuf.get(var, 0, 4);
 		//获取本条消息总长度
 		int totalLength = LHUtil.lowerToInt(var);
-		dst.get(var, 0, 4);
+		readBuf.get(var, 0, 4);
 		int reTotalLength = LHUtil.lowerToInt(var);
-		dst.get(var, 0, 2);
+		readBuf.get(var, 0, 2);
 		int msgType = LHUtil.lowerToShort(var);
 		//校验消息头
 		if (totalLength != reTotalLength || msgType != 690) {
@@ -137,20 +156,21 @@ public class DouyuNioConnection {
 //		获取数据长度
 		int messageLength = totalLength - 8;
 		byte[] data = new byte[messageLength];
-		offset = 0;
-		while (offset < data.length) {
-			dst.clear();
-			int remainderCount = data.length - offset;
-			if (dst.remaining() >= remainderCount) {
-				dst.limit(remainderCount);
-			}
-			int readSize = channel.read(dst);
-			if (readSize == -1) {
+		readBuf.clear();
+		for (offset = 0; offset < messageLength; ) {
+			int remaining = readBuf.remaining();
+			int limit = messageLength - offset;
+			limit = limit > remaining ? remaining : limit;
+			readBuf.limit(limit);
+			int len = channel.read(readBuf);
+			if (len == 0) continue;
+			if (len == -1) {
 				throw new DouyuMessageReadException("server connect is closed");
 			}
-			dst.flip();
-			dst.get(data, offset, readSize);
-			offset += readSize;
+			readBuf.flip();
+			readBuf.get(data, offset, len);
+			readBuf.clear();
+			offset += len;
 		}
 		return data;
 	}

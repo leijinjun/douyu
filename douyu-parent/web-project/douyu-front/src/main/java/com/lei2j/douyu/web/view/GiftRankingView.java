@@ -7,7 +7,7 @@ import java.math.BigDecimal;
  * date: 2019/3/30
  */
 
-public class GiftRankingListView {
+public class GiftRankingView {
 
     private String roomId;
 
@@ -18,6 +18,8 @@ public class GiftRankingListView {
     private String roomName;
 
     private String roomThumb;
+
+    private Integer roomStatus;
 
     public String getRoomId() {
         return roomId;
@@ -59,14 +61,23 @@ public class GiftRankingListView {
         this.roomThumb = roomThumb;
     }
 
+    public Integer getRoomStatus() {
+        return roomStatus;
+    }
+
+    public void setRoomStatus(Integer roomStatus) {
+        this.roomStatus = roomStatus;
+    }
+
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("GiftRankingListView{");
+        final StringBuffer sb = new StringBuffer("GiftRankingView{");
         sb.append("roomId='").append(roomId).append('\'');
         sb.append(", giftMoney=").append(giftMoney);
         sb.append(", nickName='").append(nickName).append('\'');
         sb.append(", roomName='").append(roomName).append('\'');
         sb.append(", roomThumb='").append(roomThumb).append('\'');
+        sb.append(", roomStatus=").append(roomStatus);
         sb.append('}');
         return sb.toString();
     }

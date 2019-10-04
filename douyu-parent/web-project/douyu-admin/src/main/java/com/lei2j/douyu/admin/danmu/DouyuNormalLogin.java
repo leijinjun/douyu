@@ -1,6 +1,7 @@
 package com.lei2j.douyu.admin.danmu;
 
 import com.lei2j.douyu.danmu.pojo.DouyuMessage;
+import com.lei2j.douyu.thread.factory.DefaultThreadFactory;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -19,7 +20,7 @@ public class DouyuNormalLogin extends AbstractDouyuLogin {
     /**
      * 弹幕读取线程
      */
-    private ExecutorService executorService = Executors.newScheduledThreadPool(1,Executors.defaultThreadFactory());
+    private ExecutorService executorService = Executors.newScheduledThreadPool(1, new DefaultThreadFactory("thd-normal-message-read-%d", true, 10));
 
     public DouyuNormalLogin(Integer room) {
         super(room);
@@ -70,7 +71,8 @@ public class DouyuNormalLogin extends AbstractDouyuLogin {
         //开始执行弹幕读取
         executorService.execute(() ->{
             int f = 1;
-            for (; f == 1; f = read()) {
+            for (; f == 1; ) {
+                f = read();
             }
             //logout,do nothing
             if(f == 0) {

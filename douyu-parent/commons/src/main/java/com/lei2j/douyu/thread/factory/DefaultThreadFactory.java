@@ -1,12 +1,13 @@
 package com.lei2j.douyu.thread.factory;
 
+import java.util.Objects;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class DefaultThreadFactory implements ThreadFactory{
 
 	private static ThreadGroup threadGroup;
-	private AtomicInteger threadNumber = new AtomicInteger(1);
+	private static AtomicInteger threadNumber = new AtomicInteger(1);
 
 	private String namePattern;
 
@@ -33,6 +34,7 @@ public class DefaultThreadFactory implements ThreadFactory{
 
 	@Override
 	public Thread newThread(Runnable r) {
+		Objects.requireNonNull(r, "r is null");
 		Thread thread = new Thread(threadGroup,r,String.format(namePattern, threadNumber.getAndIncrement()));
 		if (priority != null) {
 			thread.setPriority(priority);

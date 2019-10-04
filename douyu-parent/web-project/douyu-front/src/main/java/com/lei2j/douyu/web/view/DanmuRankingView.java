@@ -5,7 +5,7 @@ package com.lei2j.douyu.web.view;
  * date: 2019/3/30
  */
 
-public class DanmuRankingListView {
+public class DanmuRankingView {
 
     private String roomId;
 
@@ -16,6 +16,8 @@ public class DanmuRankingListView {
     private String roomName;
 
     private String roomThumb;
+
+    private Integer roomStatus;
 
     public String getRoomId() {
         return roomId;
@@ -57,14 +59,23 @@ public class DanmuRankingListView {
         this.nickName = nickName;
     }
 
+    public Integer getRoomStatus() {
+        return roomStatus;
+    }
+
+    public void setRoomStatus(Integer roomStatus) {
+        this.roomStatus = roomStatus;
+    }
+
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("DanmuRankingListView{");
+        final StringBuffer sb = new StringBuffer("DanmuRankingView{");
         sb.append("roomId='").append(roomId).append('\'');
         sb.append(", count=").append(count);
         sb.append(", nickName='").append(nickName).append('\'');
         sb.append(", roomName='").append(roomName).append('\'');
         sb.append(", roomThumb='").append(roomThumb).append('\'');
+        sb.append(", roomStatus=").append(roomStatus);
         sb.append('}');
         return sb.toString();
     }

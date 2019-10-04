@@ -5,7 +5,7 @@ import com.lei2j.douyu.service.es.GiftSearchService;
 import com.lei2j.douyu.util.DouyuUtil;
 import com.lei2j.douyu.vo.RoomDetailVo;
 import com.lei2j.douyu.web.response.Response;
-import com.lei2j.douyu.web.view.GiftRankingListView;
+import com.lei2j.douyu.web.view.GiftRankingView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * author: leijinjun
@@ -36,21 +36,20 @@ public class GiftController extends BaseController {
         if(sumAggregation==null){
             return Response.INTERNAL_SERVER_ERROR;
         }
-        List<GiftRankingListView> list = new ArrayList<>(sumAggregation.size());
-        for (Map.Entry<String,BigDecimal> entry:
-                sumAggregation.entrySet()) {
+        List<GiftRankingView> rankingViewList = sumAggregation.entrySet().parallelStream().map(entry -> {
             String roomId = entry.getKey();
             RoomDetailVo roomDetailVo = DouyuUtil.getRoomDetail(Integer.valueOf(roomId));
             BigDecimal value = entry.getValue();
-            GiftRankingListView giftRankingListView = new GiftRankingListView();
-            giftRankingListView.setRoomId(roomId);
-            giftRankingListView.setGiftMoney(value.setScale(2, RoundingMode.HALF_UP));
-            giftRankingListView.setNickName(roomDetailVo.getOwnerName());
-            giftRankingListView.setRoomName(roomDetailVo.getRoomName());
-            giftRankingListView.setRoomThumb(roomDetailVo.getRoomThumb());
-            list.add(giftRankingListView);
-        }
-        return Response.ok().entity(list);
+            GiftRankingView giftRankingView = new GiftRankingView();
+            giftRankingView.setRoomId(roomId);
+            giftRankingView.setGiftMoney(value.setScale(2, RoundingMode.HALF_UP));
+            giftRankingView.setNickName(roomDetailVo.getOwnerName());
+            giftRankingView.setRoomName(roomDetailVo.getRoomName());
+            giftRankingView.setRoomThumb(roomDetailVo.getRoomThumb());
+            giftRankingView.setRoomStatus(roomDetailVo.getRoomStatus());
+            return giftRankingView;
+        }).collect(Collectors.toList());
+        return Response.ok().entity(rankingViewList);
     }
 
     @GetMapping("/view/today/userRankingList")

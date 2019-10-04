@@ -21,8 +21,9 @@ public class ExecutorTaskServiceImpl extends BaseServiceImpl implements Executor
     }
 
     @Override
-    public <T> Future<Optional<T>> submit(Runnable task, Optional<T> result) {
-        return ThreadPoolInstance.EXECUTOR_SERVICE.submit(task, result);
+    public <T> Future<T> submit(Runnable task, T result) {
+        Future<T> future = ThreadPoolInstance.EXECUTOR_SERVICE.submit(task, result);
+        return future;
     }
 
     public static class ThreadPoolInstance {
@@ -33,20 +34,13 @@ public class ExecutorTaskServiceImpl extends BaseServiceImpl implements Executor
 
         final static int MAX_THREAD_SIZE = CORE_THREAD_SIZE * 2 + 1;
 
-        final static ExecutorService EXECUTOR_SERVICE = new
-                ThreadPoolExecutor(CORE_THREAD_SIZE, MAX_THREAD_SIZE, 30,
-                TimeUnit.MINUTES, new ArrayBlockingQueue<>(100000), new
-                DefaultThreadFactory("douyu-thread-pool-%d", true, 5),
-                (task, executor) -> {
-                    LOGGER.error("Task rejected:{}", task);
-                    try {
-                        Thread.sleep(5000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    if (!executor.isShutdown()) {
-                        executor.execute(task);
-                    }
-                });
+        final static ExecutorService EXECUTOR_SERVICE = new ThreadPoolExecutor(
+                CORE_THREAD_SIZE,
+                MAX_THREAD_SIZE,
+                30,
+                TimeUnit.MINUTES,
+                new ArrayBlockingQueue<>(50000),
+                new DefaultThreadFactory("thd-douyu-pool-%d", true, 5),
+                (task, executor) -> LOGGER.error("Task rejected:{}", task));
     }
 }

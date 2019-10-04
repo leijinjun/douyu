@@ -11,7 +11,7 @@ import com.lei2j.douyu.vo.DanmuSearchView;
 import com.lei2j.douyu.vo.RoomDetailVo;
 import com.lei2j.douyu.web.response.Pagination;
 import com.lei2j.douyu.web.response.Response;
-import com.lei2j.douyu.web.view.DanmuRankingListView;
+import com.lei2j.douyu.web.view.DanmuRankingView;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * author: lei2j
@@ -104,20 +105,19 @@ public class DanmuController extends BaseController {
         if(sumAggregation==null){
             return Response.INTERNAL_SERVER_ERROR;
         }
-        List<DanmuRankingListView> list = new ArrayList<>(sumAggregation.size());
-        for (Map.Entry<String,Long> entry:
-                sumAggregation.entrySet()) {
+        List<DanmuRankingView> rankingViewList = sumAggregation.entrySet().parallelStream().map(entry -> {
             String roomId = entry.getKey();
             Long count = entry.getValue();
             RoomDetailVo roomDetailVo = DouyuUtil.getRoomDetail(Integer.valueOf(roomId));
-            DanmuRankingListView danmuRankingListView = new DanmuRankingListView();
-            danmuRankingListView.setRoomId(roomId);
-            danmuRankingListView.setCount(count);
-            danmuRankingListView.setNickName(roomDetailVo.getOwnerName());
-            danmuRankingListView.setRoomName(roomDetailVo.getRoomName());
-            danmuRankingListView.setRoomThumb(roomDetailVo.getRoomThumb());
-            list.add(danmuRankingListView);
-        }
-        return Response.ok().entity(list);
+            DanmuRankingView danmuRankingView = new DanmuRankingView();
+            danmuRankingView.setRoomId(roomId);
+            danmuRankingView.setCount(count);
+            danmuRankingView.setNickName(roomDetailVo.getOwnerName());
+            danmuRankingView.setRoomName(roomDetailVo.getRoomName());
+            danmuRankingView.setRoomThumb(roomDetailVo.getRoomThumb());
+            danmuRankingView.setRoomStatus(roomDetailVo.getRoomStatus());
+            return danmuRankingView;
+        }).collect(Collectors.toList());
+        return Response.ok().entity(rankingViewList);
     }
 }

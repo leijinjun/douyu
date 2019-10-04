@@ -8,31 +8,20 @@ public enum ChatType {
     /**
      * 登录
      */
-    LOGIN((byte) 1,"login"),
+    LOGIN((byte) 1),
     /**
      * 心跳
      */
-    KEEPLIVE((byte) 2,"keeplive");
+    KEEPALIVE((byte) 2);
 
     private byte code;
 
-    private String type;
 
-    ChatType(byte code,String type) {
+    ChatType(byte code) {
         this.code = code;
-        this.type = type;
     }
 
     public byte getCode() {
         return code;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    @Override
-    public String toString() {
-        return type;
     }
 }
