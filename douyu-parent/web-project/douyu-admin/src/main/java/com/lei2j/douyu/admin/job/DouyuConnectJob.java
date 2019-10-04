@@ -83,13 +83,7 @@ public class DouyuConnectJob extends DouyuJob {
                         int roomStatus = dataObj.getIntValue("room_status");
                         if (roomStatus == 1) {
                             int hn = dataObj.getInteger("hn");
-                            int highHn = 1000000;
-                            DouyuLogin douyuLogin;
-                            if (hn >= highHn) {
-                                douyuLogin = new DouyuNormalLogin(roomId);
-                            } else {
-                                douyuLogin = new DouyuNioLogin(roomId);
-                            }
+                            DouyuLogin douyuLogin = new DouyuNioLogin(roomId);
                             LOGGER.info("开始连接房间:{}", roomId);
                             douyuLogin.login();
                             cacheRoomService.cache(roomId, douyuLogin);
