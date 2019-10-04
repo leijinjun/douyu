@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
             Runtime.getRuntime().availableProcessors() * 2,
             30,
             TimeUnit.MINUTES,
-            new ArrayBlockingQueue<>(50000),
+            new ArrayBlockingQueue<>(100000),
             new DefaultThreadFactory("thd-douyu-message-handler-%d", true, 10),
             (runnable, threadPoolExecutor) -> LOGGER.warn("警告！！！，队列已满")
     );
