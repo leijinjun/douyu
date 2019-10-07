@@ -1,7 +1,7 @@
 package com.lei2j.douyu.admin.message.handler;
 
-import com.lei2j.douyu.danmu.service.DouyuLogin;
-import com.lei2j.douyu.danmu.service.MessageType;
+import com.lei2j.douyu.admin.danmu.config.MessageType;
+import com.lei2j.douyu.admin.danmu.service.DouyuLogin;
 import com.lei2j.douyu.service.impl.es.GiftIndex;
 import com.lei2j.douyu.vo.GiftVo;
 import com.lei2j.douyu.vo.RoomGiftVo;

@@ -32,7 +32,7 @@ public class Server {
                     @Override
                     protected void channelRead0(ChannelHandlerContext channelHandlerContext, String s) throws Exception {
                         System.out.println("接受client:"+s);
-                        channelHandlerContext.writeAndFlush("send message \n");
+                        channelHandlerContext.writeAndFlush("send serialization \n");
                     }
                 });
             }

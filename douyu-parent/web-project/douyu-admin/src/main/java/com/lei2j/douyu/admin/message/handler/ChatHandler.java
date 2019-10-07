@@ -1,10 +1,11 @@
 package com.lei2j.douyu.admin.message.handler;
 
 import com.alibaba.fastjson.JSONObject;
-import com.lei2j.douyu.danmu.service.DouyuLogin;
-import com.lei2j.douyu.danmu.service.MessageType;
+import com.lei2j.douyu.admin.danmu.config.MessageType;
+import com.lei2j.douyu.admin.danmu.service.DouyuLogin;
 import com.lei2j.douyu.service.impl.es.ChatMessageIndex;
 import com.lei2j.douyu.vo.ChatMessageVo;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -21,8 +22,18 @@ import java.util.Map;
 @Component
 public class ChatHandler extends AbstractMessageHandler{
 
+    @Value("${douyu.chat.filter.min.level}")
+    private int minLevel;
+
     @Resource
     private ChatMessageIndex chatMessageIndex;
+
+    @Override
+    protected void afterSetHandler() {
+        if(!HANDLER_MAP.containsKey(MessageType.CHAT_MSG)){
+            HANDLER_MAP.put(MessageType.CHAT_MSG, this);
+        }
+    }
 
     @Override
     public void handler(Map<String, Object> messageMap, DouyuLogin douyuLogin) {
@@ -33,13 +44,15 @@ public class ChatHandler extends AbstractMessageHandler{
             String cid = String.valueOf(chatMessage.getUid() + now.toInstant(ZoneOffset.of("+8")).toEpochMilli());
             chatMessage.setCid(cid);
         }
+        if (filter(chatMessage)) {
+            logger.debug("[ChatHandle.handler]弹幕消息被丢弃，room:{},serialization:{}", chatMessage.getRid(), chatMessage);
+            return;
+        }
         chatMessageIndex.createDocument(String.valueOf(chatMessage.getCid()),chatMessage);
     }
-    @Override
-    protected void afterSetHandler() {
-        if(!HANDLER_MAP.containsKey(MessageType.CHAT_MSG)){
-            HANDLER_MAP.put(MessageType.CHAT_MSG, this);
-        }
+
+    private boolean filter(ChatMessageVo chatMessage) {
+        Integer level = chatMessage.getLevel();
+        return level == null || level <= minLevel;
     }
-    
 }

@@ -2,10 +2,9 @@ package com.lei2j.douyu.admin.job;
 
 import com.alibaba.fastjson.JSONObject;
 import com.lei2j.douyu.admin.cache.CacheRoomService;
-import com.lei2j.douyu.admin.danmu.DouyuNioLogin;
-import com.lei2j.douyu.admin.danmu.DouyuNormalLogin;
+import com.lei2j.douyu.admin.danmu.DouyuWorker;
+import com.lei2j.douyu.admin.danmu.service.DouyuLogin;
 import com.lei2j.douyu.core.constant.DouyuApi;
-import com.lei2j.douyu.danmu.service.DouyuLogin;
 import com.lei2j.douyu.pojo.RoomConnectEntity;
 import com.lei2j.douyu.qo.RoomConnectQuery;
 import com.lei2j.douyu.service.RoomConnectService;
@@ -45,6 +44,9 @@ public class DouyuConnectJob extends DouyuJob {
     @Resource
     private RoomConnectService roomConnectService;
 
+    @Resource
+    private DouyuWorker douyuWorker;
+
     /**
      * 定时任务，连接指定房间弹幕服务器
      * cron表达式参数：秒 分 时 日 月 周几
@@ -65,12 +67,12 @@ public class DouyuConnectJob extends DouyuJob {
         Pagination<RoomConnectEntity, RoomConnectQuery> pageByCondition = roomConnectService.getPageByCondition(pagination);
         List<RoomConnectEntity> items = pageByCondition.getItems();
         while (!CollectionUtils.isEmpty(items)) {
-            LOGGER.info("房间列表：{}", items);
+            LOGGER.info("[timedTask.connectRoom]房间列表：{}", items);
             for (RoomConnectEntity item :
                     items) {
                 Integer roomId = item.getRoomId();
                 if (cacheRoomService.containsKey(roomId)) {
-                    LOGGER.info("房间已存在：{}", roomId);
+                    LOGGER.info("[timedTask.connectRoom]房间已存在：{}", roomId);
                     continue;
                 }
                 try {
@@ -83,15 +85,15 @@ public class DouyuConnectJob extends DouyuJob {
                         int roomStatus = dataObj.getIntValue("room_status");
                         if (roomStatus == 1) {
                             int hn = dataObj.getInteger("hn");
-                            DouyuLogin douyuLogin = new DouyuNioLogin(roomId);
-                            LOGGER.info("开始连接房间:{}", roomId);
-                            douyuLogin.login();
-                            cacheRoomService.cache(roomId, douyuLogin);
+                            LOGGER.info("[timedTask.connectRoom]开始连接房间:{}", roomId);
+                            if (douyuWorker.login(roomId) == -1) {
+                                LOGGER.info("[timedTask.connectRoom]连接房间失败:{}", roomId);
+                            }
                         } else {
-                            LOGGER.info("该房间未开播：{}", roomId);
+                            LOGGER.info("[timedTask.connectRoom]该房间未开播：{}", roomId);
                         }
                     } else {
-                        LOGGER.error("获取房间|{}信息错误", roomId);
+                        LOGGER.error("[timedTask.connectRoom]获取房间|{}信息错误", roomId);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -127,7 +129,7 @@ public class DouyuConnectJob extends DouyuJob {
                       String closedRoomKey = "room_status";
                       int closedRoomStatus = 2;
                       if (dataObj.getIntValue(closedRoomKey) == closedRoomStatus) {
-                    	  LOGGER.info("房间|{},关闭直播",roomId);
+                    	  LOGGER.info("[timedTask.checkRoom]房间|{},关闭直播",roomId);
                           douyuLogin.logout();
                       }
                   }

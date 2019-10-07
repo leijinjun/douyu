@@ -1,8 +1,8 @@
 package com.lei2j.douyu.admin.message.handler;
 
 import com.alibaba.fastjson.JSONObject;
-import com.lei2j.douyu.danmu.service.DouyuLogin;
-import com.lei2j.douyu.danmu.service.MessageType;
+import com.lei2j.douyu.admin.danmu.config.MessageType;
+import com.lei2j.douyu.admin.danmu.service.DouyuLogin;
 import com.lei2j.douyu.pojo.NobleEntity;
 import com.lei2j.douyu.service.NobleService;
 import org.springframework.stereotype.Component;

@@ -1,13 +1,12 @@
 package com.lei2j.douyu.admin.danmu;
 
 import com.lei2j.douyu.admin.cache.CacheRoomService;
+import com.lei2j.douyu.admin.danmu.service.DouyuKeepalive;
+import com.lei2j.douyu.admin.danmu.service.DouyuLogin;
+import com.lei2j.douyu.admin.danmu.service.MessageDispatcher;
 import com.lei2j.douyu.admin.message.handler.MessageHandler;
 import com.lei2j.douyu.core.ApplicationContextUtil;
 import com.lei2j.douyu.core.config.DouyuAddress;
-import com.lei2j.douyu.danmu.pojo.DouyuMessage;
-import com.lei2j.douyu.danmu.service.DouyuKeepalive;
-import com.lei2j.douyu.danmu.service.DouyuLogin;
-import com.lei2j.douyu.danmu.service.MessageDispatcher;
 import com.lei2j.douyu.thread.factory.DefaultThreadFactory;
 import com.lei2j.douyu.util.DouyuUtil;
 import com.lei2j.douyu.vo.RoomDetailVo;
@@ -36,7 +35,7 @@ import java.util.stream.Collectors;
     /**
      * 心跳时间间隔，单位s
      */
-    protected static final int INTERVAL_SECONDS = 45;
+    protected static final int INTERVAL_SECONDS = 43;
 
     /**
      * 斗鱼消息处理线程池
@@ -56,7 +55,6 @@ import java.util.stream.Collectors;
      */
     protected static ScheduledExecutorService keepaliveScheduledExecutorService =
             new ScheduledThreadPoolExecutor(5, new DefaultThreadFactory("thd-douyu-keepalive-%d", true, 10));
-
     /**
      *房间礼物信息
      */
@@ -86,19 +84,19 @@ import java.util.stream.Collectors;
     }
 
     @Override
-    public void dispatch(DouyuMessage douyuMessage) {
-        Map<String, Object> messageMap = MessageParse.parse(douyuMessage);
-        logger.debug("接收消息:{}", messageMap);
-        String type = String.valueOf(messageMap.get("type"));
+    public void dispatch(Map<String,Object> dataMap) {
+        logger.debug("接收消息:{}", dataMap);
+        String type = String.valueOf(dataMap.get("type"));
+        MessageHandler messageHandler = MessageHandler.HANDLER_MAP.get(type);
+        if (messageHandler == null) {
+            logger.debug("[DouyuLogin.dispatch]no match serialization handler,type:{}", type);
+            return;
+        }
         douyuMessageExecutor.execute(() -> {
             try {
-                MessageHandler messageHandler = MessageHandler.HANDLER_MAP.get(type);
-                if (messageHandler != null) {
-                    messageHandler.handler(messageMap, this);
-                }
-            }catch (Exception e){
-                e.printStackTrace();
-                logger.error("保存消息失败",e.getCause());
+                messageHandler.handler(dataMap, this);
+            } catch (Exception e) {
+                logger.error("保存消息失败", e.getCause());
             }
         });
     }
@@ -113,16 +111,11 @@ import java.util.stream.Collectors;
      * @param username 登录用户名
      * @param password 登录密码
      * @return DouyuDanmuLoginAuth
-     * @throws IOException IOException
      */
+    protected abstract DouyuDanmuLoginAuth getChatServerAddress(String username, String password) throws IOException;
+
     @SuppressWarnings("unchecked")
-	protected DouyuDanmuLoginAuth getChatServerAddress(String username, String password) throws IOException{
-        DouyuAddress douyuAddress = DouyuMessageConfig.getLoginServerAddress(room);
-        DouyuConnection douyuConnection = DouyuConnection.initConnection(douyuAddress);
-        douyuConnection.write(DouyuMessageConfig.getLoginMessage(room,username,password));
-        Map<String, Object> loginMessageMap = MessageParse.parse(douyuConnection.read());
-        Map<String, Object> msgIpList = MessageParse.parse(douyuConnection.read());
-        douyuConnection.close();
+    protected DouyuDanmuLoginAuth getLoginAuth(Map<String, Object> loginMessageMap,Map<String, Object> addressMap){
         logger.info("房间|{},登录响应信息:{}",room,loginMessageMap);
         String type = "type";
         String error = "error";
@@ -130,10 +123,10 @@ import java.util.stream.Collectors;
             logger.error("房间|{},登录失败,错误信息:{}",room,loginMessageMap);
             return null;
         }
-        username = String.valueOf(loginMessageMap.get("username"));
-        List<Map<String,String>> ipList = (List<Map<String,String>>)msgIpList.get("iplist");
+        String username = String.valueOf(loginMessageMap.get("username"));
+        List<Map<String,String>> ipList = (List<Map<String,String>>)addressMap.get("iplist");
         if(ipList==null) {
-        	ipList = (List<Map<String,String>>)msgIpList.get("list");
+            ipList = (List<Map<String,String>>)addressMap.get("list");
         }
         Optional<Map<String, String>> optional = ipList.stream().findAny();
         if (!optional.isPresent()) {
@@ -151,9 +144,8 @@ import java.util.stream.Collectors;
     /**
      * 匿名登录弹幕服务器
      * @return DouyuDanmuLoginAuth
-     * @throws IOException IOException
      */
-    protected DouyuDanmuLoginAuth getChatServerAddress() throws IOException{
+    protected DouyuDanmuLoginAuth getChatServerAddress() throws IOException {
         return getChatServerAddress("","");
     }
 
@@ -164,10 +156,6 @@ import java.util.stream.Collectors;
 
     public DouyuAddress getDouyuAddress() {
         return douyuAddress;
-    }
-
-    public void setDouyuAddress(DouyuAddress douyuAddress) {
-        this.douyuAddress = douyuAddress;
     }
 
     class DouyuDanmuLoginAuth {

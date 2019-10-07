@@ -1,6 +1,8 @@
 package com.lei2j.douyu.admin.danmu;
 
-import com.lei2j.douyu.danmu.pojo.DouyuMessage;
+import com.lei2j.douyu.admin.danmu.config.DouyuMessageConfig;
+import com.lei2j.douyu.admin.danmu.message.DouyuMessage;
+import com.lei2j.douyu.core.config.DouyuAddress;
 import com.lei2j.douyu.thread.factory.DefaultThreadFactory;
 
 import java.io.IOException;
@@ -32,10 +34,10 @@ public class DouyuNormalLogin extends AbstractDouyuLogin {
      * @throws IOException IOException
      */
     @Override
-    public int login() throws IOException {
+    public boolean login() throws IOException {
         DouyuDanmuLoginAuth danmuLoginAuth = super.getChatServerAddress();
         if (danmuLoginAuth == null){
-            return -1;
+            return false;
         }
         this.douyuAddress = danmuLoginAuth.getAddress();
         String username = danmuLoginAuth.getUsername();
@@ -44,7 +46,7 @@ public class DouyuNormalLogin extends AbstractDouyuLogin {
         douyuConnection.write(DouyuMessageConfig.getLoginMessage(room, username, "1234567890123456"));
         logger.info("房间|{},连接弹幕服务器成功", room);
         if (!join()) {
-            return -1;
+            return false;
         }
         if (keepaliveSchedule != null) {
             keepaliveSchedule.cancel();
@@ -84,7 +86,18 @@ public class DouyuNormalLogin extends AbstractDouyuLogin {
                 retry();
             }
         });
-        return 1;
+        return true;
+    }
+
+    @Override
+    protected DouyuDanmuLoginAuth getChatServerAddress(String username, String password) throws IOException {
+        DouyuAddress douyuAddress = DouyuMessageConfig.getLoginServerAddress(room);
+        DouyuConnection douyuConnection = DouyuConnection.initConnection(douyuAddress);
+        douyuConnection.write(DouyuMessageConfig.getLoginMessage(room,username,password));
+        Map<String, Object> loginMessageMap = douyuConnection.read();
+        Map<String, Object> addressMap = douyuConnection.read();
+        douyuConnection.close();
+        return getLoginAuth(loginMessageMap,addressMap);
     }
 
     /**
@@ -96,7 +109,7 @@ public class DouyuNormalLogin extends AbstractDouyuLogin {
         //加入房间分组
         douyuConnection.write(DouyuMessageConfig.getJoinMessage(room));
         logger.info("房间|{},开始加入房间分组", room);
-        Map<String, Object> messageMap = MessageParse.parse(douyuConnection.read());
+        Map<String, Object> messageMap = douyuConnection.read();
         String type = "type";
         String error = "error";
         if (error.equals(messageMap.get(type))) {
@@ -109,11 +122,9 @@ public class DouyuNormalLogin extends AbstractDouyuLogin {
     
     private int read() {
         try {
-            DouyuMessage douyuMessage = this.douyuConnection.read();
-            if (douyuMessage != null) {
-                super.dispatch(douyuMessage);
-                return 1;
-            }
+            Map<String, Object> dataMap = douyuConnection.read();
+            super.dispatch(dataMap);
+            return 1;
         } catch (Exception e) {
             //非正常退出
 			if (douyuConnection.isClosed()) {

@@ -1,6 +1,6 @@
 package com.lei2j.douyu.admin.cache;
 
-import com.lei2j.douyu.danmu.service.DouyuLogin;
+import com.lei2j.douyu.admin.danmu.service.DouyuLogin;
 
 import java.util.Map;
 
@@ -41,5 +41,5 @@ public interface CacheRoomService {
       * 获取所有房间
       * @return Map
       */
-     Map<Integer,DouyuLogin> getAll();
+     Map<Integer, DouyuLogin> getAll();
 }

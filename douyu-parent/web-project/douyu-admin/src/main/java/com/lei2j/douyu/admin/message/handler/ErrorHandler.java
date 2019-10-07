@@ -1,7 +1,7 @@
 package com.lei2j.douyu.admin.message.handler;
 
-import com.lei2j.douyu.danmu.service.DouyuLogin;
-import com.lei2j.douyu.danmu.service.MessageType;
+import com.lei2j.douyu.admin.danmu.config.MessageType;
+import com.lei2j.douyu.admin.danmu.service.DouyuLogin;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;

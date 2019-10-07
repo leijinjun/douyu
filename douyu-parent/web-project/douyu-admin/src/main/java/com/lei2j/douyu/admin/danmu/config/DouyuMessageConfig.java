@@ -1,11 +1,10 @@
-package com.lei2j.douyu.admin.danmu;
+package com.lei2j.douyu.admin.danmu.config;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.lei2j.douyu.admin.danmu.message.DouyuMessage;
 import com.lei2j.douyu.core.config.DouyuAddress;
 import com.lei2j.douyu.core.constant.DouyuApi;
-import com.lei2j.douyu.danmu.pojo.DouyuMessage;
-import com.lei2j.douyu.danmu.service.MessageType;
 import com.lei2j.douyu.util.HttpUtil;
 import org.apache.commons.codec.digest.DigestUtils;
 
@@ -18,7 +17,7 @@ import java.util.UUID;
 /**
  * Created by lei2j on 2018/11/25.
  */
-class DouyuMessageConfig {
+public class DouyuMessageConfig {
 
     private static DouyuMessage keepaliveMessage = new DouyuMessage();
     private static DouyuMessage logoutMessage = new DouyuMessage();
@@ -58,7 +57,7 @@ class DouyuMessageConfig {
         return logoutMessage;
     }
 
-    public static class LoginServer {
+    public static class LoginAddress {
         private String ip;
 
         private int port;
@@ -85,7 +84,7 @@ class DouyuMessageConfig {
      * 获取房间弹幕登录服务器列表
      * @return List
      */
-    private static List<LoginServer> getServerConfig(Integer room) {
+    private static List<LoginAddress> getServerConfig(Integer room) {
         String s = HttpUtil.get(DouyuApi.ROOM_SERVER_CONFIG.replace("{room}", String.valueOf(room)), null);
         JSONObject jsonObject = JSONObject.parseObject(s);
         String serverConfig = null;
@@ -94,7 +93,7 @@ class DouyuMessageConfig {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        List<LoginServer> loginServerList = JSONArray.parseArray(serverConfig, LoginServer.class);
+        List<LoginAddress> loginServerList = JSONArray.parseArray(serverConfig, LoginAddress.class);
         return loginServerList;
     }
 
@@ -103,12 +102,12 @@ class DouyuMessageConfig {
      * @return DouyuAddress
      */
     public static DouyuAddress getLoginServerAddress(Integer room) {
-        List<LoginServer> serverConfig = getServerConfig(room);
-        Optional<LoginServer> optional = serverConfig.stream().findAny();
+        List<LoginAddress> serverConfig = getServerConfig(room);
+        Optional<LoginAddress> optional = serverConfig.stream().findAny();
         if (!optional.isPresent()) {
             throw new RuntimeException("No Server Found");
         }
-        LoginServer loginServer = optional.get();
+        LoginAddress loginServer = optional.get();
         DouyuAddress douyuAddress = new DouyuAddress(loginServer.getIp(), loginServer.getPort());
         return douyuAddress;
     }

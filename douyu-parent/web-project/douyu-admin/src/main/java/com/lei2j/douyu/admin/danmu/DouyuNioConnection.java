@@ -1,11 +1,11 @@
 package com.lei2j.douyu.admin.danmu;
 
-import com.lei2j.douyu.admin.message.exception.DouyuMessageReadException;
+import com.lei2j.douyu.admin.danmu.message.DouyuMessage;
+import com.lei2j.douyu.admin.danmu.protocol.DouyuMessageProtocol;
+import com.lei2j.douyu.admin.danmu.serialization.STTDouyuMessage;
+import com.lei2j.douyu.admin.danmu.transport.DouyuTransport;
 import com.lei2j.douyu.core.config.DouyuAddress;
-import com.lei2j.douyu.danmu.message.converter.MessageConvert;
-import com.lei2j.douyu.danmu.pojo.DouyuMessage;
 import com.lei2j.douyu.thread.factory.DefaultThreadFactory;
-import com.lei2j.douyu.util.LHUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
@@ -13,11 +13,9 @@ import org.springframework.util.CollectionUtils;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.SocketChannel;
-import java.nio.channels.spi.SelectorProvider;
+import java.nio.channels.*;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -29,8 +27,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class DouyuNioConnection {
 	
 	private static final Logger LOGGER  = LoggerFactory.getLogger(DouyuNioConnection.class);
-
-	private static volatile DouyuNioConnection douyuNIOConnection;
 
 	private Selector selector;
 
@@ -49,141 +45,131 @@ public class DouyuNioConnection {
 	private AtomicBoolean isStart = new AtomicBoolean(false);
 
 	private DouyuNioConnection() throws IOException {
-		this.selector = Selector.open();
+		this.selector = createSelector();
 	}
 
-	public static DouyuNioConnection initConnection() throws IOException{
-		if(douyuNIOConnection==null){
-			synchronized (DouyuNioConnection.class){
-				if(douyuNIOConnection==null){
-					douyuNIOConnection = new DouyuNioConnection();
-				}
-			}
-		}
-		return douyuNIOConnection;
+	private Selector createSelector() throws IOException {
+		return Selector.open();
+	}
+
+	public static DouyuNioConnection createConnection() throws IOException {
+		return new DouyuNioConnection();
 	}
 
 	public void start() {
-		readExecutor.execute(this::read);
+		readExecutor.execute(this::eventLoop);
 	}
 
 	public void write(DouyuMessage douyuMessage, SocketChannel socketChannel) throws IOException {
-		byte[] messages = MessageConvert.preConvert(douyuMessage);
-		int messageLength = messages.length;
+		byte[] message = DouyuMessageProtocol.encode(douyuMessage);
 		synchronized (writeBuf) {
-			writeBuf.clear();
-			for (int offset = 0; offset < messageLength; ) {
-				int remaining = writeBuf.remaining();
-				int len = messageLength - offset;
-				len = len > remaining ? remaining : len;
-				writeBuf.put(messages, offset, len);
-				offset += len;
-				//转换为读模式
-				writeBuf.flip();
-				socketChannel.write(writeBuf);
-				writeBuf.clear();
-			}
+			DouyuTransport.write(message, writeBuf, socketChannel);
 		}
 	}
 
-	public void read() {
+	private void eventLoop() {
 		while (true) {
+			Set<SelectionKey> keys = selector.keys();
+			if (CollectionUtils.isEmpty(keys)) {
+				isStart.compareAndSet(true, false);
+				return;
+			}
 			try {
-				Set<SelectionKey> keys = selector.keys();
-				if (CollectionUtils.isEmpty(keys)) {
-					isStart.compareAndSet(true, false);
-					return;
-				}
 				selector.select(200);
-				Set<SelectionKey> selectedKeys = selector.selectedKeys();
-				Iterator<SelectionKey> iterator = selectedKeys.iterator();
-				while (iterator.hasNext()) {
-					SelectionKey selectionKey = iterator.next();
-					iterator.remove();
-					if (selectionKey.isReadable()) {
-						SocketChannel socketChannel = (SocketChannel) selectionKey.channel();
-						DouyuNioLogin attachment = (DouyuNioLogin) selectionKey.attachment();
-						if (!socketChannel.isConnected() || !socketChannel.isOpen()) {
-							selectionKey.cancel();
-							continue;
-						}
-						try {
-							byte[] data = read1(socketChannel);
-							DouyuMessage douyuMessage = MessageConvert.postConvert(data);
-							attachment.dispatch(douyuMessage);
-						} catch (Exception e) {
-							selectionKey.cancel();
-							//非正常退出
-							if (socketChannel.isConnected() || socketChannel.isOpen()) {
-								LOGGER.error("房间{}读取消息出错", attachment.getRoom());
-								e.printStackTrace();
-								attachment.retry();
+			} catch (IOException e) {
+				LOGGER.error("[NioConnection.read]selector i/o error", e.getCause());
+				try {
+					revise(selector);
+					continue;
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			}
+			Selector curSelector = this.selector;
+			Set<SelectionKey> selectedKeys = curSelector.selectedKeys();
+			Iterator<SelectionKey> iterator = selectedKeys.iterator();
+			while (iterator.hasNext()) {
+				SelectionKey selectionKey = iterator.next();
+				iterator.remove();
+				if (selectionKey.isValid()&&selectionKey.isReadable()) {
+					SocketChannel socketChannel = (SocketChannel) selectionKey.channel();
+					final DouyuNioLogin attachment = (DouyuNioLogin) selectionKey.attachment();
+					if (!socketChannel.isOpen()) {
+						selectionKey.cancel();
+						continue;
+					}
+					try {
+						Map<String, Object> dataMap = read(socketChannel);
+						attachment.dispatch(dataMap);
+					} catch (Exception e) {
+						selectionKey.cancel();
+						synchronized (attachment) {
+							if (!socketChannel.isOpen()) {
+								continue;
 							}
 						}
+						try {
+							socketChannel.close();
+						} catch (IOException ignore) {
+						}
+						Integer room = attachment.getRoom();
+						LOGGER.error("[DouyuNio.read]读取消息错误，room:{}", room, e.fillInStackTrace());
+						attachment.retry();
 					}
 				}
-			} catch (IOException e) {
-				e.printStackTrace();
 			}
 		}
 	}
 
-	private byte[] read1(SocketChannel channel) throws IOException {
-		int offset = 0;
-		readBuf.clear();
-		readBuf.limit(12);
-		while (offset < 12) {
-			int len = channel.read(readBuf);
-			if (len == -1) {
-				throw new DouyuMessageReadException("connect is closed");
+	private void revise(Selector oldSelector) throws IOException{
+		Selector curSelector = createSelector();
+		this.selector = curSelector;
+		if (oldSelector.isOpen()) {
+			oldSelector.keys().parallelStream().forEach(selectionKey ->
+			{
+				SocketChannel channel = (SocketChannel) selectionKey.channel();
+				selectionKey.cancel();
+				DouyuNioLogin attachment = (DouyuNioLogin) selectionKey.attachment();
+				try {
+					register(attachment, channel);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			});
+			try {
+				oldSelector.close();
+			} catch (IOException ignore) {
 			}
-			offset += len;
 		}
-		//转换为读模式
-		readBuf.flip();
-		byte[] var = new byte[4];
-		readBuf.get(var, 0, 4);
-		//获取本条消息总长度
-		int totalLength = LHUtil.lowerToInt(var);
-		readBuf.get(var, 0, 4);
-		int reTotalLength = LHUtil.lowerToInt(var);
-		readBuf.get(var, 0, 2);
-		int msgType = LHUtil.lowerToShort(var);
-		//校验消息头
-		if (totalLength != reTotalLength || msgType != 690) {
-			throw new DouyuMessageReadException("server connect is closed");
-		}
-//		获取数据长度
-		int messageLength = totalLength - 8;
-		byte[] data = new byte[messageLength];
-		readBuf.clear();
-		for (offset = 0; offset < messageLength; ) {
-			int remaining = readBuf.remaining();
-			int limit = messageLength - offset;
-			limit = limit > remaining ? remaining : limit;
-			readBuf.limit(limit);
-			int len = channel.read(readBuf);
-			if (len == 0) continue;
-			if (len == -1) {
-				throw new DouyuMessageReadException("server connect is closed");
-			}
-			readBuf.flip();
-			readBuf.get(data, offset, len);
-			readBuf.clear();
-			offset += len;
-		}
-		return data;
 	}
 
-	public SocketChannel register(DouyuNioLogin attr) throws IOException {
-		SocketChannel socketChannel = SelectorProvider.provider().openSocketChannel();
+	public Map<String, Object> read(SocketChannel channel) throws IOException {
+		byte[] data = DouyuMessageProtocol.decode(readBuf, channel);
+		return STTDouyuMessage.deserialize(data);
+	}
+
+	public SelectionKey register(DouyuNioLogin attr,SocketChannel socketChannel) throws IOException {
 		DouyuAddress douyuAddress = attr.getDouyuAddress();
-		socketChannel.connect(new InetSocketAddress(douyuAddress.getIp(), douyuAddress.getPort()));
-		socketChannel.configureBlocking(false);
-		socketChannel.register(selector, SelectionKey.OP_READ, attr);
+		if (!socketChannel.isConnected()) {
+			socketChannel.connect(new InetSocketAddress(douyuAddress.getIp(), douyuAddress.getPort()));
+			socketChannel.configureBlocking(false);
+		}
+		SelectionKey selectionKey = socketChannel.register(selector, SelectionKey.OP_READ, attr);
 		if (isStart.compareAndSet(false, true)) {
 			start();
 		}
-		return socketChannel;
+		return selectionKey;
+	}
+
+	/**
+	 * 返回该Connection已连接SocketChannel数量
+	 * @return SocketChannel Size
+	 */
+	public int getChannelLength() {
+		if (!selector.isOpen()) {
+			throw new ClosedSelectorException();
+		}
+		Set<SelectionKey> keys = selector.keys();
+		return keys == null ? 0 : keys.size();
 	}
 }

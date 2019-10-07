@@ -11,6 +11,7 @@ import java.util.List;
  * author: lei2j
  * date: 2019/3/31
  */
+@FunctionalInterface
 public interface IndexSearchConvert<T> {
 
 

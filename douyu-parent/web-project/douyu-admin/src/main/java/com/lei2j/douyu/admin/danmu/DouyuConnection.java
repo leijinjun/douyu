@@ -1,9 +1,10 @@
 package com.lei2j.douyu.admin.danmu;
 
+import com.lei2j.douyu.admin.danmu.message.DouyuMessage;
+import com.lei2j.douyu.admin.danmu.protocol.DouyuMessageProtocol;
+import com.lei2j.douyu.admin.danmu.serialization.STTDouyuMessage;
 import com.lei2j.douyu.admin.message.exception.DouyuMessageReadException;
 import com.lei2j.douyu.core.config.DouyuAddress;
-import com.lei2j.douyu.danmu.message.converter.MessageConvert;
-import com.lei2j.douyu.danmu.pojo.DouyuMessage;
 import com.lei2j.douyu.util.LHUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +15,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
-import java.util.Arrays;
+import java.util.Map;
 
 /**
  * @author lei2j
@@ -46,7 +47,7 @@ class DouyuConnection {
 
     void write(DouyuMessage douyuMessage) throws IOException {
         //处理header
-        byte[] messages = MessageConvert.preConvert(douyuMessage);
+        byte[] messages = DouyuMessageProtocol.encode(douyuMessage);
         if (isClosed() || socket.isOutputShutdown()) {
             LOGGER.warn("connect is closed");
             return;
@@ -59,13 +60,13 @@ class DouyuConnection {
      *
      * @throws IOException IOException
      */
-    DouyuMessage read() throws IOException{
-        byte[] header = read1(12);
+    Map<String,Object> read() throws IOException{
+        byte[] header = decode(12);
         //获取本条消息总长度
-        int totalLength = LHUtil.lowerToInt(Arrays.copyOfRange(header,0,4));
+        int totalLength = LHUtil.lowerToInt(header);
         //重复本次消息长度
-        int reTotalLength = LHUtil.lowerToInt(Arrays.copyOfRange(header,4,8));
-        short msgType = LHUtil.lowerToShort(Arrays.copyOfRange(header, 8, 10));
+        int reTotalLength = LHUtil.lowerToInt(header, 4);
+        short msgType = LHUtil.lowerToShort(header, 8);
         //消息校验
         short MSG_TYPE = 690;
         if (totalLength != reTotalLength || msgType != MSG_TYPE) {
@@ -73,11 +74,11 @@ class DouyuConnection {
             throw new DouyuMessageReadException("读取消息错误");
         }
         int messageLength = totalLength-8;
-        byte[] msg = read1(messageLength);
-        return MessageConvert.postConvert(msg);
+        byte[] msg = decode(messageLength);
+        return STTDouyuMessage.deserialize(msg);
     }
 
-    private byte[] read1(int len) throws IOException {
+    private byte[] decode(int len) throws IOException {
         int offset = 0;
         byte[] dst = new byte[len];
         while (offset < len) {

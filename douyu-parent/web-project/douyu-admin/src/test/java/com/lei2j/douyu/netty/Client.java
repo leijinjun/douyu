@@ -1,14 +1,15 @@
 package com.lei2j.douyu.netty;
 
-import com.lei2j.douyu.danmu.message.converter.MessageConvert;
-import com.lei2j.douyu.danmu.pojo.DouyuMessage;
-import com.lei2j.douyu.danmu.service.MessageType;
+import com.lei2j.douyu.admin.danmu.protocol.DouyuMessageProtocol;
+import com.lei2j.douyu.admin.danmu.config.MessageType;
+import com.lei2j.douyu.admin.danmu.message.DouyuMessage;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 
 /**
@@ -34,7 +35,7 @@ public class Client {
             //设置管道
             bootstrap.handler(new ChannelInitializer<SocketChannel>() {
                 @Override
-                protected void initChannel(SocketChannel socketChannel) throws Exception {
+                protected void initChannel(SocketChannel socketChannel) {
                     //获取管道
                     ChannelPipeline pipeline = socketChannel.pipeline();
                     //字符串解码器
@@ -64,32 +65,32 @@ class ClientHandler4 extends SimpleChannelInboundHandler<String> {
 
     //接受服务端发来的消息
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, String msg) {
         System.out.println("server response ： "+msg);
     }
 
     //与服务器建立连接
     @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+    public void channelActive(ChannelHandlerContext ctx) throws IOException {
         //给服务器发消息
         Channel channel = ctx.channel();
         DouyuMessage douyuMessage = new DouyuMessage();
         douyuMessage.add("type", MessageType.LOGIN).add("roomid", "485503");
-        channel.writeAndFlush(new String(MessageConvert.preConvert(douyuMessage)));
+        channel.writeAndFlush(new String(DouyuMessageProtocol.encode(douyuMessage)));
         DouyuMessage douyuJoin = new DouyuMessage();
         douyuJoin.add("type",MessageType.JOIN_GROUP).add("rid","485503").add("gid","-9999");
-        channel.writeAndFlush(new String(MessageConvert.preConvert(douyuJoin)));
+        channel.writeAndFlush(new String(DouyuMessageProtocol.encode(douyuJoin)));
     }
 
     //与服务器断开连接
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+    public void channelInactive(ChannelHandlerContext ctx) {
         System.out.println("channelInactive");
     }
 
     //异常
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         //关闭管道
         ctx.channel().close();
         //打印异常信息

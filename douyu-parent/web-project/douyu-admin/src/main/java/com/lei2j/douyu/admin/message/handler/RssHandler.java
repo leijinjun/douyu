@@ -2,9 +2,9 @@ package com.lei2j.douyu.admin.message.handler;
 
 import com.alibaba.fastjson.JSONObject;
 import com.github.rholder.retry.*;
+import com.lei2j.douyu.admin.danmu.config.MessageType;
+import com.lei2j.douyu.admin.danmu.service.DouyuLogin;
 import com.lei2j.douyu.core.constant.DouyuApi;
-import com.lei2j.douyu.danmu.service.DouyuLogin;
-import com.lei2j.douyu.danmu.service.MessageType;
 import com.lei2j.douyu.thread.factory.DefaultThreadFactory;
 import com.lei2j.douyu.util.HttpUtil;
 import org.springframework.stereotype.Component;
@@ -37,7 +37,7 @@ public class RssHandler extends AbstractMessageHandler{
         scheduledExecutorService.submit(() -> {
             boolean closed = isClose(douyuLogin.getRoom());
             if (closed) {
-                logger.info("房间|{},关闭直播", douyuLogin.getRoom());
+                logger.info("[RssHandler]房间|{},关闭直播", douyuLogin.getRoom());
                 douyuLogin.logout();
             }
         });
@@ -52,6 +52,7 @@ public class RssHandler extends AbstractMessageHandler{
                 .retryIfResult((result) -> Objects.equals(result, Boolean.TRUE))
                 .build();
         Callable<Boolean> call = () -> {
+            logger.info("[RssHandler]准备关闭直播，开始检测直播间开播状态，room:{}", roomId);
             String roomUrl = DouyuApi.ROOM_DETAIL_API.replace("{room}", String.valueOf(roomId));
             String str = HttpUtil.get(roomUrl);
             JSONObject jsonObject = JSONObject.parseObject(str);

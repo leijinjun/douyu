@@ -1,6 +1,5 @@
 package com.lei2j.douyu.web.controller;
 
-import com.lei2j.douyu.cache.CacheRoomService;
 import com.lei2j.douyu.core.controller.BaseController;
 import com.lei2j.douyu.pojo.NobleEntity;
 import com.lei2j.douyu.qo.*;
@@ -31,8 +30,6 @@ import java.util.*;
 @RequestMapping("/room/info")
 public class RoomController extends BaseController {
 
-    @Resource
-    private CacheRoomService cacheRoomService;
     @Resource
     private GiftSearchService giftSearchService;
     @Resource
@@ -97,7 +94,6 @@ public class RoomController extends BaseController {
         responseMap.put("roomDetail", roomDetailVO);
         responseMap.put("gifts", voPagination.getItems());
         responseMap.put("chats", pagination.getItems());
-        responseMap.put("connected",cacheRoomService.containsKey(roomId));
         responseMap.put("chatTotalCount",pagination.getTotal());
         responseMap.put("aggregate",aggregateMap);
         responseMap.put("giftTop", giftTopList);
@@ -118,7 +114,6 @@ public class RoomController extends BaseController {
         roomVO.setRoomSrc(roomDetail.getRoomThumb());
         roomVO.setHn(roomDetail.getHn());
         roomVO.setNickname(roomDetail.getOwnerName());
-        roomVO.setConnected(cacheRoomService.containsKey(roomId));
         Map<String,Object> data = new HashMap<>(1);
         data.put("room",roomVO);
         return Response.ok().entity(data);

@@ -2,14 +2,16 @@ package com.lei2j.douyu.netty;
 
 import com.lei2j.douyu.thread.factory.DefaultThreadFactory;
 import com.lei2j.douyu.util.LHUtil;
-
 import com.lei2j.douyu.util.RandomUtil;
 import org.junit.Test;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.channels.*;
-import java.util.*;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
+import java.util.Iterator;
 import java.util.concurrent.*;
 
 /**

@@ -1,8 +1,6 @@
 package com.lei2j.douyu.admin.message.handler;
 
-import com.lei2j.douyu.danmu.service.DouyuLogin;
-
-import java.lang.reflect.InvocationTargetException;
+import com.lei2j.douyu.admin.danmu.service.DouyuLogin;
 import java.util.HashMap;
 import java.util.Map;
 

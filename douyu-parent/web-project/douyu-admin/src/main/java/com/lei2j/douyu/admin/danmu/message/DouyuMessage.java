@@ -1,4 +1,4 @@
-package com.lei2j.douyu.danmu.pojo;
+package com.lei2j.douyu.admin.danmu.message;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,7 +24,7 @@ public class DouyuMessage {
         return this;
     }
 
-    public DouyuMessage addArray(String key,List<String> valueArray){
+    public DouyuMessage addArray(String key, List<String> valueArray){
         if (key == null || valueArray == null) {
             throw new NullPointerException();
         }

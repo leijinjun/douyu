@@ -39,7 +39,7 @@ public class HttpResponseAdvice implements ResponseBodyAdvice<Object> {
 		if (responseBody.getErrCode() != ResponseCode.OK.getCode() && responseBody.getErrMsg() == null) {
 			responseBody.text(messageSource.getMessage(String.valueOf(responseBody.getErrCode()), null, locale));
 		}
-		LOGGER.info("Response message:{}", responseBody);
+		LOGGER.info("Response serialization:{}", responseBody);
 		return responseBody;
 	}
 
