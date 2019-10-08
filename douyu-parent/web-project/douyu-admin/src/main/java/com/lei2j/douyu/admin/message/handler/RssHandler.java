@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 public class RssHandler extends AbstractMessageHandler{
 
     private ScheduledExecutorService scheduledExecutorService = new ScheduledThreadPoolExecutor(1,
-            new DefaultThreadFactory("thd-rss-%d", false, 10));
+            new DefaultThreadFactory("thd-rss-%d", true, 10));
 
     @Override
     protected void afterSetHandler() {
@@ -44,7 +44,7 @@ public class RssHandler extends AbstractMessageHandler{
     }
 
     private boolean isClose(Integer roomId){
-        //重试3次，若每次都直播处于关闭状态，则退出关闭连接
+        //重试3次，若每次都直播处于关闭状态，则关闭连接
         Retryer<Boolean> retry = RetryerBuilder.<Boolean>newBuilder()
                 .retryIfException()
                 .withWaitStrategy(WaitStrategies.incrementingWait(30, TimeUnit.SECONDS, 30, TimeUnit.SECONDS))

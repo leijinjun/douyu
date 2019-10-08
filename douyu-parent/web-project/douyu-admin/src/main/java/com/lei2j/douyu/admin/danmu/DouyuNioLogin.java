@@ -48,7 +48,7 @@ public class DouyuNioLogin extends AbstractDouyuLogin {
 		keepaliveSchedule = new KeepaliveSchedule();
 		keepaliveSchedule.schedule(() -> {
 			try {
-				if (!this.socketChannel.isConnected() || !this.socketChannel.isOpen()) {
+				if (!this.socketChannel.isOpen() || !this.socketChannel.isConnected()) {
 					logger.info("房间{}|心跳检测停止", room);
 					keepaliveSchedule.cancel();
 					return;
@@ -89,9 +89,6 @@ public class DouyuNioLogin extends AbstractDouyuLogin {
 	@Override
 	public void logout() {
 		try {
-			if (!socketChannel.isOpen()) {
-				return;
-			}
 			synchronized (this){
 				douyuNioConnection.write(DouyuMessageConfig.getLogoutMessage(),socketChannel);
 				socketChannel.close();

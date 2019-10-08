@@ -72,7 +72,7 @@ public class DouyuConnectJob extends DouyuJob {
                     items) {
                 Integer roomId = item.getRoomId();
                 if (cacheRoomService.containsKey(roomId)) {
-                    LOGGER.info("[timedTask.connectRoom]房间已存在：{}", roomId);
+                    LOGGER.info("[timedTask.connectRoom]房间已存在连接：{}", roomId);
                     continue;
                 }
                 try {

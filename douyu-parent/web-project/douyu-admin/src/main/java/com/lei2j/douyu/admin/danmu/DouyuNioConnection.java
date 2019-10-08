@@ -79,7 +79,7 @@ public class DouyuNioConnection {
 			} catch (IOException e) {
 				LOGGER.error("[NioConnection.read]selector i/o error", e.getCause());
 				try {
-					revise(selector);
+					resetSelector(selector);
 					continue;
 				} catch (IOException e1) {
 					e1.printStackTrace();
@@ -91,13 +91,13 @@ public class DouyuNioConnection {
 			while (iterator.hasNext()) {
 				SelectionKey selectionKey = iterator.next();
 				iterator.remove();
-				if (selectionKey.isValid()&&selectionKey.isReadable()) {
-					SocketChannel socketChannel = (SocketChannel) selectionKey.channel();
+				SocketChannel socketChannel = (SocketChannel) selectionKey.channel();
+				if (!(selectionKey.isValid() && socketChannel.isOpen())) {
+					selectionKey.cancel();
+					continue;
+				}
+				if (selectionKey.isReadable()) {
 					final DouyuNioLogin attachment = (DouyuNioLogin) selectionKey.attachment();
-					if (!socketChannel.isOpen()) {
-						selectionKey.cancel();
-						continue;
-					}
 					try {
 						Map<String, Object> dataMap = read(socketChannel);
 						attachment.dispatch(dataMap);
@@ -121,7 +121,7 @@ public class DouyuNioConnection {
 		}
 	}
 
-	private void revise(Selector oldSelector) throws IOException{
+	private void resetSelector(Selector oldSelector) throws IOException{
 		Selector curSelector = createSelector();
 		this.selector = curSelector;
 		if (oldSelector.isOpen()) {

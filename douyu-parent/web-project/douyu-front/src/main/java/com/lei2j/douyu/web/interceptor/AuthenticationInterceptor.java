@@ -6,7 +6,6 @@ import com.lei2j.douyu.util.CookieUtil;
 import com.lei2j.douyu.web.response.Response;
 import com.lei2j.jwt.algorithm.Algorithm;
 import com.lei2j.jwt.coder.JwtDecoder;
-import com.lei2j.jwt.exception.JwtDecoderException;
 import com.lei2j.jwt.validator.DefaultJwtClaimsValidator;
 import com.lei2j.jwt.validator.JwtVerify;
 import org.slf4j.Logger;
@@ -41,12 +40,7 @@ public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
 		}
 		boolean verify = false;
 		if (jwtToken != null) {
-			JwtDecoder jwtDecoder;
-			try {
-				jwtDecoder = JwtDecoder.decode(jwtToken);
-			} catch (JwtDecoderException e) {
-				return false;
-			}
+			JwtDecoder jwtDecoder = JwtDecoder.decode(jwtToken);
 			JwtVerify jwtVerify = new JwtVerify(jwtDecoder, Algorithm.hmacSHA256(SECRET_KEY), new DefaultJwtClaimsValidator());
 			verify = jwtVerify.verify();
 		}

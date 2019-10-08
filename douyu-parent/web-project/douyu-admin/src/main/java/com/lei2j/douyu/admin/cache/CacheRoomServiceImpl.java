@@ -20,21 +20,11 @@ public class CacheRoomServiceImpl implements CacheRoomService {
 
     @Override
     public DouyuLogin get(Integer room) {
-        if(CACHE.containsKey(room)){
-            DouyuLogin douyuLogin = CACHE.get(room);
-            return douyuLogin;
-        }
-        return null;
+        return CACHE.get(room);
     }
     @Override
     public void cache(Integer room,DouyuLogin value) {
-        if(!CACHE.containsKey(room)){
-            synchronized (CACHE){
-                if(!CACHE.containsKey(room)){
-                    CACHE.put(room,value);
-                }
-            }
-        }
+        CACHE.put(room,value);
     }
 
     @Override
