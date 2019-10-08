@@ -59,12 +59,12 @@ public class RssHandler extends AbstractMessageHandler{
             String errorKey = "error";
             if (jsonObject.getIntValue(errorKey) == 0) {
                 JSONObject dataObj = jsonObject.getJSONObject("data");
+                String closedKey = "room_status";
                 // 未开播
-                String closedRoomKey = "room_status";
-                int closedRoomStatus = 2;
-                return dataObj.getIntValue(closedRoomKey) != closedRoomStatus;
+                int closedStatus = 2;
+                return dataObj.getIntValue(closedKey) == closedStatus;
             }
-            return false;
+            return true;
         };
         try {
             Boolean isClosed = retry.call(call);
