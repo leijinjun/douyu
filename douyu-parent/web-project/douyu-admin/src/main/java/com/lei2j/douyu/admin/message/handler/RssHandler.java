@@ -62,7 +62,11 @@ public class RssHandler extends AbstractMessageHandler{
                 String closedKey = "room_status";
                 // 未开播
                 int closedStatus = 2;
-                return dataObj.getIntValue(closedKey) == closedStatus;
+                int curStatus = dataObj.getIntValue(closedKey);
+                if (curStatus != closedStatus) {
+                    logger.info("[RssHandler]房间{}以恢复直播", roomId);
+                }
+                return curStatus == closedStatus;
             }
             return true;
         };
