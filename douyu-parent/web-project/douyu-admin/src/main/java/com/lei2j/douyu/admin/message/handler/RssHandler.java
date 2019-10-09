@@ -52,7 +52,7 @@ public class RssHandler extends AbstractMessageHandler{
                 .retryIfResult((result) -> Objects.equals(result, Boolean.TRUE))
                 .build();
         Callable<Boolean> call = () -> {
-            logger.info("[RssHandler]准备关闭直播，开始检测直播间开播状态，room:{}", roomId);
+            logger.info("[RssHandler]准备关闭直播，检测直播间开播状态，room:{}", roomId);
             String roomUrl = DouyuApi.ROOM_DETAIL_API.replace("{room}", String.valueOf(roomId));
             String str = HttpUtil.get(roomUrl);
             JSONObject jsonObject = JSONObject.parseObject(str);
