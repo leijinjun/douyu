@@ -50,26 +50,6 @@ public abstract class AbstractIndex {
         this.createDocumentWithMap(cid,dataMap);
     }
 
-    /*protected XContentBuilder builderDocument(Serializable document) throws IOException{
-        XContentBuilder xContentBuilder = XContentFactory.jsonBuilder().startObject();
-        PropertyDescriptor[] propertyDescriptors = BeanUtils.getPropertyDescriptors(document.getClass());
-        for (PropertyDescriptor var:
-                propertyDescriptors) {
-            if(var.getDisplayName().equals("class")){
-                continue;
-            }
-            try {
-                xContentBuilder.field(var.getName(),var.getReadMethod().invoke(document));
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            } catch (InvocationTargetException e) {
-                e.printStackTrace();
-            }
-        }
-        xContentBuilder.endObject();
-        return xContentBuilder;
-    }*/
-
     public void close(){
         client.client().close();
     }
@@ -79,12 +59,27 @@ public abstract class AbstractIndex {
                 .prepareExists(indexName).get().isExists();
     }
 
-    abstract XContentBuilder buildMapping() throws IOException;
+    /**
+     * create
+     * @return xContentBuilder
+     * @throws IOException create index error
+     */
+    protected abstract XContentBuilder buildMapping() throws IOException;
 
-    abstract boolean createDocumentWithMap(String id,Map<String,Object> document) ;
+    /**
+     * create
+     * @param id id
+     * @param document document
+     * @return boolean
+     */
+    protected abstract boolean createDocumentWithMap(String id,Map<String,Object> document) ;
 
-    abstract boolean createDocumentWithString(String id,String json);
-
-    abstract boolean createDocumentWithBuilder(String id, Serializable document) throws IOException;
+    /**
+     * create
+     * @param id id
+     * @param json json
+     * @return boolean
+     */
+    protected abstract boolean createDocumentWithString(String id,String json);
 
 }

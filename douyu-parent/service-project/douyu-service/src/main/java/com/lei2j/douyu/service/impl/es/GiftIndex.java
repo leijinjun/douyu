@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.Map;
 
 /**
@@ -40,33 +39,27 @@ public class GiftIndex extends AbstractIndex {
                 .setId(id).setSource(document, XContentType.JSON)
                 .get();
         int status = response.status().getStatus();
-        if(status >= 300){
+        int code = 300;
+        if(status >= code){
             logger.info("[gift]保存数据失败status:{},record:{}",response.status(),document);
         }
         return status < 300;
     }
 
     @Override
-    public boolean createDocumentWithString(String id, String json) {
+    protected boolean createDocumentWithString(String id, String json) {
         IndexResponse response = client.client().prepareIndex(INDEX_NAME, TYPE_NAME)
                 .setId(id)
                 .setSource(json, XContentType.JSON)
                 .get();
         int status = response.status().getStatus();
-        if(status >= 300){
+        int code = 300;
+        if(status >= code){
             logger.warn("[gift]保存数据失败status:{},record:{}",response.status(),json);
         }
         return status < 300;
     }
 
-    @Override
-    protected boolean createDocumentWithBuilder(String id, Serializable giftVO) {
-        return false;
-//        IndexResponse response = client.client().prepareIndex(INDEX_NAME, TYPE_NAME)
-//                .setId(id).setSource(super.builderDocument(giftVO))
-//                .get();
-//        logger.info("index [{}] create document status:{}",INDEX_NAME,response.status().getStatus());
-    }
 
     @Override
     protected XContentBuilder buildMapping() throws IOException{

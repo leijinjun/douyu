@@ -111,6 +111,7 @@ import java.util.stream.Collectors;
      * @param username 登录用户名
      * @param password 登录密码
      * @return DouyuDanmuLoginAuth
+     * @throws IOException 登录授权异常
      */
     protected abstract DouyuDanmuLoginAuth getChatServerAddress(String username, String password) throws IOException;
 

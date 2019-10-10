@@ -4,16 +4,21 @@ import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author leijinjun
+ * @date
+ */
 public class BeanUtils {
 
 	private static PropertyDescriptor getPropertiesDescriptor(PropertyDescriptor orgDescriptor,
 			PropertyDescriptor[] destPropertyDescriptors) {
 		for (PropertyDescriptor descriptor : destPropertyDescriptors) {
-			if(descriptor.getDisplayName().equals("class")){
+			if ("class".equals(descriptor.getDisplayName())) {
 				continue;
 			}
 			if(orgDescriptor.getPropertyType().equals(descriptor.getPropertyType())
@@ -23,47 +28,38 @@ public class BeanUtils {
 		}
 		return null;
 	}
-	
-	public static <T> T copyProperties(Object org,Class<T> clazz){
-		if(org == null){
+
+	public static <T> T copyProperties(Object org, Class<T> clazz) throws IllegalAccessException, InstantiationException, InvocationTargetException, IntrospectionException {
+		if (org == null) {
 			return null;
 		}
-		T t = null;
-		try {
-			t = clazz.newInstance();
-			copyProperties(org,t);
-		} catch (InstantiationException|IllegalAccessException e) {
-			e.printStackTrace();
-		}
+		T t = clazz.newInstance();
+		copyProperties(org, t);
 		return t;
 	}
 	
-	private static void copyProperties(Object org,Object dest){
+	private static void copyProperties(Object org,Object dest) throws InvocationTargetException, IllegalAccessException, IntrospectionException {
 		Class<?> orgClazz = org.getClass();
 		Class<?> destClazz = dest.getClass();
-		try {
-			BeanInfo orgBeanInfo = Introspector.getBeanInfo(orgClazz);
-			BeanInfo destBeanInfo = Introspector.getBeanInfo(destClazz);
-			PropertyDescriptor[] orgPropertyDescriptors = orgBeanInfo.getPropertyDescriptors();
-			PropertyDescriptor[] destPropertyDescriptors = destBeanInfo.getPropertyDescriptors();
-			for (PropertyDescriptor orgDescriptor : orgPropertyDescriptors) {
-				if(orgDescriptor.getDisplayName().equals("class")){
-					continue;
-				}
-				PropertyDescriptor descriptor= getPropertiesDescriptor(orgDescriptor,destPropertyDescriptors);
-				if(descriptor==null) {
-					continue;
-				}
-				Method writeMethod = descriptor.getWriteMethod();
-				Method readMethod = orgDescriptor.getReadMethod();
-				writeMethod.invoke(dest, readMethod.invoke(org));
+		BeanInfo orgBeanInfo = Introspector.getBeanInfo(orgClazz);
+		BeanInfo destBeanInfo = Introspector.getBeanInfo(destClazz);
+		PropertyDescriptor[] orgPropertyDescriptors = orgBeanInfo.getPropertyDescriptors();
+		PropertyDescriptor[] destPropertyDescriptors = destBeanInfo.getPropertyDescriptors();
+		for (PropertyDescriptor orgDescriptor : orgPropertyDescriptors) {
+			if ("class".equals(orgDescriptor.getDisplayName())) {
+				continue;
 			}
-		}catch (Exception e){
-			e.printStackTrace();
+			PropertyDescriptor descriptor= getPropertiesDescriptor(orgDescriptor,destPropertyDescriptors);
+			if(descriptor==null) {
+				continue;
+			}
+			Method writeMethod = descriptor.getWriteMethod();
+			Method readMethod = orgDescriptor.getReadMethod();
+			writeMethod.invoke(dest, readMethod.invoke(org));
 		}
 	}
 	
-	public static <T> List<T> copyPropertiesList(List<?> orgList,Class<T> clazz){
+	public static <T> List<T> copyPropertiesList(List<?> orgList,Class<T> clazz) throws InvocationTargetException, IntrospectionException, InstantiationException, IllegalAccessException {
 		if(orgList==null){
 			return null;
 		}

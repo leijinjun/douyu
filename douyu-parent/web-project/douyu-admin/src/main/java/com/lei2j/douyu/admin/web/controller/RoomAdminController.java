@@ -16,7 +16,9 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.beans.IntrospectionException;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 /**
@@ -80,7 +82,7 @@ public class RoomAdminController extends BaseController {
      * @return Response
      */
     @GetMapping("/logged")
-    public Response getLoggedRooms(){
+    public Response getLoggedRooms() throws InvocationTargetException, IntrospectionException, InstantiationException, IllegalAccessException {
         Map<Integer, DouyuLogin> map = cacheRoomService.getAll();
         Set<Map.Entry<Integer, DouyuLogin>> entrySet = map.entrySet();
         List<RoomVo> list = new ArrayList<>();

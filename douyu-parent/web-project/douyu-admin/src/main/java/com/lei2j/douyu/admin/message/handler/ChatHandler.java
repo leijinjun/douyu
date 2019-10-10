@@ -1,15 +1,16 @@
 package com.lei2j.douyu.admin.message.handler;
 
-import com.alibaba.fastjson.JSONObject;
 import com.lei2j.douyu.admin.danmu.config.MessageType;
 import com.lei2j.douyu.admin.danmu.service.DouyuLogin;
 import com.lei2j.douyu.service.impl.es.ChatMessageIndex;
 import com.lei2j.douyu.vo.ChatMessageVo;
+import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -36,8 +37,9 @@ public class ChatHandler extends AbstractMessageHandler{
     }
 
     @Override
-    public void handler(Map<String, Object> messageMap, DouyuLogin douyuLogin) {
-        ChatMessageVo chatMessage = JSONObject.parseObject(JSONObject.toJSONString(messageMap), ChatMessageVo.class);
+    public void handler(Map<String, Object> messageMap, DouyuLogin douyuLogin) throws InvocationTargetException, IllegalAccessException {
+        ChatMessageVo chatMessage = new ChatMessageVo();
+        BeanUtils.populate(chatMessage, messageMap);
         LocalDateTime now = LocalDateTime.now(ZoneId.of("+8"));
         chatMessage.setCreateAt(now);
         if(!StringUtils.isEmpty(chatMessage.getCid())){

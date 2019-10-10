@@ -16,13 +16,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Created by lei2j on 2018/6/4.
+ * @author leijinjun
  */
 @Component
 public class ChatMessageIndex extends AbstractIndex {
@@ -46,7 +46,8 @@ public class ChatMessageIndex extends AbstractIndex {
         IndexResponse response = client.client().prepareIndex(INDEX_NAME, TYPE_NAME)
                 .setId(id).setSource(document).execute().actionGet();
 		int status = response.status().getStatus();
-		if (status >= 300) {
+		int code = 300;
+		if (status >= code) {
 			logger.info("[chat]保存数据失败status:{},record:{}", response.status(), document);
 		}
         return status < 300;
@@ -54,6 +55,7 @@ public class ChatMessageIndex extends AbstractIndex {
 
     @Override
     protected boolean createDocumentWithString(String id, String json) {
+
         IndexResponse response = client.client()
 				.prepareIndex(INDEX_NAME, TYPE_NAME)
                 .setId(id)
@@ -61,22 +63,14 @@ public class ChatMessageIndex extends AbstractIndex {
 				.execute()
 				.actionGet();
 		int status = response.status().getStatus();
-		if (status >= 300) {
+		int code = 300;
+		if (status >= code) {
 			logger.error("[chat]保存数据失败status:{},record:{}", response.status(), json);
 		}
 		return status < 300;
     }
 
-    @Override
-    protected boolean createDocumentWithBuilder(String id,Serializable document) {
-		return false;
-//        IndexResponse response = client.client().prepareIndex(INDEX_NAME, TYPE_NAME)
-//                .setId(id).setSource(super.builderDocument(document))
-//                .get();
-//        logger.info("index {} create document status:{}",response.status().getStatus());
-    }
-
-    public void createBatchDocument(List<ChatMessageVo> list) throws IOException {
+	public void createBatchDocument(List<ChatMessageVo> list) throws IOException {
 		BulkRequestBuilder prepareBulk = client.client().prepareBulk();
 		if (list != null) {
 			for (ChatMessageVo item : list) {
@@ -88,10 +82,11 @@ public class ChatMessageIndex extends AbstractIndex {
 			if (bulkResponse.hasFailures()) {
 				logger.error("执行结果:" + bulkResponse.buildFailureMessage());
 				Iterator<BulkItemResponse> iterator = bulkResponse.iterator();
-				while (iterator.hasNext()) {
-					BulkItemResponse itemResponse = iterator.next();
-					String id = itemResponse.getFailure().getId();
-					logger.error("chat[id:{},插入失败,失败原因:{}]", id, itemResponse.getFailureMessage());
+				for (BulkItemResponse itemResponse : bulkResponse) {
+					if (itemResponse.isFailed()) {
+						String id = itemResponse.getFailure().getId();
+						logger.info("chat[id:{},插入失败,失败原因:{}]", id, itemResponse.getFailureMessage());
+					}
 				}
 			}
 		}
