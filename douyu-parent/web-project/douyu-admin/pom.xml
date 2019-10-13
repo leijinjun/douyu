@@ -111,7 +111,6 @@
         <dependency>
             <groupId>com.lei2j</groupId>
             <artifactId>jwt-lei2j</artifactId>
-            <version>0.9.0</version>
         </dependency>
     </dependencies>
 

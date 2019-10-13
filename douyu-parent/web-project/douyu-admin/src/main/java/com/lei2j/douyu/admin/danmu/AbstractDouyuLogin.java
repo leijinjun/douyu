@@ -54,7 +54,7 @@ import java.util.stream.Collectors;
      * 心跳检测线程池
      */
     protected static ScheduledExecutorService keepaliveScheduledExecutorService =
-            new ScheduledThreadPoolExecutor(5, new DefaultThreadFactory("thd-douyu-keepalive-%d", true, 1));
+            new ScheduledThreadPoolExecutor(10, new DefaultThreadFactory("thd-douyu-keepalive-%d", true, 1));
     /**
      *房间礼物信息
      */
