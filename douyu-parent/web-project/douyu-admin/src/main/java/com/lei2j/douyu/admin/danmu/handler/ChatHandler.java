@@ -1,4 +1,4 @@
-package com.lei2j.douyu.admin.message.handler;
+package com.lei2j.douyu.admin.danmu.handler;
 
 import com.lei2j.douyu.admin.danmu.config.MessageType;
 import com.lei2j.douyu.admin.danmu.service.DouyuLogin;
@@ -37,7 +37,7 @@ public class ChatHandler extends AbstractMessageHandler{
     }
 
     @Override
-    public void handler(Map<String, Object> messageMap, DouyuLogin douyuLogin) throws InvocationTargetException, IllegalAccessException {
+    public void handle(Map<String, Object> messageMap, DouyuLogin douyuLogin) throws InvocationTargetException, IllegalAccessException {
         ChatMessageVo chatMessage = new ChatMessageVo();
         BeanUtils.populate(chatMessage, messageMap);
         LocalDateTime now = LocalDateTime.now(ZoneId.of("+8"));

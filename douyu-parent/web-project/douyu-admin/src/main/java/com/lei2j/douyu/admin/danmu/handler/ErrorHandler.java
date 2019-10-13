@@ -1,4 +1,4 @@
-package com.lei2j.douyu.admin.message.handler;
+package com.lei2j.douyu.admin.danmu.handler;
 
 import com.lei2j.douyu.admin.danmu.config.MessageType;
 import com.lei2j.douyu.admin.danmu.service.DouyuLogin;
@@ -21,7 +21,7 @@ public class ErrorHandler extends AbstractMessageHandler {
     }
 
     @Override
-    public void handler(Map<String, Object> messageMap, DouyuLogin douyuLogin) {
+    public void handle(Map<String, Object> messageMap, DouyuLogin douyuLogin) {
         logger.error("房间|{},服务器返回错误",douyuLogin.getRoom());
         douyuLogin.retry();
     }

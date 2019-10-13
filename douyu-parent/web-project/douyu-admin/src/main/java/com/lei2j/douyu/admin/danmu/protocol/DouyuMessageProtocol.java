@@ -2,7 +2,7 @@ package com.lei2j.douyu.admin.danmu.protocol;
 
 import com.lei2j.douyu.admin.danmu.message.DouyuMessage;
 import com.lei2j.douyu.admin.danmu.transport.DouyuTransport;
-import com.lei2j.douyu.admin.message.exception.DouyuMessageReadException;
+import com.lei2j.douyu.admin.danmu.exception.DouyuMessageReadException;
 import com.lei2j.douyu.util.LHUtil;
 
 import java.io.ByteArrayOutputStream;

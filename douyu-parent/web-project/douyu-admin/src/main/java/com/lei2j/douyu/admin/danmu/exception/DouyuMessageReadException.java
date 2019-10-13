@@ -1,4 +1,4 @@
-package com.lei2j.douyu.admin.message.exception;
+package com.lei2j.douyu.admin.danmu.exception;
 
 public class DouyuMessageReadException extends DouyuException{
 

@@ -1,4 +1,4 @@
-package com.lei2j.douyu.admin.message.handler;
+package com.lei2j.douyu.admin.danmu.handler;
 
 import com.lei2j.douyu.admin.danmu.service.DouyuLogin;
 import java.util.HashMap;
@@ -17,5 +17,5 @@ public interface MessageHandler {
      * @param messageMap messageMap
      * @param attachment attachment
      */
-    void handler(Map<String, Object> messageMap, DouyuLogin attachment) throws Exception;
+    void handle(Map<String, Object> messageMap, DouyuLogin attachment) throws Exception;
 }

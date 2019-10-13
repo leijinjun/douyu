@@ -4,7 +4,7 @@ import com.lei2j.douyu.admin.cache.CacheRoomService;
 import com.lei2j.douyu.admin.danmu.service.DouyuKeepalive;
 import com.lei2j.douyu.admin.danmu.service.DouyuLogin;
 import com.lei2j.douyu.admin.danmu.service.MessageDispatcher;
-import com.lei2j.douyu.admin.message.handler.MessageHandler;
+import com.lei2j.douyu.admin.danmu.handler.MessageHandler;
 import com.lei2j.douyu.core.ApplicationContextUtil;
 import com.lei2j.douyu.core.config.DouyuAddress;
 import com.lei2j.douyu.thread.factory.DefaultThreadFactory;
@@ -94,7 +94,7 @@ import java.util.stream.Collectors;
         }
         douyuMessageExecutor.execute(() -> {
             try {
-                messageHandler.handler(dataMap, this);
+                messageHandler.handle(dataMap, this);
             } catch (Exception e) {
                 logger.error("保存消息失败", e.getCause());
             }

@@ -1,4 +1,4 @@
-package com.lei2j.douyu.admin.message.handler;
+package com.lei2j.douyu.admin.danmu.handler;
 
 import com.alibaba.fastjson.JSONObject;
 import com.lei2j.douyu.admin.danmu.config.MessageType;
@@ -27,7 +27,7 @@ public class FrankHandler extends AbstractMessageHandler{
     }
 
     @Override
-    public void handler(Map<String, Object> messageMap, DouyuLogin douyuLogin) {
+    public void handle(Map<String, Object> messageMap, DouyuLogin douyuLogin) {
         FrankEntity frank = JSONObject.parseObject(JSONObject.toJSONString(messageMap), FrankEntity.class);
         frank.setTop10(String.valueOf(messageMap.get("list")));
         frankService.addFrank(frank);

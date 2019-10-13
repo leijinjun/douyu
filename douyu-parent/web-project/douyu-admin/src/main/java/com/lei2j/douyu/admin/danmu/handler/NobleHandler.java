@@ -1,4 +1,4 @@
-package com.lei2j.douyu.admin.message.handler;
+package com.lei2j.douyu.admin.danmu.handler;
 
 import com.alibaba.fastjson.JSONObject;
 import com.lei2j.douyu.admin.danmu.config.MessageType;
@@ -30,7 +30,7 @@ public class NobleHandler extends AbstractMessageHandler{
     private NobleService nobleService;
 
     @Override
-    public void handler(Map<String, Object> messageMap, DouyuLogin douyuLogin) {
+    public void handle(Map<String, Object> messageMap, DouyuLogin douyuLogin) {
         NobleEntity noble = JSONObject.parseObject(JSONObject.toJSONString(messageMap), NobleEntity.class);
         //限制频次
         long currentTime = System.currentTimeMillis();

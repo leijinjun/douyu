@@ -1,4 +1,4 @@
-package com.lei2j.douyu.admin.message.handler;
+package com.lei2j.douyu.admin.danmu.handler;
 
 import com.alibaba.fastjson.JSONObject;
 import com.github.rholder.retry.*;
@@ -33,7 +33,7 @@ public class RssHandler extends AbstractMessageHandler{
     }
 
     @Override
-    public void handler(Map<String, Object> messageMap, DouyuLogin douyuLogin) {
+    public void handle(Map<String, Object> messageMap, DouyuLogin douyuLogin) {
         scheduledExecutorService.submit(() -> {
             boolean closed = isClose(douyuLogin.getRoom());
             if (closed) {

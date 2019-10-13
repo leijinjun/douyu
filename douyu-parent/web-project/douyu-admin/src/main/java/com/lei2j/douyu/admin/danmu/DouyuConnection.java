@@ -3,7 +3,7 @@ package com.lei2j.douyu.admin.danmu;
 import com.lei2j.douyu.admin.danmu.message.DouyuMessage;
 import com.lei2j.douyu.admin.danmu.protocol.DouyuMessageProtocol;
 import com.lei2j.douyu.admin.danmu.serialization.STTDouyuMessage;
-import com.lei2j.douyu.admin.message.exception.DouyuMessageReadException;
+import com.lei2j.douyu.admin.danmu.exception.DouyuMessageReadException;
 import com.lei2j.douyu.core.config.DouyuAddress;
 import com.lei2j.douyu.util.LHUtil;
 import org.slf4j.Logger;

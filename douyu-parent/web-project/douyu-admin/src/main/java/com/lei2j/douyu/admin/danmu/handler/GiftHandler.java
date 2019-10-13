@@ -1,4 +1,4 @@
-package com.lei2j.douyu.admin.message.handler;
+package com.lei2j.douyu.admin.danmu.handler;
 
 import com.lei2j.douyu.admin.danmu.config.MessageType;
 import com.lei2j.douyu.admin.danmu.service.DouyuLogin;
@@ -26,7 +26,7 @@ public class GiftHandler extends AbstractMessageHandler{
     private GiftIndex giftIndex;
 
     @Override
-    public void handler(Map<String, Object> messageMap, DouyuLogin douyuLogin) throws Exception {
+    public void handle(Map<String, Object> messageMap, DouyuLogin douyuLogin) throws Exception {
         String gfid = String.valueOf(messageMap.get("gfid"));
         //礼物列表
         Map<Integer, RoomGiftVo> roomGift = douyuLogin.getRoomGift();

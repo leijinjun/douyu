@@ -1,4 +1,4 @@
-package com.lei2j.douyu.admin.message.handler;
+package com.lei2j.douyu.admin.danmu.handler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
