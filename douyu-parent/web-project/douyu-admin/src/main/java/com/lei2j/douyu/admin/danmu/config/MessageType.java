@@ -87,4 +87,19 @@ public interface MessageType {
     String ROOM_FANS_LSIT = "frank";
 
     String ERROR = "error";
+
+    /**
+     * 抢宝箱
+     */
+    String GET_BOX = "tsgs";
+
+    /**
+     * 竞猜
+     */
+    String GUESS_COMPETITION = "erquizisn";
+
+    /**
+     * 抽奖
+     */
+    String LUCK_DRAW = "lds";
 }
