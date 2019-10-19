@@ -89,7 +89,7 @@ import java.util.stream.Collectors;
         String type = String.valueOf(dataMap.get("type"));
         MessageHandler messageHandler = MessageHandler.HANDLER_MAP.get(type);
         if (messageHandler == null) {
-            logger.debug("[DouyuLogin.dispatch]no match serialization handler,type:{}", type);
+            logger.debug("[DouyuLogin.dispatch]no match handler,type:{}", type);
             return;
         }
         douyuMessageExecutor.execute(() -> {
