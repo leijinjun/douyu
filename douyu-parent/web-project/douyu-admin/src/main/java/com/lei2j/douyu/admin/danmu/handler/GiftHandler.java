@@ -9,6 +9,7 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -26,7 +27,7 @@ public class GiftHandler extends AbstractMessageHandler{
     private GiftIndex giftIndex;
 
     @Override
-    public void handle(Map<String, Object> messageMap, DouyuLogin douyuLogin) throws Exception {
+    public void handle(Map<String, Object> messageMap, DouyuLogin douyuLogin) {
         String gfid = String.valueOf(messageMap.get("gfid"));
         //礼物列表
         Map<Integer, RoomGiftVo> roomGift = douyuLogin.getRoomGift();
@@ -37,13 +38,17 @@ public class GiftHandler extends AbstractMessageHandler{
             return;
         }
         GiftVo giftVO = new GiftVo();
-        BeanUtils.populate(giftVO, messageMap);
-        giftVO.setPc(roomGiftVo.getPc().doubleValue());
-        giftVO.setGiftName(roomGiftVo.getName());
-        LocalDateTime now = LocalDateTime.now(ZoneId.of("+8"));
-        giftVO.setCreateAt(now);
-        giftVO.setId(UUID.randomUUID().toString().replaceAll("-","")+now.toInstant(ZoneOffset.of("+8")).toEpochMilli());
-        giftIndex.createDocument(giftVO.getId(),giftVO);
+        try {
+            BeanUtils.populate(giftVO, messageMap);
+            giftVO.setPc(roomGiftVo.getPc().doubleValue());
+            giftVO.setGiftName(roomGiftVo.getName());
+            LocalDateTime now = LocalDateTime.now(ZoneId.of("+8"));
+            giftVO.setCreateAt(now);
+            giftVO.setId(UUID.randomUUID().toString().replaceAll("-","")+now.toInstant(ZoneOffset.of("+8")).toEpochMilli());
+            giftIndex.createDocument(giftVO.getId(),giftVO);
+        } catch (IllegalAccessException|InvocationTargetException e) {
+            e.printStackTrace();
+        }
     }
     @Override
     protected void afterSetHandler() {

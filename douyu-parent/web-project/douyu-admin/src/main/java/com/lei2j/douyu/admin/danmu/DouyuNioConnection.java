@@ -42,7 +42,7 @@ public class DouyuNioConnection {
 
     private final ByteBuffer writeBuf = ByteBuffer.allocateDirect(1024);
 
-	private AtomicBoolean isStart = new AtomicBoolean(false);
+	private AtomicBoolean isStarted = new AtomicBoolean(false);
 
 	private DouyuNioConnection() throws IOException {
 		this.selector = createSelector();
@@ -71,7 +71,7 @@ public class DouyuNioConnection {
 		while (true) {
 			Set<SelectionKey> keys = selector.keys();
 			if (CollectionUtils.isEmpty(keys)) {
-				isStart.compareAndSet(true, false);
+				isStarted.compareAndSet(true, false);
 				return;
 			}
 			try {
@@ -99,7 +99,7 @@ public class DouyuNioConnection {
 				if (selectionKey.isReadable()) {
 					final DouyuNioLogin attachment = (DouyuNioLogin) selectionKey.attachment();
 					try {
-						Map<String, Object> dataMap = read(socketChannel);
+						Map<String, Object> dataMap = read(readBuf, socketChannel);
 						attachment.dispatch(dataMap);
 					} catch (Exception e) {
 						selectionKey.cancel();
@@ -143,7 +143,7 @@ public class DouyuNioConnection {
 		}
 	}
 
-	public Map<String, Object> read(SocketChannel channel) throws IOException {
+	public Map<String, Object> read(ByteBuffer readBuf, SocketChannel channel) throws IOException {
 		byte[] data = DouyuMessageProtocol.decode(readBuf, channel);
 		return STTDouyuMessage.deserialize(data);
 	}
@@ -155,7 +155,7 @@ public class DouyuNioConnection {
 			socketChannel.configureBlocking(false);
 		}
 		SelectionKey selectionKey = socketChannel.register(selector, SelectionKey.OP_READ, attr);
-		if (isStart.compareAndSet(false, true)) {
+		if (isStarted.compareAndSet(false, true)) {
 			start();
 		}
 		return selectionKey;
@@ -165,7 +165,7 @@ public class DouyuNioConnection {
 	 * 返回该Connection已连接SocketChannel数量
 	 * @return SocketChannel Size
 	 */
-	public int getChannelLength() {
+	public int getChannelCount() {
 		if (!selector.isOpen()) {
 			throw new ClosedSelectorException();
 		}

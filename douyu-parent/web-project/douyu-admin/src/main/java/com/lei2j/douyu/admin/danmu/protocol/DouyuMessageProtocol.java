@@ -33,6 +33,11 @@ public class DouyuMessageProtocol {
     private static final byte[] UN_USED = new byte[2];
 
     /**
+     * 服务器返回消息标志
+     */
+    private static final int RECEIVE_MESSAGE_TYPE = 690;
+
+    /**
      * 将斗鱼消息转换为指定的协议格式数据
      * @param douyuMessage 斗鱼消息
      * @return 转换后的指定协议数据
@@ -76,7 +81,7 @@ public class DouyuMessageProtocol {
         pos += 4;
         int msgType = LHUtil.lowerToShort(header, pos);
         //校验消息头
-        if (totalLength != checkTotalLength || msgType != 690) {
+        if (totalLength != checkTotalLength || msgType != RECEIVE_MESSAGE_TYPE) {
             throw new DouyuMessageReadException("serialization error");
         }
 //		获取数据长度

@@ -6,6 +6,7 @@ import com.lei2j.douyu.core.config.DouyuAddress;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.SelectorProvider;
 import java.time.LocalDateTime;
@@ -74,10 +75,20 @@ public class DouyuNioLogin extends AbstractDouyuLogin {
 		SocketChannel socketChannel = SelectorProvider.provider().openSocketChannel();
 		socketChannel.connect(serverAddress);
 		douyuConnection.write(DouyuMessageConfig.getLoginMessage(room, username, password), socketChannel);
-		Map<String, Object> loginMessageMap = douyuConnection.read(socketChannel);
-		Map<String, Object> address = douyuConnection.read(socketChannel);
+		ByteBuffer readBuf = ByteBuffer.allocate(4069);
+		Map<String, Object> loginMessageMap = douyuConnection.read(readBuf, socketChannel);
+		String type = "type";
+		String loginValue = "loginres";
+		DouyuDanmuLoginAuth douyuDanmuLoginAuth = null;
+		if (loginMessageMap != null && loginValue.equals(loginMessageMap.get(type))) {
+			readBuf.clear();
+			Map<String, Object> address = douyuConnection.read(readBuf, socketChannel);
+			douyuDanmuLoginAuth = getLoginAuth(loginMessageMap, address);
+		}else {
+			logger.info("[DouyuNIOLogin.getChatServerAddress]Login failed,roomId:{}", room);
+		}
 		socketChannel.close();
-		return getLoginAuth(loginMessageMap, address);
+		return douyuDanmuLoginAuth;
 	}
 
 	private void join()throws IOException{

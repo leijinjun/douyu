@@ -36,7 +36,6 @@ public class DouyuLoginController extends BaseController{
             logger.info("该房间{}已存在", room);
             return Response.newInstance(ResponseCode.ROOM_CONNECT_EXISTS);
         }
-//        RoomDetailVo roomDetailVO = DouyuUtil.getRoomDetail(room);
         if (douyuWorker.login(room) == -1) {
             return Response.newInstance(ResponseCode.ROOM_CONNECT_ERROR);
         }

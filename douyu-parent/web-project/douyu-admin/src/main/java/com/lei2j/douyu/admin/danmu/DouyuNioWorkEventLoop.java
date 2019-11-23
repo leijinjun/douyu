@@ -25,7 +25,7 @@ public class DouyuNioWorkEventLoop {
     }
 
     public DouyuNioLogin get(Integer room) {
-        Optional<DouyuNioConnection> optional = connectionList.stream().min(Comparator.comparing(DouyuNioConnection::getChannelLength));
+        Optional<DouyuNioConnection> optional = connectionList.stream().min(Comparator.comparing(DouyuNioConnection::getChannelCount));
         if (!optional.isPresent()) {
             throw new NullPointerException();
         }

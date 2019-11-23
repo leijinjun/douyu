@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -49,11 +48,11 @@ public class DanmuController extends BaseController {
         String ownerName = danmuQuery.getOwnerName();
         Integer roomId = danmuQuery.getRoomId();
         if (!StringUtils.isEmpty(ownerName)) {
-            Optional<DouyuUtil.SearchRoomInfo> roomInfoOptional = DouyuUtil.search(ownerName);
+            Optional<List<DouyuUtil.SearchRoomInfo>> roomInfoOptional = DouyuUtil.search(ownerName);
             if (!roomInfoOptional.isPresent()) {
                 return Response.ok().entity(new Pagination<>(10, 1));
             }
-            DouyuUtil.SearchRoomInfo searchRoomInfo = roomInfoOptional.get();
+            DouyuUtil.SearchRoomInfo searchRoomInfo = roomInfoOptional.get().get(0);
             roomId = searchRoomInfo.getRId();
         }else if(!StringUtils.isEmpty(roomId)){
             RoomDetailVo roomDetail = DouyuUtil.getRoomDetail(roomId);

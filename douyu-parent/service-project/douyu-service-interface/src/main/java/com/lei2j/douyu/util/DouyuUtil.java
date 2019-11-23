@@ -11,6 +11,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -72,8 +73,7 @@ public class DouyuUtil {
         return cateVos;
     }
 
-    public static Optional<SearchRoomInfo> search(String keyword){
-        SearchRoomInfo searchRoomInfo = null;
+    public static Optional<List<SearchRoomInfo>> search(String keyword){
         try {
             String str = HttpUtil.get("https://www.douyu.com/japi/search/api/getSearchRec?kw=" + keyword);
             JSONObject jsonObject = JSONObject.parseObject(str);
@@ -82,14 +82,19 @@ public class DouyuUtil {
             if (errorValue == success) {
                 JSONArray roomResult = jsonObject.getJSONObject("data").getJSONArray("roomResult");
                 if (roomResult != null && !roomResult.isEmpty()) {
-                    JSONObject result = roomResult.getJSONObject(0);
-                    searchRoomInfo = JSONObject.toJavaObject(result, SearchRoomInfo.class);
+                    List<SearchRoomInfo> searchRoomInfoList = new ArrayList<>(5);
+                    for (int i = 0; i < roomResult.size(); i++) {
+                        JSONObject result = roomResult.getJSONObject(i);
+                        SearchRoomInfo searchRoomInfo = JSONObject.toJavaObject(result, SearchRoomInfo.class);
+                        searchRoomInfoList.add(searchRoomInfo);
+                    }
+                    return Optional.of(searchRoomInfoList);
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return Optional.ofNullable(searchRoomInfo);
+        return Optional.empty();
     }
 
     public static class SearchRoomInfo {

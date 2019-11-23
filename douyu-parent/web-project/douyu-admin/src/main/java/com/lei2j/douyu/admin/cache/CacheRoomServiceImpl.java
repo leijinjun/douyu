@@ -4,7 +4,8 @@ import com.lei2j.douyu.admin.danmu.service.DouyuLogin;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 /**
  * Created by lei2j on 2018/8/19.
@@ -13,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class CacheRoomServiceImpl implements CacheRoomService {
 
-    private final static Map<Integer, DouyuLogin> CACHE = new ConcurrentHashMap<>();
+    private final static ConcurrentMap<Integer, DouyuLogin> CACHE = new ConcurrentSkipListMap<>();
 
     public CacheRoomServiceImpl(){
     }

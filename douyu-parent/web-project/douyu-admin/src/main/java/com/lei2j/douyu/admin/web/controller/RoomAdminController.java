@@ -11,15 +11,15 @@ import com.lei2j.douyu.util.DouyuUtil;
 import com.lei2j.douyu.util.HttpUtil;
 import com.lei2j.douyu.vo.RoomDetailVo;
 import com.lei2j.douyu.vo.RoomVo;
+import com.lei2j.douyu.web.response.Pagination;
 import com.lei2j.douyu.web.response.Response;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.beans.IntrospectionException;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by lei2j on 2018/8/19.
@@ -40,7 +40,31 @@ public class RoomAdminController extends BaseController {
      */
     @GetMapping("/list")
     public Response getRoomList(@RequestParam(value = "cate",required = false)String cateId,
-                                @RequestParam(value = "limit",required = false,defaultValue = "100") Integer limit){
+                                @RequestParam(value = "limit",required = false,defaultValue = "100")Integer limit,
+                                @RequestParam(value = "keyword",required = false)String keyword){
+        if (!StringUtils.isEmpty(keyword)) {
+            Optional<List<DouyuUtil.SearchRoomInfo>> searchRoomInfoOptional = DouyuUtil.search(keyword);
+            if (searchRoomInfoOptional.isPresent()) {
+                List<DouyuUtil.SearchRoomInfo> searchRoomInfoList = searchRoomInfoOptional.get();
+                List<RoomVo> roomVoList = searchRoomInfoList.parallelStream().map(t -> {
+                    Integer roomId = t.getRId();
+                    RoomDetailVo roomDetailVo = DouyuUtil.getRoomDetail(roomId);
+
+                    RoomVo roomVo = new RoomVo();
+                    roomVo.setRoomId(roomId);
+                    roomVo.setConnected(cacheRoomService.containsKey(roomId));
+                    if (roomDetailVo != null) {
+                        roomVo.setRoomSrc(roomDetailVo.getRoomThumb());
+                        roomVo.setRoomName(roomDetailVo.getRoomName());
+                        roomVo.setHn(roomDetailVo.getHn());
+                        roomVo.setNickname(roomDetailVo.getOwnerName());
+                    }
+                    return roomVo;
+                }).collect(Collectors.toList());
+                return Response.ok().entity(roomVoList);
+            }
+            return Response.ok();
+        }
         LinkedList<RoomVo> list = new LinkedList<>();
         StringBuilder url = new StringBuilder(DouyuApi.ROOM_ALL_API);
         if(!StringUtils.isEmpty(cateId)){
@@ -82,20 +106,33 @@ public class RoomAdminController extends BaseController {
      * @return Response
      */
     @GetMapping("/logged")
-    public Response getLoggedRooms() throws InvocationTargetException, IntrospectionException, InstantiationException, IllegalAccessException {
+    @SuppressWarnings("unchecked")
+    public Response getLoggedRooms(@RequestParam(value = "ps",required = false) Integer pageSize,
+                                   @RequestParam(value = "pn",required = false) Integer pageNo) throws Exception {
         Map<Integer, DouyuLogin> map = cacheRoomService.getAll();
         Set<Map.Entry<Integer, DouyuLogin>> entrySet = map.entrySet();
-        List<RoomVo> list = new ArrayList<>();
-        for (Map.Entry<Integer, DouyuLogin> entry :
-                entrySet) {
-            DouyuLogin value = entry.getValue();
-            RoomDetailVo roomDetail = DouyuUtil.getRoomDetail(entry.getKey());
-            RoomVo roomVO = BeanUtils.copyProperties(roomDetail,RoomVo.class);
-            roomVO.setConnected(true);
-            roomVO.setNickname(roomDetail.getOwnerName());
-            roomVO.setRoomSrc(roomDetail.getRoomThumb());
-            list.add(roomVO);
+        Pagination<RoomVo, Void> pager = new Pagination<>(pageSize, pageNo);
+        Integer offset = pager.getOffset();
+        Map.Entry[] entries = entrySet.toArray(new Map.Entry[0]);
+        pager.setTotal(entries.length);
+        if (offset < entries.length) {
+            int len = Math.min(pageSize, entries.length - offset);
+            List<RoomVo> list = new ArrayList<>(len);
+            int limit = offset + len;
+            for (int i = offset; i < limit; i++) {
+                Map.Entry<Integer,DouyuLogin> entry = entries[i];
+                DouyuLogin value = entry.getValue();
+                RoomDetailVo roomDetail = DouyuUtil.getRoomDetail(entry.getKey());
+                RoomVo roomVO = BeanUtils.copyProperties(roomDetail,RoomVo.class);
+                roomVO.setConnected(true);
+                roomVO.setNickname(roomDetail.getOwnerName());
+                roomVO.setRoomSrc(roomDetail.getRoomThumb());
+                list.add(roomVO);
+            }
+            pager.setItems(list);
+        }else {
+            pager.setItems(Collections.EMPTY_LIST);
         }
-        return Response.ok().entity(list);
+        return Response.ok().entity(pager);
     }
 }

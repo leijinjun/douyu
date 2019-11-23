@@ -9,7 +9,7 @@ import java.util.List;
  */
 public class Pagination<T,P> {
 
-	private static Integer MAX_LIMIT = 100;
+	private final static Integer MAX_LIMIT = 1000;
 	private Integer pageNum=1;
 	private int total = 0;
 	private Integer offset=0;

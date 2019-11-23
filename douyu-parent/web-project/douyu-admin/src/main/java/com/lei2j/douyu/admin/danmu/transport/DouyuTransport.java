@@ -41,7 +41,7 @@ public class DouyuTransport {
             limit = limit > remaining ? remaining : limit;
             readBuf.limit(limit);
             int len = socketChannel.read(readBuf);
-            if (len == 0) continue;
+            if (len == 0) {continue;}
             if (len == -1) {
                 throw new DouyuMessageReadException("server connection is closed");
             }

@@ -17,5 +17,5 @@ public interface MessageHandler {
      * @param messageMap messageMap
      * @param attachment attachment
      */
-    void handle(Map<String, Object> messageMap, DouyuLogin attachment) throws Exception;
+    void handle(Map<String, Object> messageMap, DouyuLogin attachment);
 }

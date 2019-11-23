@@ -47,7 +47,7 @@ import java.util.stream.Collectors;
             TimeUnit.MINUTES,
             new ArrayBlockingQueue<>(100000),
             new DefaultThreadFactory("thd-douyu-message-handler-%d", true, 10),
-            (runnable, threadPoolExecutor) -> LOGGER.warn("警告！！！，队列已满")
+            new ThreadPoolExecutor.CallerRunsPolicy()
     );
 
     /**
@@ -92,13 +92,7 @@ import java.util.stream.Collectors;
             logger.debug("[DouyuLogin.dispatch]no match handler,type:{}", type);
             return;
         }
-        douyuMessageExecutor.execute(() -> {
-            try {
-                messageHandler.handle(dataMap, this);
-            } catch (Exception e) {
-                logger.error("保存消息失败", e.getCause());
-            }
-        });
+        messageHandler.handle(dataMap, this);
     }
 
     @Override
