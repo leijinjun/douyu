@@ -6,6 +6,7 @@ import com.lei2j.douyu.util.CookieUtil;
 import com.lei2j.douyu.web.response.Response;
 import com.lei2j.jwt.algorithm.Algorithm;
 import com.lei2j.jwt.coder.JwtDecoder;
+import com.lei2j.jwt.exception.JwtDecoderException;
 import com.lei2j.jwt.validator.DefaultJwtClaimsValidator;
 import com.lei2j.jwt.validator.JwtVerify;
 import org.slf4j.Logger;
@@ -30,7 +31,7 @@ public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
 	private final static String SECRET_KEY = "";
 
 	@Override
-	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws JwtDecoderException {
 		String jwtToken = request.getParameter(JWT_TOKEN_NAME);
 		if (jwtToken == null) {
 			jwtToken = request.getHeader(JWT_TOKEN_NAME);
