@@ -1,5 +1,6 @@
 package com.lei2j.douyu.netty;
 
+import com.lei2j.douyu.TestService;
 import com.lei2j.douyu.thread.factory.DefaultThreadFactory;
 import com.lei2j.douyu.util.LHUtil;
 import com.lei2j.douyu.util.RandomUtil;
@@ -11,8 +12,9 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.Iterator;
+import java.util.*;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by lei2j on 2018/8/5.
@@ -142,4 +144,57 @@ public class TestNIO {
         }
     }
 
+    @Test
+    public void test9(){
+        int[] a = {1, 2};
+        Arrays.stream(a).forEach(value -> System.out.println(value));
+    }
+
+    @Test
+    public void test10(){
+        int size = 10;
+        CyclicBarrier cyclicBarrier = new CyclicBarrier(size, ()->{
+            System.out.println("=========>end!");
+        });
+        List<Thread> list = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            final int x = i;
+            Thread thread = new Thread(() -> {
+                System.out.println("Thread:" + x);
+                try {
+                    int await = cyclicBarrier.await();
+                    System.out.println("Thread:" + x + " " + await);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (BrokenBarrierException e) {
+                    e.printStackTrace();
+                }
+            });
+            thread.start();
+            list.add(thread);
+        }
+        list.forEach(c->{
+            try {
+                c.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    @Test
+    public void test11() throws ClassNotFoundException {
+        Class<?> aClass = Class.forName("com.lei2j.douyu.netty.TestNIO",true,this.getClass().getClassLoader());
+        System.out.println(aClass.getClassLoader());
+    }
+
+    @Test
+    public void test12(){
+        ServiceLoader<TestService> loader = ServiceLoader.load(TestService.class);
+        Iterator<TestService> iterator = loader.iterator();
+        while (iterator.hasNext()){
+            TestService testService = iterator.next();
+            testService.test();
+        }
+    }
 }
