@@ -44,7 +44,7 @@
         <orgJson.version>20180130</orgJson.version>
         <iKAnalyzer.version>2012_u6</iKAnalyzer.version>
         <ik.version>6.4.0</ik.version>
-        <quartz.version>2.3.0</quartz.version>
+        <quartz.version>2.3.2</quartz.version>
         <spring.version>5.0.6.RELEASE</spring.version>
         <hibernate.validator.version>6.0.13.Final</hibernate.validator.version>
         <caffeine.version>2.6.2</caffeine.version>
