@@ -68,11 +68,6 @@
     </dependencies>
     <dependencyManagement>
         <dependencies>
-            <!--<dependency>-->
-                <!--<groupId>com.alibaba</groupId>-->
-                <!--<artifactId>druid-spring-boot-starter</artifactId>-->
-                <!--<version>${druid.version}</version>-->
-            <!--</dependency>-->
             <dependency>
                 <groupId>com.alibaba</groupId>
                 <artifactId>fastjson</artifactId>
@@ -88,36 +83,12 @@
                 <artifactId>commons-codec</artifactId>
                 <version>${commons-codec.version}</version>
             </dependency>
-            <!--<dependency> <groupId>org.elasticsearch</groupId> <artifactId>elasticsearch</artifactId>
-                <version>6.2.4</version> </dependency> -->
-            <!--<dependency> <groupId>org.elasticsearch.client</groupId> <artifactId>elasticsearch-rest-client</artifactId>
-                <version>${es.version}</version> </dependency> -->
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
                 <version>1.16.20</version>
                 <scope>provided</scope>
             </dependency>
-            <!--<dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-lang3</artifactId>
-                <version>${commons-lang3.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-io</groupId>
-                <artifactId>commons-io</artifactId>
-                <version>${commons-io.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-beanutils</groupId>
-                <artifactId>commons-beanutils</artifactId>
-                <version>${commons-beanutils.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-collections4</artifactId>
-                <version>${commons-collections4.version}</version>
-            </dependency>-->
             <dependency>
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>
@@ -138,12 +109,6 @@
                 <artifactId>json</artifactId>
                 <version>${orgJson.version}</version>
             </dependency>
-            <!--<dependency> <groupId>com.janeluo</groupId> <artifactId>ikanalyzer</artifactId>
-                <version>${iKAnalyzer.version}</version> </dependency> -->
-            <!-- <dependency> <groupId>com.seaboat</groupId> <artifactId>IKAnalyzer</artifactId>
-                <version>${ik.version}</version> <exclusions> <exclusion> <groupId>org.apache.lucene</groupId>
-                <artifactId>lucene-core</artifactId> </exclusion> <exclusion> <groupId>org.apache.lucene</groupId>
-                <artifactId>lucene-queryparser</artifactId> </exclusion> </exclusions> </dependency> -->
             <dependency>
                 <groupId>org.quartz-scheduler</groupId>
                 <artifactId>quartz</artifactId>
@@ -152,6 +117,14 @@
                     <exclusion>
                         <artifactId>HikariCP-java6</artifactId>
                         <groupId>com.zaxxer</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.mchange</groupId>
+                        <artifactId>c3p0</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.mchange</groupId>
+                        <artifactId>mchange-commons-java</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
