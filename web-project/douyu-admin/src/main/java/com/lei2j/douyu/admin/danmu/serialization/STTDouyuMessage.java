@@ -30,6 +30,10 @@ public class STTDouyuMessage {
         return messageMap;
     }
 
+    public static Map<String, Object> parse(String message) {
+        return parse1(message);
+    }
+
     /**
      * 解析key-value的Object
      * @param kv kv

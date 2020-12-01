@@ -13,7 +13,8 @@
 package com.lei2j.douyu.admin.web.controller;
 
 import com.lei2j.douyu.admin.cache.CacheRoomService;
-import com.lei2j.douyu.admin.danmu.DouyuWorker;
+import com.lei2j.douyu.admin.danmu.DouyuLoginLauncher;
+import com.lei2j.douyu.admin.danmu.NettyLoginLauncher;
 import com.lei2j.douyu.admin.danmu.service.DouyuLogin;
 import com.lei2j.douyu.core.controller.BaseController;
 import com.lei2j.douyu.web.response.Response;
@@ -21,7 +22,6 @@ import com.lei2j.douyu.web.response.ResponseCode;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.io.IOException;
 
 /**
  * @author lei2j
@@ -31,24 +31,20 @@ import java.io.IOException;
 @RequestMapping("/room/client")
 public class DouyuLoginController extends BaseController{
 
-    /**
-     * 热度界限
-     */
-    private static final int MIN_HN = 1000000000;
-
     @Resource
     private CacheRoomService cacheRoomService;
-
     @Resource
-    private DouyuWorker douyuWorker;
+    private DouyuLoginLauncher douyuLoginLauncher;
+    @Resource
+    private NettyLoginLauncher nettyLoginLauncher;
 
     @PostMapping("/login/{room:\\d+}")
-    public Response loginRoom(@PathVariable("room") Integer room) throws IOException{
+    public Response loginRoom(@PathVariable("room") Integer room) throws Exception {
         if (cacheRoomService.containsKey(room)) {
             logger.info("该房间{}已存在", room);
             return Response.newInstance(ResponseCode.ROOM_CONNECT_EXISTS);
         }
-        if (douyuWorker.login(room) == -1) {
+        if (nettyLoginLauncher.login(room) == -1) {
             return Response.newInstance(ResponseCode.ROOM_CONNECT_ERROR);
         }
         return Response.ok();
@@ -58,9 +54,11 @@ public class DouyuLoginController extends BaseController{
     public Response logoutRoom(@RequestParam("room") Integer room) {
         DouyuLogin login = cacheRoomService.get(room);
         if (login != null) {
-            logger.info("房间|{}，准备退出",room);
+            logger.info("房间|{}，准备退出", room);
             login.logout();
+            return Response.ok();
+        } else {
+            return Response.NOT_FOUND;
         }
-        return Response.ok();
     }
 }

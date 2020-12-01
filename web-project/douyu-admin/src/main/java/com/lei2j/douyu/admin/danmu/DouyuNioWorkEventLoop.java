@@ -12,6 +12,8 @@
 
 package com.lei2j.douyu.admin.danmu;
 
+import com.lei2j.douyu.admin.cache.CacheRoomService;
+
 import java.io.IOException;
 import java.util.*;
 
@@ -24,8 +26,11 @@ public class DouyuNioWorkEventLoop {
 
     private List<DouyuNioConnection> connectionList;
 
-    public DouyuNioWorkEventLoop() throws IOException {
+    private CacheRoomService cacheRoomService;
+
+    public DouyuNioWorkEventLoop(CacheRoomService cacheRoomService) throws IOException {
         this(5);
+        this.cacheRoomService = cacheRoomService;
     }
 
     public DouyuNioWorkEventLoop(int workerSize) throws IOException {
@@ -42,7 +47,7 @@ public class DouyuNioWorkEventLoop {
             throw new NullPointerException();
         }
         DouyuNioConnection douyuNioConnection = optional.get();
-        DouyuNioLogin douyuNioLogin = new DouyuNioLogin(room, douyuNioConnection);
+        DouyuNioLogin douyuNioLogin = new DouyuNioLogin(cacheRoomService, room, douyuNioConnection);
         return douyuNioLogin;
     }
 }

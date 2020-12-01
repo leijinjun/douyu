@@ -32,22 +32,22 @@ public class DouyuMessageProtocol {
     /**
      * 消息结束标志
      */
-    private static final byte END_FLAG = '\0';
+    public static final byte END_FLAG = '\0';
 
     /**
      * 消息发送类型
      */
-    private static final byte[] MSG_SEND_TYPE = LHUtil.toLowerShort((short) 689);
+    public static final byte[] MSG_SEND_TYPE = LHUtil.toLowerShort((short) 689);
 
     /**
      * 未使用字段
      */
-    private static final byte[] UN_USED = new byte[2];
+    public static final byte[] UN_USED = new byte[2];
 
     /**
      * 服务器返回消息标志
      */
-    private static final int RECEIVE_MESSAGE_TYPE = 690;
+    public static final int RECEIVE_MESSAGE_TYPE = 690;
 
     /**
      * 将斗鱼消息转换为指定的协议格式数据

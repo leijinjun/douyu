@@ -55,7 +55,7 @@ public class DouyuTransport {
             int len = socketChannel.read(readBuf);
             if (len == 0) {continue;}
             if (len == -1) {
-                throw new DouyuMessageReadException("server connection is closed");
+                throw new DouyuMessageReadException("channel is closed");
             }
             readBuf.flip();
             readBuf.get(dst, offset, len);

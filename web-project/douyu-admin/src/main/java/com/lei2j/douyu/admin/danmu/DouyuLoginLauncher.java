@@ -13,9 +13,9 @@
 package com.lei2j.douyu.admin.danmu;
 
 import com.lei2j.douyu.admin.cache.CacheRoomService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
-import javax.annotation.Resource;
 import java.io.IOException;
 
 /**
@@ -24,14 +24,16 @@ import java.io.IOException;
  */
 
 @Configuration
-public class DouyuWorker {
+public class DouyuLoginLauncher {
 
-    private DouyuNioWorkEventLoop workEventLoop = new DouyuNioWorkEventLoop();
+    private DouyuNioWorkEventLoop workEventLoop;
 
-    @Resource
     private CacheRoomService cacheRoomService;
 
-    public DouyuWorker() throws IOException {
+    @Autowired
+    public DouyuLoginLauncher(CacheRoomService cacheRoomService) throws IOException {
+        this.cacheRoomService = cacheRoomService;
+        workEventLoop = new DouyuNioWorkEventLoop(cacheRoomService);
     }
 
     /**
@@ -39,7 +41,7 @@ public class DouyuWorker {
      * @return 1 room login success,-1 room login fail
      * @throws IOException login error
      */
-    public int login(Integer room) throws IOException {
+    public int login(Integer room) throws Exception {
         DouyuNioLogin douyuNioLogin = workEventLoop.get(room);
         if (douyuNioLogin.login()) {
             cacheRoomService.cache(room, douyuNioLogin);
