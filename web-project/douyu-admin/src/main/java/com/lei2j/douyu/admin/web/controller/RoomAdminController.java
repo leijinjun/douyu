@@ -119,8 +119,8 @@ public class RoomAdminController extends BaseController {
      */
     @GetMapping("/logged")
     @SuppressWarnings("unchecked")
-    public Response getLoggedRooms(@RequestParam(value = "ps",required = false) Integer pageSize,
-                                   @RequestParam(value = "pn",required = false) Integer pageNo) throws Exception {
+    public Response getLoggedRooms(@RequestParam(value = "ps",required = false,defaultValue = "15") Integer pageSize,
+                                   @RequestParam(value = "pn",required = false,defaultValue = "1") Integer pageNo) throws Exception {
         Map<Integer, DouyuLogin> map = cacheRoomService.getAll();
         Set<Map.Entry<Integer, DouyuLogin>> entrySet = map.entrySet();
         Pagination<RoomVo, Void> pager = new Pagination<>(pageSize, pageNo);
