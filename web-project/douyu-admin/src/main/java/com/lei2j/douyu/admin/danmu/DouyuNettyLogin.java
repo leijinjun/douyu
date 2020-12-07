@@ -91,6 +91,7 @@ public class DouyuNettyLogin extends AbstractDouyuLogin {
         synchronized (this){
             channel.pipeline().writeAndFlush(DouyuMessageConfig.getLogoutMessage()).addListener(ChannelFutureListener.CLOSE);
             cacheRoomService.remove(room);
+            channel.close();
             logger.info("房间|{}，成功退出",room);
         }
     }

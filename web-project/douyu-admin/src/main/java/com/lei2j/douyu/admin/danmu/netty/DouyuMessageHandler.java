@@ -52,4 +52,11 @@ public class DouyuMessageHandler extends ChannelInboundHandlerAdapter {
             ctx.fireChannelRead(msg);
         }
     }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        logger.error("[douyu.netty.login]房间|{}连接产生异常，连接将被关闭", login.getRoom());
+        cause.printStackTrace();
+        login.logout();
+    }
 }
