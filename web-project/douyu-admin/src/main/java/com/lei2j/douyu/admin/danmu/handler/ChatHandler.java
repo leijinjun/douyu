@@ -41,8 +41,8 @@ public class ChatHandler extends AbstractMessageHandler{
 
     private volatile boolean isExecuted;
 
-    private ExecutorService danmuMessageExecutor = new ThreadPoolExecutor(1, 1, 30, TimeUnit.MINUTES,
-            new ArrayBlockingQueue<>(1), new DefaultThreadFactory("thd-chat-handler-%d", true, 10));
+    private ExecutorService danmuMessageExecutor = new ThreadPoolExecutor(1, 1, 15, TimeUnit.MINUTES,
+            new ArrayBlockingQueue<>(1), new DefaultThreadFactory("thd-chat-handler-%d", true, 10), new ThreadPoolExecutor.DiscardPolicy());
 
     @Value("${douyu.chat.filter.min.level}")
     private int minLevel;
@@ -61,11 +61,12 @@ public class ChatHandler extends AbstractMessageHandler{
         danmuMessageExecutor.submit(() -> {
             for (; ; ) {
                 try {
-                    ChatMessageVo chatMessage = queue.poll(1, TimeUnit.MINUTES);
+                    ChatMessageVo chatMessage = queue.poll(30, TimeUnit.SECONDS);
                     if (chatMessage == null) {
-                        return;
+                        continue;
                     }
                     chatMessageIndex.createDocument(String.valueOf(chatMessage.getCid()), chatMessage);
+                    logger.info("[douyu.chat]保存消息成功|{}", chatMessage.getRid());
                 } catch (Throwable e) {
                     logger.error("[douyu.chat]处理消息异常", e);
                 }
