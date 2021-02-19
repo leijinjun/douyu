@@ -59,17 +59,16 @@ public class ChatHandler extends AbstractMessageHandler{
 
     private void executeLoop() {
         danmuMessageExecutor.submit(() -> {
-            try {
-                for (; ; ) {
+            for (; ; ) {
+                try {
                     ChatMessageVo chatMessage = queue.poll(1, TimeUnit.MINUTES);
                     if (chatMessage == null) {
-                        isExecuted = false;
                         return;
                     }
                     chatMessageIndex.createDocument(String.valueOf(chatMessage.getCid()), chatMessage);
+                } catch (Throwable e) {
+                    logger.error("[douyu.chat]处理消息异常", e);
                 }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
             }
         });
     }

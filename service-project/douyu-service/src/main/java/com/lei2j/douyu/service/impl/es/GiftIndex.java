@@ -34,7 +34,8 @@ public class GiftIndex extends AbstractIndex {
     public static final String INDEX_NAME = "gift_v1";
     public static final String TYPE_NAME = "gift";
 
-    public GiftIndex(@Autowired ElasticSearchClient client) throws Exception{
+    @Autowired
+    public GiftIndex(ElasticSearchClient client) throws Exception{
         super(client);
         Settings.Builder settings = Settings.builder()
 //                .put("client.transport.sniff",true)

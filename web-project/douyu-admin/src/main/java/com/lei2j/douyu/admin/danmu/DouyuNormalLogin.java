@@ -12,6 +12,7 @@
 
 package com.lei2j.douyu.admin.danmu;
 
+import com.lei2j.douyu.admin.cache.CacheRoomService;
 import com.lei2j.douyu.admin.danmu.config.DouyuMessageConfig;
 import com.lei2j.douyu.admin.danmu.message.DouyuMessage;
 import com.lei2j.douyu.core.config.DouyuAddress;
@@ -36,8 +37,8 @@ public class DouyuNormalLogin extends AbstractDouyuLogin {
      */
     private ExecutorService executorService = Executors.newScheduledThreadPool(1, new DefaultThreadFactory("thd-normal-message-read-%d", true, 10));
 
-    public DouyuNormalLogin(Integer room) {
-        super(room);
+    public DouyuNormalLogin(CacheRoomService cacheRoomService, Integer room) {
+        super(cacheRoomService, room);
     }
 
     /**
@@ -46,7 +47,7 @@ public class DouyuNormalLogin extends AbstractDouyuLogin {
      * @throws IOException IOException
      */
     @Override
-    public boolean login() throws IOException {
+    public boolean login() throws Exception {
         DouyuDanmuLoginAuth danmuLoginAuth = super.getChatServerAddress();
         if (danmuLoginAuth == null){
             return false;

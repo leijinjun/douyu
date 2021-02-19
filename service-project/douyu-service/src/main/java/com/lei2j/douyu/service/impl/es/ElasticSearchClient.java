@@ -25,6 +25,8 @@ import org.springframework.stereotype.Component;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -42,6 +44,15 @@ import java.util.Set;
 public class ElasticSearchClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticSearchClient.class);
+
+    static {
+        AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
+            //禁止ES自行设置NettyRunTime#availableProcessors，在有其它功能使用Netty时，
+            // Netty会自行设置NettyRunTime#availableProcessors。此时会导致重复设置。
+            System.setProperty("es.set.netty.runtime.available.processors", "false");
+            return null;
+        });
+    }
 
     private final String clusterName;
 

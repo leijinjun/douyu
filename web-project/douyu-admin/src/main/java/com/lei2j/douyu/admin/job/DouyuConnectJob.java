@@ -14,7 +14,8 @@ package com.lei2j.douyu.admin.job;
 
 import com.alibaba.fastjson.JSONObject;
 import com.lei2j.douyu.admin.cache.CacheRoomService;
-import com.lei2j.douyu.admin.danmu.DouyuWorker;
+import com.lei2j.douyu.admin.danmu.DouyuLoginLauncher;
+import com.lei2j.douyu.admin.danmu.NettyLoginLauncher;
 import com.lei2j.douyu.admin.danmu.service.DouyuLogin;
 import com.lei2j.douyu.core.constant.DouyuApi;
 import com.lei2j.douyu.pojo.RoomConnectEntity;
@@ -57,7 +58,10 @@ public class DouyuConnectJob extends DouyuJob {
     private RoomConnectService roomConnectService;
 
     @Resource
-    private DouyuWorker douyuWorker;
+    private DouyuLoginLauncher douyuLoginLauncher;
+
+    @Resource
+    private NettyLoginLauncher nettyLoginLauncher;
 
     /**
      * 定时任务，连接指定房间弹幕服务器
@@ -98,7 +102,7 @@ public class DouyuConnectJob extends DouyuJob {
                         if (roomStatus == 1) {
                             int hn = dataObj.getInteger("hn");
                             LOGGER.info("[timedTask.connectRoom]开始连接房间:{}", roomId);
-                            if (douyuWorker.login(roomId) == -1) {
+                            if (nettyLoginLauncher.login(roomId) == -1) {
                                 LOGGER.info("[timedTask.connectRoom]连接房间失败:{}", roomId);
                             }
                         } else {

@@ -12,6 +12,7 @@
 
 package com.lei2j.douyu.admin.danmu;
 
+import com.lei2j.douyu.admin.cache.CacheRoomService;
 import com.lei2j.douyu.admin.danmu.config.DouyuMessageConfig;
 import com.lei2j.douyu.core.config.DouyuAddress;
 
@@ -33,8 +34,8 @@ public class DouyuNioLogin extends AbstractDouyuLogin {
 
 	private DouyuNioConnection douyuNioConnection;
 
-	public DouyuNioLogin(Integer room,DouyuNioConnection douyuNioConnection) {
-		super(room);
+	public DouyuNioLogin(CacheRoomService cacheRoomService, Integer room, DouyuNioConnection douyuNioConnection) {
+		super(cacheRoomService, room);
 		this.douyuNioConnection = douyuNioConnection;
 	}
 
@@ -42,7 +43,7 @@ public class DouyuNioLogin extends AbstractDouyuLogin {
 	 * @throws IOException IOException
 	 */
 	@Override
-	public boolean login() throws IOException {
+	public boolean login() throws Exception {
 		DouyuDanmuLoginAuth danmuLoginAuth = getChatServerAddress();
 		if (danmuLoginAuth == null) {
 			return false;
@@ -130,7 +131,7 @@ public class DouyuNioLogin extends AbstractDouyuLogin {
 		logger.info("重新连接房间:{}",room);
 		try {
 			login();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}

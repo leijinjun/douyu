@@ -28,7 +28,7 @@ public interface  DouyuLogin {
      * @throws IOException IOException
      * @return false is connect failed,true is connect success
      */
-    boolean login()throws IOException;
+    boolean login() throws Exception;
 
     /**
      * 退出房间

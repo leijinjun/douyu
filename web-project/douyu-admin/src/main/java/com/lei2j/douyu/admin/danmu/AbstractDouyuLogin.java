@@ -17,7 +17,6 @@ import com.lei2j.douyu.admin.danmu.service.DouyuKeepalive;
 import com.lei2j.douyu.admin.danmu.service.DouyuLogin;
 import com.lei2j.douyu.admin.danmu.service.MessageDispatcher;
 import com.lei2j.douyu.admin.danmu.handler.MessageHandler;
-import com.lei2j.douyu.core.ApplicationContextUtil;
 import com.lei2j.douyu.core.config.DouyuAddress;
 import com.lei2j.douyu.thread.factory.DefaultThreadFactory;
 import com.lei2j.douyu.util.DouyuUtil;
@@ -27,6 +26,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -38,7 +39,7 @@ import java.util.stream.Collectors;
  * @author lei2j
  * Created by lei2j on 2018/8/26.
  */
- abstract class AbstractDouyuLogin implements DouyuLogin,MessageDispatcher {
+ public abstract class AbstractDouyuLogin implements DouyuLogin,MessageDispatcher {
 
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -48,19 +49,6 @@ import java.util.stream.Collectors;
      * 心跳时间间隔，单位s
      */
     protected static final int INTERVAL_SECONDS = 43;
-
-    /**
-     * 斗鱼消息处理线程池
-     */
-    protected static ThreadPoolExecutor douyuMessageExecutor = new ThreadPoolExecutor(
-            Runtime.getRuntime().availableProcessors() + 1,
-            Runtime.getRuntime().availableProcessors() * 2,
-            30,
-            TimeUnit.MINUTES,
-            new ArrayBlockingQueue<>(100000),
-            new DefaultThreadFactory("thd-douyu-message-handler-%d", true, 10),
-            new ThreadPoolExecutor.CallerRunsPolicy()
-    );
 
     /**
      * 心跳检测线程池
@@ -84,12 +72,10 @@ import java.util.stream.Collectors;
      */
     protected KeepaliveSchedule keepaliveSchedule;
 
-    protected CacheRoomService cacheRoomService = ApplicationContextUtil.getBean(CacheRoomService.class);
+    protected CacheRoomService cacheRoomService;
 
-    protected AbstractDouyuLogin() {
-    }
-
-    protected AbstractDouyuLogin(Integer room) {
+    protected AbstractDouyuLogin(CacheRoomService cacheRoomService,Integer room) {
+        this.cacheRoomService = cacheRoomService;
         this.room = room;
         RoomDetailVo roomDetailVo = DouyuUtil.getRoomDetail(room);
         this.roomGiftMap = roomDetailVo.getRoomGifts().stream().collect(Collectors.toMap(RoomGiftVo::getId, Function.identity()));
@@ -119,7 +105,7 @@ import java.util.stream.Collectors;
      * @return DouyuDanmuLoginAuth
      * @throws IOException 登录授权异常
      */
-    protected abstract DouyuDanmuLoginAuth getChatServerAddress(String username, String password) throws IOException;
+    protected abstract DouyuDanmuLoginAuth getChatServerAddress(String username, String password) throws Exception;
 
     @SuppressWarnings("unchecked")
     protected DouyuDanmuLoginAuth getLoginAuth(Map<String, Object> loginMessageMap,Map<String, Object> addressMap){
@@ -144,15 +130,14 @@ import java.util.stream.Collectors;
         String ip = String.valueOf(ipMap.get("ip"));
         int port = Integer.parseInt(ipMap.get("port"));
         DouyuAddress address = new DouyuAddress(ip, port);
-        DouyuDanmuLoginAuth danmuLoginAuth = new DouyuDanmuLoginAuth(username, address);
-        return danmuLoginAuth;
+        return new DouyuDanmuLoginAuth(username, address);
     }
 
     /**
      * 匿名登录弹幕服务器
      * @return DouyuDanmuLoginAuth
      */
-    protected DouyuDanmuLoginAuth getChatServerAddress() throws IOException {
+    protected DouyuDanmuLoginAuth getChatServerAddress() throws Exception {
         return getChatServerAddress("","");
     }
 
@@ -165,11 +150,16 @@ import java.util.stream.Collectors;
         return douyuAddress;
     }
 
-    class DouyuDanmuLoginAuth {
+    public static class DouyuDanmuLoginAuth {
 
         private String username;
 
         private DouyuAddress address;
+
+        private SocketAddress socketAddress;
+
+        public DouyuDanmuLoginAuth() {
+        }
 
         public DouyuDanmuLoginAuth(String username, DouyuAddress address) {
             this.username = username;
@@ -192,13 +182,21 @@ import java.util.stream.Collectors;
             this.address = address;
         }
 
+        public SocketAddress getSocketAddress() {
+            return socketAddress;
+        }
+
+        public void setSocketAddress(String host,int port) {
+            this.socketAddress = InetSocketAddress.createUnresolved(host, port);
+        }
+
         @Override
         public String toString() {
-            final StringBuilder sb = new StringBuilder("DouyuDanmuLoginAuth{");
-            sb.append("username='").append(username).append('\'');
-            sb.append(", address=").append(address);
-            sb.append('}');
-            return sb.toString();
+            return "DouyuDanmuLoginAuth{" +
+                    "username='" + username + '\'' +
+                    ", address=" + address +
+                    ", socketAddress=" + socketAddress +
+                    '}';
         }
     }
 

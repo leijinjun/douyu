@@ -42,7 +42,8 @@ public class ChatMessageIndex extends AbstractIndex {
     public static final String INDEX_NAME = "chat";
     public static final String TYPE_NAME = "chat";
 
-    public ChatMessageIndex(@Autowired ElasticSearchClient client) throws Exception{
+	@Autowired
+    public ChatMessageIndex(ElasticSearchClient client) throws Exception{
         super(client);
         Settings.Builder settings = Settings.builder()
 //                .put("client.transport.sniff",true)

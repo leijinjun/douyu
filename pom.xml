@@ -51,6 +51,7 @@
         <guava.version>28.0-jre</guava.version>
         <guava-retrying.version>2.0.0</guava-retrying.version>
         <jwt-lei2j.version>0.9.0</jwt-lei2j.version>
+        <netty.version>4.1.54.Final</netty.version>
     </properties>
 
     <dependencies>
@@ -158,6 +159,11 @@
                 <artifactId>jwt-lei2j</artifactId>
                 <version>${jwt-lei2j.version}</version>
             </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-all</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -165,7 +171,7 @@
         <repository>
             <id>release</id>
             <name>douyu</name>
-            <url>http://192.168.0.5:8081/repository/maven-releases/</url>
+            <url>http://nexus.lei2j.com:8000/repository/maven-releases</url>
         </repository>
     </distributionManagement>
 
