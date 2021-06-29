@@ -59,7 +59,7 @@ public class PageHelper {
 
         public void setPageNum(Integer pageNum) {
             this.pageNum = pageNum==null||pageNum<0?1:pageNum;
-            this.offset = (pageNum-1)*limit;
+            this.offset = (this.pageNum-1)*limit;
         }
 
         public Integer getLimit() {
