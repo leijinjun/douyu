@@ -30,7 +30,7 @@
         <javax.servlet.version>4.0.0</javax.servlet.version>
         <junit.version>4.13.1</junit.version>
         <es.version>6.2.4</es.version>
-        <fastjson.version>1.2.61</fastjson.version>
+        <fastjson.version>1.2.83</fastjson.version>
         <elasticsearch.version>6.2.4</elasticsearch.version>
         <commons-codec.version>1.10</commons-codec.version>
         <commons-lang3.version>3.7</commons-lang3.version>
