@@ -41,7 +41,7 @@
         <persistence-api.version>1.0.2</persistence-api.version>
         <druid.version>1.1.10</druid.version>
         <jsoup.version>1.11.3</jsoup.version>
-        <orgJson.version>20180130</orgJson.version>
+        <orgJson.version>20230227</orgJson.version>
         <iKAnalyzer.version>2012_u6</iKAnalyzer.version>
         <ik.version>6.4.0</ik.version>
         <quartz.version>2.3.2</quartz.version>
